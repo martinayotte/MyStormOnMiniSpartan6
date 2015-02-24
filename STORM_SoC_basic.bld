@@ -1,0 +1,41 @@
+Release 14.7 ngdbuild P.20131013 (lin64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+
+Command Line: /opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/unwrapped/ngdbuild -intstyle
+ise -dd _ngo -nt timestamp -uc STORM_on_MiniSpartan6.ucf -p xc6slx9-ftg256-3
+STORM_SoC_basic.ngc STORM_SoC_basic.ngd
+
+Reading NGO file
+"/home/martin/git-work/MyStormOnMiniSpartan6/STORM_SoC_basic.ngc" ...
+Gathering constraint information from source properties...
+Done.
+
+Annotating constraints to design from ucf file "STORM_on_MiniSpartan6.ucf" ...
+Resolving constraint associations...
+Checking Constraint Associations...
+INFO:ConstraintSystem - The Period constraint <NET "CLK_I" PERIOD = 20 ns |>
+   [STORM_on_MiniSpartan6.ucf(2)], is specified using the Net Period method
+   which is not recommended. Please use the Timespec PERIOD method.
+
+Done...
+
+Checking expanded design ...
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+NGDBUILD Design Results Summary:
+  Number of errors:     0
+  Number of warnings:   0
+
+Total memory usage is 435628 kilobytes
+
+Writing NGD file "STORM_SoC_basic.ngd" ...
+Total REAL time to NGDBUILD completion:  5 sec
+Total CPU time to NGDBUILD completion:   5 sec
+
+Writing NGDBUILD log file "STORM_SoC_basic.bld"...

@@ -1,0 +1,4 @@
+~/minispartan6/xc3sprog/xc3sprog -c ftdi ~/minispartan6/spiflasherLX9.bit
+~/minispartan6/xc3sprog/xc3sprog -c ftdi -I ~/minispartan6/MyStorm/STORM_SoC_basic.bit
+picocom --send-cmd "cat /home/martin/minispartan6/MyStorm/demo_program/main.bin" -b 115200 /dev/ttyUSB0
+

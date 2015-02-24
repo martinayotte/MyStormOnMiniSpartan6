@@ -1,0 +1,653 @@
+Archive member included because of file (symbol)
+
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+                              dhry_1.o (malloc)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o) (_malloc_r)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o) (__malloc_lock)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o) (_sbrk_r)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+                              dhry_2.o (strcmp)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o) (_free_r)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o) (_impure_ptr)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o) (errno)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+                              dhry_1.o (__aeabi_idiv)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_dvmd_tls.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o) (__aeabi_idiv0)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+                              dhry_1.o (__aeabi_ldivmod)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o) (__gnu_ldivmod_helper)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o) (__divdi3)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o) (__udivdi3)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o) (__aeabi_uidiv)
+/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_clzsi2.o)
+                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o) (__clzsi2)
+
+Allocating common symbols
+Common symbol       size              file
+
+Microseconds        0x8               dhry_1.o
+Dhrystones_Per_Second
+                    0x8               dhry_1.o
+User_Time           0x8               dhry_1.o
+Begin_Time          0x8               dhry_1.o
+errno               0x4               /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+Arr_2_Glob          0x2710            dhry_1.o
+End_Time            0x8               dhry_1.o
+Next_Ptr_Glob       0x4               dhry_1.o
+Int_Glob            0x4               dhry_1.o
+Ch_1_Glob           0x1               dhry_1.o
+Ch_2_Glob           0x1               dhry_1.o
+Ptr_Glob            0x4               dhry_1.o
+Vax_Mips            0x8               dhry_1.o
+Arr_1_Glob          0xc8              dhry_1.o
+Bool_Glob           0x4               dhry_1.o
+time_info           0x10              dhry_1.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ROM              0xfff00000         0x00000800         xr
+RAM              0x00000000         0x00008000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD build/storm_startup_code.o
+LOAD dhry_1.o
+LOAD dhry_2.o
+LOAD /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a
+LOAD /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libm.a
+LOAD /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a
+LOAD /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a
+START GROUP
+LOAD /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a
+LOAD /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libg.a
+LOAD /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a
+END GROUP
+                0x00004000                STACK_SIZE = 0x4000
+
+.text           0x00000000     0x1cc4
+ *storm_startup_code.o(.text)
+ .text          0x00000000      0x290 build/storm_startup_code.o
+                0x00000000                _boot
+                0x00000050                _mainCRTStartup
+                0x00000050                _start
+                0x00000050                start
+                0x00000100                reset
+                0x00000100                abort
+                0x00000100                _reset
+                0x00000100                exit
+ *(.text)
+ .text          0x00000290      0x3dc dhry_1.o
+                0x000002c8                small_printf
+                0x000004dc                Proc_2
+                0x00000510                Proc_3
+                0x00000550                Proc_1
+                0x0000060c                Proc_4
+                0x00000648                Proc_5
+ .text          0x0000066c      0x174 dhry_2.o
+                0x0000066c                Proc_6
+                0x000006d0                Proc_7
+                0x000006e0                Proc_8
+                0x0000074c                Func_1
+                0x00000770                Func_2
+                0x000007cc                Func_3
+ .text          0x000007e0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+ .text          0x000007e0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+ .text          0x000007e0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+ .text          0x000007e0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+ .text          0x000007e0      0x230 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+                0x000007e0                strcmp
+ .text          0x00000a10        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+ .text          0x00000a10        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+ .text          0x00000a10        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+ .text          0x00000a10      0x148 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+                0x00000a10                __aeabi_idiv
+                0x00000a10                __divsi3
+                0x00000b38                __aeabi_idivmod
+ .text          0x00000b58        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_dvmd_tls.o)
+                0x00000b58                __aeabi_ldiv0
+                0x00000b58                __aeabi_idiv0
+ .text          0x00000b5c       0x44 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+                0x00000b5c                __aeabi_ldivmod
+ .text          0x00000ba0       0x84 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+                0x00000ba0                __gnu_ldivmod_helper
+                0x00000be4                __gnu_uldivmod_helper
+ .text          0x00000c24      0x4d0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+                0x00000c24                __divdi3
+ .text          0x000010f4      0x470 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+                0x000010f4                __udivdi3
+ .text          0x00001564      0x114 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+                0x00001564                __udivsi3
+                0x00001564                __aeabi_uidiv
+                0x00001658                __aeabi_uidivmod
+ .text          0x00001678       0x48 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_clzsi2.o)
+                0x00001678                __clzsi2
+ *(.rodata)
+ *(.rodata*)
+ .rodata.str1.4
+                0x000016c0      0x5fb dhry_1.o
+                                0x600 (size before relaxing)
+ *fill*         0x00001cbb        0x1 
+ .rodata.str1.4
+                0x00001cbc        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+ .rodata._global_impure_ptr
+                0x00001cc0        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+                0x00001cc0                _global_impure_ptr
+ *(.glue_7)
+ .glue_7        0x00000000        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x00001cc4        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x00001cc4        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.iplt           0x00001cc4        0x0
+ .iplt          0x00000000        0x0 build/storm_startup_code.o
+
+.text.startup   0x00001cc4      0x768
+ .text.startup  0x00001cc4      0x768 dhry_1.o
+                0x00001cc4                main
+
+.text.malloc    0x0000242c       0x20
+ .text.malloc   0x0000242c       0x20 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+                0x0000242c                malloc
+
+.text.free      0x0000244c       0x20
+ .text.free     0x0000244c       0x20 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+                0x0000244c                free
+
+.text._malloc_r
+                0x0000246c      0x74c
+ .text._malloc_r
+                0x0000246c      0x74c /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x0000246c                _malloc_r
+
+.text.__malloc_lock
+                0x00002bb8        0x4
+ .text.__malloc_lock
+                0x00002bb8        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+                0x00002bb8                __malloc_lock
+
+.text.__malloc_unlock
+                0x00002bbc        0x4
+ .text.__malloc_unlock
+                0x00002bbc        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+                0x00002bbc                __malloc_unlock
+
+.text._sbrk_r   0x00002bc0       0x44
+ .text._sbrk_r  0x00002bc0       0x44 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+                0x00002bc0                _sbrk_r
+
+.text._malloc_trim_r
+                0x00002c04      0x100
+ .text._malloc_trim_r
+                0x00002c04      0x100 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                0x00002c04                _malloc_trim_r
+
+.text._free_r   0x00002d04      0x26c
+ .text._free_r  0x00002d04      0x26c /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                0x00002d04                _free_r
+
+.text.cleanup_glue
+                0x00002f70       0x2c
+ .text.cleanup_glue
+                0x00002f70       0x2c /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                0x00002f70                cleanup_glue
+
+.text._reclaim_reent
+                0x00002f9c      0x108
+ .text._reclaim_reent
+                0x00002f9c      0x108 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                0x00002f9c                _reclaim_reent
+
+.ARM.extab      0x000030a4        0x0
+ .ARM.extab     0x000030a4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+ .ARM.extab     0x000030a4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+
+.ARM.exidx      0x000030a4        0x8
+ .ARM.exidx     0x000030a4        0x8 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+ .ARM.exidx     0x000030ac        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+                                  0x8 (size before relaxing)
+
+.rel.dyn        0x000030ac        0x0
+ .rel.iplt      0x00000000        0x0 build/storm_startup_code.o
+                0x000030ac                . = ALIGN (0x4)
+                0x000030ac                _etext = .
+                0x000030ac                PROVIDE (etext, .)
+
+.data           0x000030ac        0x4
+                0x000030ac                _data = .
+ *(.data)
+ .data          0x000030ac        0x0 build/storm_startup_code.o
+ .data          0x000030ac        0x4 dhry_1.o
+                0x000030ac                Number_Of_Runs
+ .data          0x000030b0        0x0 dhry_2.o
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_dvmd_tls.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+ .data          0x000030b0        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_clzsi2.o)
+
+.igot.plt       0x000030b0        0x0
+ .igot.plt      0x00000000        0x0 build/storm_startup_code.o
+
+.data.__malloc_av_
+                0x000030b0      0x408
+ .data.__malloc_av_
+                0x000030b0      0x408 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x000030b0                __malloc_av_
+
+.data.__malloc_trim_threshold
+                0x000034b8        0x4
+ .data.__malloc_trim_threshold
+                0x000034b8        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x000034b8                __malloc_trim_threshold
+
+.data.__malloc_sbrk_base
+                0x000034bc        0x4
+ .data.__malloc_sbrk_base
+                0x000034bc        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x000034bc                __malloc_sbrk_base
+
+.data.impure_data
+                0x000034c0      0x428
+ .data.impure_data
+                0x000034c0      0x428 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+
+.data._impure_ptr
+                0x000038e8        0x4
+ .data._impure_ptr
+                0x000038e8        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+                0x000038e8                _impure_ptr
+                0x000038ec                . = ALIGN (0x4)
+                0x000038ec                _edata = .
+                0x000038ec                PROVIDE (edata, .)
+
+.bss            0x000038f0     0x2838
+                0x000038f0                __bss_start = .
+                0x000038f0                __bss_start__ = .
+ *(.bss)
+ .bss           0x000038f0        0x0 build/storm_startup_code.o
+ .bss           0x000038f0        0x4 dhry_1.o
+                0x000038f0                Reg
+ .bss           0x000038f4        0x0 dhry_2.o
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_dvmd_tls.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+ .bss           0x000038f4        0x0 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_clzsi2.o)
+ *(COMMON)
+ *fill*         0x000038f4        0x4 
+ COMMON         0x000038f8     0x282c dhry_1.o
+                0x000038f8                Microseconds
+                0x00003900                Dhrystones_Per_Second
+                0x00003908                User_Time
+                0x00003910                Begin_Time
+                0x00003918                Arr_2_Glob
+                0x00006028                End_Time
+                0x00006030                Next_Ptr_Glob
+                0x00006034                Int_Glob
+                0x00006038                Ch_1_Glob
+                0x00006039                Ch_2_Glob
+                0x0000603c                Ptr_Glob
+                0x00006040                Vax_Mips
+                0x00006048                Arr_1_Glob
+                0x00006110                Bool_Glob
+                0x00006114                time_info
+ COMMON         0x00006124        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                0x00006124                errno
+                0x00006128                . = ALIGN (0x4)
+
+.bss.__malloc_max_total_mem
+                0x00006128        0x4
+ .bss.__malloc_max_total_mem
+                0x00006128        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x00006128                __malloc_max_total_mem
+
+.bss.__malloc_max_sbrked_mem
+                0x0000612c        0x4
+ .bss.__malloc_max_sbrked_mem
+                0x0000612c        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x0000612c                __malloc_max_sbrked_mem
+
+.bss.__malloc_top_pad
+                0x00006130        0x4
+ .bss.__malloc_top_pad
+                0x00006130        0x4 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x00006130                __malloc_top_pad
+
+.bss.__malloc_current_mallinfo
+                0x00006134       0x28
+ .bss.__malloc_current_mallinfo
+                0x00006134       0x28 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x00006134                __malloc_current_mallinfo
+                0x0000615c                . = ALIGN (0x4)
+                0x0000615c                __bss_end__ = .
+                0x0000615c                PROVIDE (__bss_end, .)
+
+.stack          0x00006200     0x4000
+                0x0000a200                . = (. + STACK_SIZE)
+ *fill*         0x00006200     0x4000 
+                0x0000a200                PROVIDE (_stack, .)
+                0x0000a200                _end = .
+                0x0000a200                PROVIDE (end, .)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x00000000       0x70
+ *(.comment)
+ .comment       0x00000000       0x70 dhry_1.o
+                                 0x71 (size before relaxing)
+ .comment       0x00000000       0x71 dhry_2.o
+
+.ARM.attributes
+                0x00000000       0x2c
+ .ARM.attributes
+                0x00000000       0x20 build/storm_startup_code.o
+ .ARM.attributes
+                0x00000020       0x30 dhry_1.o
+ .ARM.attributes
+                0x00000050       0x30 dhry_2.o
+ .ARM.attributes
+                0x00000080       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+ .ARM.attributes
+                0x000000b0       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+ .ARM.attributes
+                0x000000e0       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+ .ARM.attributes
+                0x00000110       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+ .ARM.attributes
+                0x00000140       0x16 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+ .ARM.attributes
+                0x00000156       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+ .ARM.attributes
+                0x00000186       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+ .ARM.attributes
+                0x000001b6       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+ .ARM.attributes
+                0x000001e6       0x18 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x000001fe       0x18 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_dvmd_tls.o)
+ .ARM.attributes
+                0x00000216       0x18 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+ .ARM.attributes
+                0x0000022e       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+ .ARM.attributes
+                0x0000025e       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+ .ARM.attributes
+                0x0000028e       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+ .ARM.attributes
+                0x000002be       0x18 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x000002d6       0x18 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_clzsi2.o)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000       0x68
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 build/storm_startup_code.o
+ .debug_aranges
+                0x00000020       0x28 dhry_1.o
+ .debug_aranges
+                0x00000048       0x20 dhry_2.o
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x00000000     0x1823
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x00000000       0x6f build/storm_startup_code.o
+ .debug_info    0x0000006f     0x138d dhry_1.o
+ .debug_info    0x000013fc      0x427 dhry_2.o
+
+.debug_abbrev   0x00000000      0x5ee
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000       0x14 build/storm_startup_code.o
+ .debug_abbrev  0x00000014      0x408 dhry_1.o
+ .debug_abbrev  0x0000041c      0x1d2 dhry_2.o
+
+.debug_line     0x00000000      0x45d
+ *(.debug_line)
+ .debug_line    0x00000000       0xf8 build/storm_startup_code.o
+ .debug_line    0x000000f8      0x2c7 dhry_1.o
+ .debug_line    0x000003bf       0x9e dhry_2.o
+
+.debug_frame    0x00000000      0x414
+ *(.debug_frame)
+ .debug_frame   0x00000000      0x118 dhry_1.o
+ .debug_frame   0x00000118       0x88 dhry_2.o
+ .debug_frame   0x000001a0       0x40 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+ .debug_frame   0x000001e0       0x38 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+ .debug_frame   0x00000218       0x30 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+ .debug_frame   0x00000248       0x2c /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+ .debug_frame   0x00000274       0x50 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+ .debug_frame   0x000002c4       0x48 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+ .debug_frame   0x0000030c       0x20 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+ .debug_frame   0x0000032c       0x58 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+ .debug_frame   0x00000384       0x38 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+ .debug_frame   0x000003bc       0x38 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+ .debug_frame   0x000003f4       0x20 /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+
+.debug_str      0x00000000      0x548
+ *(.debug_str)
+ .debug_str     0x00000000      0x45f dhry_1.o
+                                0x4b6 (size before relaxing)
+ .debug_str     0x0000045f       0xe9 dhry_2.o
+                                0x2be (size before relaxing)
+
+.debug_loc      0x00000000      0xb2a
+ *(.debug_loc)
+ .debug_loc     0x00000000      0x7dc dhry_1.o
+ .debug_loc     0x000007dc      0x34e dhry_2.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+OUTPUT(dhry.elf elf32-bigarm)
+
+.debug_ranges   0x00000000      0x100
+ .debug_ranges  0x00000000       0xe8 dhry_1.o
+ .debug_ranges  0x000000e8       0x18 dhry_2.o
+
+Cross Reference Table
+
+Symbol                                            File
+Arr_1_Glob                                        dhry_1.o
+Arr_2_Glob                                        dhry_1.o
+Begin_Time                                        dhry_1.o
+Bool_Glob                                         dhry_1.o
+Ch_1_Glob                                         dhry_2.o
+                                                  dhry_1.o
+Ch_2_Glob                                         dhry_1.o
+Dhrystones_Per_Second                             dhry_1.o
+End_Time                                          dhry_1.o
+Func_1                                            dhry_2.o
+                                                  dhry_1.o
+Func_2                                            dhry_2.o
+                                                  dhry_1.o
+Func_3                                            dhry_2.o
+Int_Glob                                          dhry_2.o
+                                                  dhry_1.o
+Microseconds                                      dhry_1.o
+Next_Ptr_Glob                                     dhry_1.o
+Number_Of_Runs                                    dhry_1.o
+Proc_1                                            dhry_1.o
+Proc_2                                            dhry_1.o
+Proc_3                                            dhry_1.o
+Proc_4                                            dhry_1.o
+Proc_5                                            dhry_1.o
+Proc_6                                            dhry_2.o
+                                                  dhry_1.o
+Proc_7                                            dhry_2.o
+                                                  dhry_1.o
+Proc_8                                            dhry_2.o
+                                                  dhry_1.o
+Ptr_Glob                                          dhry_1.o
+Reg                                               dhry_1.o
+User_Time                                         dhry_1.o
+Vax_Mips                                          dhry_1.o
+__aeabi_idiv                                      /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+                                                  dhry_1.o
+__aeabi_idiv0                                     /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_dvmd_tls.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+__aeabi_idivmod                                   /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+__aeabi_ldiv0                                     /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_dvmd_tls.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+__aeabi_ldivmod                                   /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+                                                  dhry_1.o
+__aeabi_uidiv                                     /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+__aeabi_uidivmod                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+__bss_end__                                       build/storm_startup_code.o
+__bss_start                                       build/storm_startup_code.o
+__clzsi2                                          /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_clzsi2.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+__divdi3                                          /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divdi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+__divsi3                                          /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_divsi3.o)
+__gnu_ldivmod_helper                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_aeabi_ldivmod.o)
+__gnu_uldivmod_helper                             /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+__malloc_av_                                      /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+__malloc_current_mallinfo                         /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+__malloc_lock                                     /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+__malloc_max_sbrked_mem                           /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+__malloc_max_total_mem                            /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+__malloc_sbrk_base                                /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+__malloc_top_pad                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+__malloc_trim_threshold                           /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+__malloc_unlock                                   /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+__udivdi3                                         /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivdi3.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(bpabi.o)
+__udivsi3                                         /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/libgcc.a(_udivsi3.o)
+_boot                                             build/storm_startup_code.o
+_data                                             build/storm_startup_code.o
+_edata                                            build/storm_startup_code.o
+_etext                                            build/storm_startup_code.o
+_free_r                                           /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+_global_impure_ptr                                /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+_impure_ptr                                       /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-impure.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+_mainCRTStartup                                   build/storm_startup_code.o
+_malloc_r                                         /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+_malloc_trim_r                                    /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+_readMicroseconds                                 dhry_1.o
+_reclaim_reent                                    /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+_reset                                            build/storm_startup_code.o
+_sbrk                                             /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+_sbrk_r                                           /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+_stack                                            build/storm_startup_code.o
+_start                                            build/storm_startup_code.o
+abort                                             build/storm_startup_code.o
+cleanup_glue                                      /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+errno                                             /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                                                  /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+exit                                              build/storm_startup_code.o
+free                                              /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+main                                              dhry_1.o
+                                                  build/storm_startup_code.o
+malloc                                            /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-malloc.o)
+                                                  dhry_1.o
+outbyte                                           dhry_1.o
+reset                                             build/storm_startup_code.o
+small_printf                                      dhry_1.o
+start                                             build/storm_startup_code.o
+strcmp                                            /usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+                                                  dhry_2.o
+time_info                                         dhry_1.o

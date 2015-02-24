@@ -1,0 +1,4749 @@
+
+main.elf:     file format elf32-bigarm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00001490  fff00000  fff00000  00008000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .text.startup 00001424  fff01490  fff01490  00009490  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .stack        00008000  00000000  fff028b4  00010000  2**0
+                  ALLOC
+  3 .comment      00000070  00000000  00000000  0000a8b4  2**0
+                  CONTENTS, READONLY
+  4 .ARM.attributes 0000002c  00000000  00000000  0000a924  2**0
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000048  00000000  00000000  0000a950  2**3
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00002635  00000000  00000000  0000a998  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000340  00000000  00000000  0000cfcd  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   00000b4c  00000000  00000000  0000d30d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000248  00000000  00000000  0000de5c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    000003d9  00000000  00000000  0000e0a4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00002ad3  00000000  00000000  0000e47d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 000005d0  00000000  00000000  00010f50  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+fff00000 <_boot>:
+_boot:
+
+// Runtime Interrupt Vectors
+// -------------------------------------------------------------------
+Vectors:
+        b     _start                    // reset - _start
+fff00000:	ea000006 	b	fff00020 <_mainCRTStartup>
+        b     .                         // undefined
+fff00004:	eafffffe 	b	fff00004 <_boot+0x4>
+        b     .                         // SWI
+fff00008:	eafffffe 	b	fff00008 <_boot+0x8>
+        b     .                         // program abort
+fff0000c:	eafffffe 	b	fff0000c <_boot+0xc>
+        b     .                         // data abort
+fff00010:	eafffffe 	b	fff00010 <_boot+0x10>
+        nop                             // reserved
+fff00014:	e1a00000 	nop			; (mov r0, r0)
+        b     .                     	// IRQ
+fff00018:	eafffffe 	b	fff00018 <_boot+0x18>
+        b     .                         // FIQ
+fff0001c:	eafffffe 	b	fff0001c <_boot+0x1c>
+
+fff00020 <_mainCRTStartup>:
+
+// Who am I? Where am I going?
+
+// - Set stack location for system mode with interrupts disabled
+// -------------------------------------------------------------------
+        ldr   r0,=_stack                    // Calc stack base
+fff00020:	e59f0034 	ldr	r0, [pc, #52]	; fff0005c <_reset+0x4>
+		mrs   r1,CPSR
+fff00024:	e10f1000 	mrs	r1, CPSR
+		bic   r1,r1,#0x7F
+fff00028:	e3c1107f 	bic	r1, r1, #127	; 0x7f
+        orr   r1,r1,#MODE_SYS|IRQ_BIT|FIQ_BIT  // Change to System Mode
+fff0002c:	e38110df 	orr	r1, r1, #223	; 0xdf
+        msr   CPSR,r1
+fff00030:	e129f001 	msr	CPSR_fc, r1
+        mov   sp,r0                         // Store stack base
+fff00034:	e1a0d000 	mov	sp, r0
+
+
+// Call main program: main(0)
+// -------------------------------------------------------------------
+        mov   r0,#0                     // no arguments (argc = 0)
+fff00038:	e3a00000 	mov	r0, #0
+        mov   r1,r0
+fff0003c:	e1a01000 	mov	r1, r0
+        mov   r2,r0
+fff00040:	e1a02000 	mov	r2, r0
+        mov   fp,r0                     // null frame pointer
+fff00044:	e1a0b000 	mov	fp, r0
+        mov   r7,r0                     // null frame pointer for thumb
+fff00048:	e1a07000 	mov	r7, r0
+        ldr   r10,=main
+fff0004c:	e59fa00c 	ldr	sl, [pc, #12]	; fff00060 <_reset+0x8>
+        mov   lr,pc
+fff00050:	e1a0e00f 	mov	lr, pc
+        mov   pc, r10                   // enter main()
+fff00054:	e1a0f00a 	mov	pc, sl
+
+fff00058 <_reset>:
+_reset:
+reset:
+exit:
+abort:
+
+        b     .                         // loop until reset
+fff00058:	eafffffe 	b	fff00058 <_reset>
+
+// Who am I? Where am I going?
+
+// - Set stack location for system mode with interrupts disabled
+// -------------------------------------------------------------------
+        ldr   r0,=_stack                    // Calc stack base
+fff0005c:	00008000 	.word	0x00008000
+        mov   r0,#0                     // no arguments (argc = 0)
+        mov   r1,r0
+        mov   r2,r0
+        mov   fp,r0                     // null frame pointer
+        mov   r7,r0                     // null frame pointer for thumb
+        ldr   r10,=main
+fff00060:	fff01490 	.word	0xfff01490
+
+fff00064 <io_read_gpio0_pin>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		unsigned long temp = GPIO0_IN & (1<<pin);
+fff00064:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00068:	e5133ffb 	ldr	r3, [r3, #-4091]	; 0xffb
+fff0006c:	e3a02001 	mov	r2, #1
+	
+//	set_cmsr(_cmsr);
+	return temp;
+}
+fff00070:	e0030012 	and	r0, r3, r2, lsl r0
+fff00074:	e12fff1e 	bx	lr
+
+fff00078 <io_read_gpio0_port>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		unsigned long temp = GPIO0_IN;
+fff00078:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0007c:	e5130ffb 	ldr	r0, [r3, #-4091]	; 0xffb
+
+//	set_cmsr(_cmsr);
+	return temp;
+}
+fff00080:	e12fff1e 	bx	lr
+
+fff00084 <io_set_gpio0_pin>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		GPIO0_OUT = GPIO0_OUT | (1<<pin);
+fff00084:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00088:	e5132fff 	ldr	r2, [r3, #-4095]	; 0xfff
+fff0008c:	e3a01001 	mov	r1, #1
+fff00090:	e1820011 	orr	r0, r2, r1, lsl r0
+fff00094:	e5030fff 	str	r0, [r3, #-4095]	; 0xfff
+fff00098:	e12fff1e 	bx	lr
+
+fff0009c <io_clr_gpio0_pin>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		GPIO0_OUT = GPIO0_OUT & ~(1<<pin);
+fff0009c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff000a0:	e5132fff 	ldr	r2, [r3, #-4095]	; 0xfff
+fff000a4:	e3a01001 	mov	r1, #1
+fff000a8:	e1c20011 	bic	r0, r2, r1, lsl r0
+fff000ac:	e5030fff 	str	r0, [r3, #-4095]	; 0xfff
+fff000b0:	e12fff1e 	bx	lr
+
+fff000b4 <io_toggle_gpio0_pin>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		GPIO0_OUT = GPIO0_OUT ^ (1<<pin);
+fff000b4:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff000b8:	e5132fff 	ldr	r2, [r3, #-4095]	; 0xfff
+fff000bc:	e3a01001 	mov	r1, #1
+fff000c0:	e0220011 	eor	r0, r2, r1, lsl r0
+fff000c4:	e5030fff 	str	r0, [r3, #-4095]	; 0xfff
+fff000c8:	e12fff1e 	bx	lr
+
+fff000cc <io_set_gpio0_port>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		GPIO0_OUT = value;
+fff000cc:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff000d0:	e5030fff 	str	r0, [r3, #-4095]	; 0xfff
+fff000d4:	e12fff1e 	bx	lr
+
+fff000d8 <io_set_pwm>:
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	unsigned long temp = 0;
+
+	// value adjustment
+	if(port > 7)
+fff000d8:	e3500007 	cmp	r0, #7
+fff000dc:	8a00000b 	bhi	fff00110 <io_set_pwm+0x38>
+		port = 0;
+
+	if(port < 4){
+fff000e0:	e3500003 	cmp	r0, #3
+fff000e4:	9a000011 	bls	fff00130 <io_set_pwm+0x58>
+		temp = temp | (unsigned long)(data << (port*8)); // insert new value
+		PWM0_CONF0 = temp;
+	}
+	else{
+		port = port-4;
+		temp = PWM0_CONF1; // get working copy
+fff000e8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+		temp = temp & ~(0xFF << (port*8)); // clear old value
+		temp = temp | (unsigned long)(data << (port*8)); // insert new value
+		PWM0_CONF0 = temp;
+	}
+	else{
+		port = port-4;
+fff000ec:	e2400004 	sub	r0, r0, #4
+		temp = PWM0_CONF1; // get working copy
+fff000f0:	e5132f8b 	ldr	r2, [r3, #-3979]	; 0xf8b
+		temp = temp & ~(0xFF << (port*8)); // clear old value
+fff000f4:	e20000ff 	and	r0, r0, #255	; 0xff
+fff000f8:	e1a00180 	lsl	r0, r0, #3
+fff000fc:	e3a0c0ff 	mov	ip, #255	; 0xff
+fff00100:	e1c2201c 	bic	r2, r2, ip, lsl r0
+		temp = temp | (unsigned long)(data << (port*8)); // insert new value
+fff00104:	e1821011 	orr	r1, r2, r1, lsl r0
+		PWM0_CONF1 = temp;
+fff00108:	e5031f8b 	str	r1, [r3, #-3979]	; 0xf8b
+fff0010c:	e12fff1e 	bx	lr
+fff00110:	e3e000ff 	mvn	r0, #255	; 0xff
+fff00114:	e3a02000 	mov	r2, #0
+	// value adjustment
+	if(port > 7)
+		port = 0;
+
+	if(port < 4){
+		temp = PWM0_CONF0; // get working copy
+fff00118:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0011c:	e513cf8f 	ldr	ip, [r3, #-3983]	; 0xf8f
+		temp = temp & ~(0xFF << (port*8)); // clear old value
+fff00120:	e000000c 	and	r0, r0, ip
+		temp = temp | (unsigned long)(data << (port*8)); // insert new value
+fff00124:	e1801211 	orr	r1, r0, r1, lsl r2
+		PWM0_CONF0 = temp;
+fff00128:	e5031f8f 	str	r1, [r3, #-3983]	; 0xf8f
+fff0012c:	e12fff1e 	bx	lr
+fff00130:	e1a02180 	lsl	r2, r0, #3
+fff00134:	e3a000ff 	mov	r0, #255	; 0xff
+fff00138:	e1e00210 	mvn	r0, r0, lsl r2
+fff0013c:	eafffff5 	b	fff00118 <io_set_pwm+0x40>
+
+fff00140 <io_get_pwm>:
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	unsigned long temp = 0;
+
+	// value adjustment
+	if(port > 7)
+fff00140:	e3500007 	cmp	r0, #7
+fff00144:	8a00000a 	bhi	fff00174 <io_get_pwm+0x34>
+		port = 0;
+
+	if(port < 4)
+fff00148:	e3500003 	cmp	r0, #3
+fff0014c:	91a00180 	lslls	r0, r0, #3
+fff00150:	9a000008 	bls	fff00178 <io_get_pwm+0x38>
+		temp = PWM0_CONF0; // get config register
+	else{
+		port = port-4;
+fff00154:	e2400004 	sub	r0, r0, #4
+		temp = PWM0_CONF1; // get config register
+fff00158:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0015c:	e20000ff 	and	r0, r0, #255	; 0xff
+fff00160:	e5133f8b 	ldr	r3, [r3, #-3979]	; 0xf8b
+fff00164:	e1a00180 	lsl	r0, r0, #3
+	}
+
+	temp = temp >> (port*8); // only keep designated byte
+fff00168:	e1a00033 	lsr	r0, r3, r0
+
+//	set_cmsr(_cmsr);
+	return (unsigned char)temp;
+fff0016c:	e20000ff 	and	r0, r0, #255	; 0xff
+}
+fff00170:	e12fff1e 	bx	lr
+fff00174:	e3a00000 	mov	r0, #0
+	// value adjustment
+	if(port > 7)
+		port = 0;
+
+	if(port < 4)
+		temp = PWM0_CONF0; // get config register
+fff00178:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0017c:	e5133f8f 	ldr	r3, [r3, #-3983]	; 0xf8f
+fff00180:	eafffff8 	b	fff00168 <io_get_pwm+0x28>
+
+fff00184 <io_uart0_read_byte>:
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff00184:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00188:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff0018c:	e3120002 	tst	r2, #2
+		temp = UART0_DATA;
+fff00190:	15130fe7 	ldrne	r0, [r3, #-4071]	; 0xfe7
+	else
+		temp = -1;
+fff00194:	03e00000 	mvneq	r0, #0
+
+//	set_cmsr(_cmsr);
+	return temp;
+}
+fff00198:	e12fff1e 	bx	lr
+
+fff0019c <io_uart0_send_byte>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0019c:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff001a0:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff001a4:	e3130001 	tst	r3, #1
+fff001a8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff001ac:	0afffffb 	beq	fff001a0 <io_uart0_send_byte+0x4>
+	UART0_DATA = (ch & 0x000000FF);
+fff001b0:	e20020ff 	and	r2, r0, #255	; 0xff
+fff001b4:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+
+//	set_cmsr(_cmsr);
+	return ch;
+}
+fff001b8:	e12fff1e 	bx	lr
+
+fff001bc <io_spi0_config>:
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+	// devices update their serial input on a rising edge of sclk,
+	// so we need to update the mosi output of the core before
+	// -> at the falling edge of sclk = set SPI_TX_NEG
+	if(auto_cs == 1)
+fff001bc:	e3500001 	cmp	r0, #1
+		SPI0_CONF = (1<<SPI_ACS) | (1<<SPI_TX_NEG) | data_size; // auto assert cs
+fff001c0:	03811b09 	orreq	r1, r1, #9216	; 0x2400
+	else
+		SPI0_CONF = (0<<SPI_ACS) | (1<<SPI_TX_NEG) | data_size; // manual assert cs
+fff001c4:	13811b01 	orrne	r1, r1, #1024	; 0x400
+fff001c8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff001cc:	e5031fcf 	str	r1, [r3, #-4047]	; 0xfcf
+fff001d0:	e12fff1e 	bx	lr
+
+fff001d4 <io_spi0_speed>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		SPI0_PRSC = clk_divider; // (sys_clk/(spi_clk*2))-1;
+fff001d4:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff001d8:	e5030fcb 	str	r0, [r3, #-4043]	; 0xfcb
+fff001dc:	e12fff1e 	bx	lr
+
+fff001e0 <io_spi0_trans>:
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	// spi transmission
+	while((SPI0_CONF & (1<<SPI_BUSY)) != 0); // wait for prev tx to finish
+fff001e0:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff001e4:	e5123fcf 	ldr	r3, [r2, #-4047]	; 0xfcf
+fff001e8:	e3130c01 	tst	r3, #256	; 0x100
+fff001ec:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff001f0:	1afffffb 	bne	fff001e4 <io_spi0_trans+0x4>
+	SPI0_DAT0 = data;
+fff001f4:	e5030fbf 	str	r0, [r3, #-4031]	; 0xfbf
+	SPI0_CONF = SPI0_CONF | (1<<SPI_BUSY); // start transmitter
+fff001f8:	e5132fcf 	ldr	r2, [r3, #-4047]	; 0xfcf
+fff001fc:	e3822c01 	orr	r2, r2, #256	; 0x100
+fff00200:	e5032fcf 	str	r2, [r3, #-4047]	; 0xfcf
+	while((SPI0_CONF & (1<<SPI_BUSY)) != 0); // wait for rx to finish
+fff00204:	e1a01003 	mov	r1, r3
+fff00208:	e5113fcf 	ldr	r3, [r1, #-4047]	; 0xfcf
+fff0020c:	e3130c01 	tst	r3, #256	; 0x100
+fff00210:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff00214:	1afffffb 	bne	fff00208 <io_spi0_trans+0x28>
+	unsigned long temp = SPI0_DAT0;
+fff00218:	e5120fbf 	ldr	r0, [r2, #-4031]	; 0xfbf
+
+//	set_cmsr(_cmsr);
+	return temp;
+}
+fff0021c:	e12fff1e 	bx	lr
+
+fff00220 <io_spi0_enable>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		SPI0_SCSR = SPI0_SCSR | (1<<device);
+fff00220:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00224:	e5132fc7 	ldr	r2, [r3, #-4039]	; 0xfc7
+fff00228:	e3a01001 	mov	r1, #1
+fff0022c:	e1820011 	orr	r0, r2, r1, lsl r0
+fff00230:	e5030fc7 	str	r0, [r3, #-4039]	; 0xfc7
+fff00234:	e12fff1e 	bx	lr
+
+fff00238 <io_spi0_disable>:
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		SPI0_SCSR = SPI0_SCSR & ~(1<<device);
+fff00238:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0023c:	e5132fc7 	ldr	r2, [r3, #-4039]	; 0xfc7
+fff00240:	e3a01001 	mov	r1, #1
+fff00244:	e1c20011 	bic	r0, r2, r1, lsl r0
+fff00248:	e5030fc7 	str	r0, [r3, #-4039]	; 0xfc7
+fff0024c:	e12fff1e 	bx	lr
+
+fff00250 <io_i2c0_speed>:
+   void io_i2c0_speed(unsigned long clk_divider)
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+		I2C0_CTRL = I2C0_CTRL & ~(1<<I2C_EN); // disable i2c core
+fff00250:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00254:	e5132f97 	ldr	r2, [r3, #-3991]	; 0xf97
+		I2C0_PRLO = clk_divider;
+		I2C0_PRHI = clk_divider >> 8;
+fff00258:	e1a01420 	lsr	r1, r0, #8
+   void io_i2c0_speed(unsigned long clk_divider)
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+		I2C0_CTRL = I2C0_CTRL & ~(1<<I2C_EN); // disable i2c core
+fff0025c:	e3c22080 	bic	r2, r2, #128	; 0x80
+fff00260:	e5032f97 	str	r2, [r3, #-3991]	; 0xf97
+		I2C0_PRLO = clk_divider;
+fff00264:	e5030f9f 	str	r0, [r3, #-3999]	; 0xf9f
+		I2C0_PRHI = clk_divider >> 8;
+fff00268:	e5031f9b 	str	r1, [r3, #-3995]	; 0xf9b
+		I2C0_CTRL = I2C0_CTRL | (1<<I2C_EN); // enable i2c core
+fff0026c:	e5132f97 	ldr	r2, [r3, #-3991]	; 0xf97
+fff00270:	e3822080 	orr	r2, r2, #128	; 0x80
+fff00274:	e5032f97 	str	r2, [r3, #-3991]	; 0xf97
+fff00278:	e12fff1e 	bx	lr
+
+fff0027c <io_i2c0_byte_transfer>:
+                             unsigned char id,        // device ID
+							 unsigned long data_adr,  // data address
+							 unsigned char adr_bytes, // number of adr bytes
+							 unsigned char data)      // data byte
+// ******************************************************************************
+{
+fff0027c:	e92d00f0 	push	{r4, r5, r6, r7}
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	// transfer slave identification address
+	I2C0_DATA = id & 0xFE;                  // device id and write
+	I2C0_CMD = (1<<I2C_STA) | (1<<I2C_WR);  // start condition and write cycle
+fff00280:	e3a0c090 	mov	ip, #144	; 0x90
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	// transfer slave identification address
+	I2C0_DATA = id & 0xFE;                  // device id and write
+fff00284:	e3e06a0f 	mvn	r6, #61440	; 0xf000
+fff00288:	e20140fe 	and	r4, r1, #254	; 0xfe
+                             unsigned char id,        // device ID
+							 unsigned long data_adr,  // data address
+							 unsigned char adr_bytes, // number of adr bytes
+							 unsigned char data)      // data byte
+// ******************************************************************************
+{
+fff0028c:	e5dd5013 	ldrb	r5, [sp, #19]
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	// transfer slave identification address
+	I2C0_DATA = id & 0xFE;                  // device id and write
+fff00290:	e5064f93 	str	r4, [r6, #-3987]	; 0xf93
+	I2C0_CMD = (1<<I2C_STA) | (1<<I2C_WR);  // start condition and write cycle
+fff00294:	e506cfaf 	str	ip, [r6, #-4015]	; 0xfaf
+	while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+fff00298:	e516cfaf 	ldr	ip, [r6, #-4015]	; 0xfaf
+fff0029c:	e31c0002 	tst	ip, #2
+fff002a0:	e3e04a0f 	mvn	r4, #61440	; 0xf000
+fff002a4:	1afffffb 	bne	fff00298 <io_i2c0_byte_transfer+0x1c>
+	if((I2C0_STAT & (1<<I2C_RXACK)) != 0){  // ack received?
+fff002a8:	e514cfaf 	ldr	ip, [r4, #-4015]	; 0xfaf
+fff002ac:	e31c0080 	tst	ip, #128	; 0x80
+fff002b0:	1a00003f 	bne	fff003b4 <io_i2c0_byte_transfer+0x138>
+//		set_cmsr(_cmsr);
+		return -1;
+	}
+
+	// transfer data address
+	while(adr_bytes != 0){
+fff002b4:	e3530000 	cmp	r3, #0
+		adr_bytes--;
+		if(adr_bytes == 1)
+			I2C0_DATA = data_adr >> 8;          // high byte
+fff002b8:	11a07422 	lsrne	r7, r2, #8
+		else
+			I2C0_DATA = data_adr;               // low byte
+		I2C0_CMD = (1<<I2C_WR);                 // write cycle
+fff002bc:	13a06010 	movne	r6, #16
+//		set_cmsr(_cmsr);
+		return -1;
+	}
+
+	// transfer data address
+	while(adr_bytes != 0){
+fff002c0:	0a00000e 	beq	fff00300 <io_i2c0_byte_transfer+0x84>
+		adr_bytes--;
+fff002c4:	e2433001 	sub	r3, r3, #1
+fff002c8:	e20330ff 	and	r3, r3, #255	; 0xff
+		if(adr_bytes == 1)
+fff002cc:	e3530001 	cmp	r3, #1
+			I2C0_DATA = data_adr >> 8;          // high byte
+fff002d0:	05047f93 	streq	r7, [r4, #-3987]	; 0xf93
+		else
+			I2C0_DATA = data_adr;               // low byte
+fff002d4:	15042f93 	strne	r2, [r4, #-3987]	; 0xf93
+		I2C0_CMD = (1<<I2C_WR);                 // write cycle
+fff002d8:	e5046faf 	str	r6, [r4, #-4015]	; 0xfaf
+		while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+fff002dc:	e514cfaf 	ldr	ip, [r4, #-4015]	; 0xfaf
+fff002e0:	e31c0002 	tst	ip, #2
+fff002e4:	e3e0ca0f 	mvn	ip, #61440	; 0xf000
+fff002e8:	1afffffb 	bne	fff002dc <io_i2c0_byte_transfer+0x60>
+		if((I2C0_STAT & (1<<I2C_RXACK)) != 0){  // ack received?
+fff002ec:	e51ccfaf 	ldr	ip, [ip, #-4015]	; 0xfaf
+fff002f0:	e31c0080 	tst	ip, #128	; 0x80
+fff002f4:	1a00001b 	bne	fff00368 <io_i2c0_byte_transfer+0xec>
+//		set_cmsr(_cmsr);
+		return -1;
+	}
+
+	// transfer data address
+	while(adr_bytes != 0){
+fff002f8:	e3530000 	cmp	r3, #0
+fff002fc:	1afffff0 	bne	fff002c4 <io_i2c0_byte_transfer+0x48>
+//			set_cmsr(_cmsr);
+			return -2;
+		}
+	}
+
+	if(rw == 'w'){
+fff00300:	e3500077 	cmp	r0, #119	; 0x77
+fff00304:	0a00001a 	beq	fff00374 <io_i2c0_byte_transfer+0xf8>
+//			set_cmsr(_cmsr);
+			return 0;
+		}
+	}
+
+	if(rw == 'r'){
+fff00308:	e3500072 	cmp	r0, #114	; 0x72
+fff0030c:	1a000026 	bne	fff003ac <io_i2c0_byte_transfer+0x130>
+		// re-send control byte - this time with read-bit
+		I2C0_DATA = id | 0x01;                  // device id and READ
+fff00310:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff00314:	e3811001 	orr	r1, r1, #1
+		I2C0_CMD = (1<<I2C_STA) | (1<<I2C_WR);  // start condition and write cycle
+fff00318:	e3a03090 	mov	r3, #144	; 0x90
+		}
+	}
+
+	if(rw == 'r'){
+		// re-send control byte - this time with read-bit
+		I2C0_DATA = id | 0x01;                  // device id and READ
+fff0031c:	e5021f93 	str	r1, [r2, #-3987]	; 0xf93
+		I2C0_CMD = (1<<I2C_STA) | (1<<I2C_WR);  // start condition and write cycle
+fff00320:	e5023faf 	str	r3, [r2, #-4015]	; 0xfaf
+		while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+fff00324:	e5123faf 	ldr	r3, [r2, #-4015]	; 0xfaf
+fff00328:	e3130002 	tst	r3, #2
+fff0032c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00330:	1afffffb 	bne	fff00324 <io_i2c0_byte_transfer+0xa8>
+		if((I2C0_STAT & (1<<I2C_RXACK)) != 0){  // ack received?
+fff00334:	e5132faf 	ldr	r2, [r3, #-4015]	; 0xfaf
+fff00338:	e3120080 	tst	r2, #128	; 0x80
+fff0033c:	1a000018 	bne	fff003a4 <io_i2c0_byte_transfer+0x128>
+//			set_cmsr(_cmsr);
+			return -3;
+		}
+		// read adressed byte
+		I2C0_CMD = (1<<I2C_STO) | (1<<I2C_RD) | (1<<I2C_ACK);
+fff00340:	e3a02068 	mov	r2, #104	; 0x68
+fff00344:	e5032faf 	str	r2, [r3, #-4015]	; 0xfaf
+		while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+fff00348:	e1a01003 	mov	r1, r3
+fff0034c:	e5113faf 	ldr	r3, [r1, #-4015]	; 0xfaf
+fff00350:	e3130002 	tst	r3, #2
+fff00354:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff00358:	1afffffb 	bne	fff0034c <io_i2c0_byte_transfer+0xd0>
+		return I2C0_DATA;
+fff0035c:	e5120f93 	ldr	r0, [r2, #-3987]	; 0xf93
+	}
+
+//	set_cmsr(_cmsr);
+	return -4;
+}
+fff00360:	e8bd00f0 	pop	{r4, r5, r6, r7}
+fff00364:	e12fff1e 	bx	lr
+			I2C0_DATA = data_adr;               // low byte
+		I2C0_CMD = (1<<I2C_WR);                 // write cycle
+		while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+		if((I2C0_STAT & (1<<I2C_RXACK)) != 0){  // ack received?
+//			set_cmsr(_cmsr);
+			return -2;
+fff00368:	e3e00001 	mvn	r0, #1
+		return I2C0_DATA;
+	}
+
+//	set_cmsr(_cmsr);
+	return -4;
+}
+fff0036c:	e8bd00f0 	pop	{r4, r5, r6, r7}
+fff00370:	e12fff1e 	bx	lr
+		}
+	}
+
+	if(rw == 'w'){
+		// write adressed byte
+		I2C0_DATA = data;                       // send data
+fff00374:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+		I2C0_CMD = (1<<I2C_STO) | (1<<I2C_WR);  // stop condition and write cycle
+fff00378:	e3a03050 	mov	r3, #80	; 0x50
+		}
+	}
+
+	if(rw == 'w'){
+		// write adressed byte
+		I2C0_DATA = data;                       // send data
+fff0037c:	e5025f93 	str	r5, [r2, #-3987]	; 0xf93
+		I2C0_CMD = (1<<I2C_STO) | (1<<I2C_WR);  // stop condition and write cycle
+fff00380:	e5023faf 	str	r3, [r2, #-4015]	; 0xfaf
+		while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+fff00384:	e5123faf 	ldr	r3, [r2, #-4015]	; 0xfaf
+fff00388:	e3130002 	tst	r3, #2
+fff0038c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00390:	1afffffb 	bne	fff00384 <io_i2c0_byte_transfer+0x108>
+		if((I2C0_STAT & (1<<I2C_RXACK)) != 0){  // ack received?
+fff00394:	e5133faf 	ldr	r3, [r3, #-4015]	; 0xfaf
+fff00398:	e2133080 	ands	r3, r3, #128	; 0x80
+//			set_cmsr(_cmsr);
+			return -3;
+		}
+		else{
+//			set_cmsr(_cmsr);
+			return 0;
+fff0039c:	01a00003 	moveq	r0, r3
+	if(rw == 'w'){
+		// write adressed byte
+		I2C0_DATA = data;                       // send data
+		I2C0_CMD = (1<<I2C_STO) | (1<<I2C_WR);  // stop condition and write cycle
+		while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+		if((I2C0_STAT & (1<<I2C_RXACK)) != 0){  // ack received?
+fff003a0:	0affffee 	beq	fff00360 <io_i2c0_byte_transfer+0xe4>
+//			set_cmsr(_cmsr);
+			return -3;
+fff003a4:	e3e00002 	mvn	r0, #2
+fff003a8:	eaffffec 	b	fff00360 <io_i2c0_byte_transfer+0xe4>
+		while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+		return I2C0_DATA;
+	}
+
+//	set_cmsr(_cmsr);
+	return -4;
+fff003ac:	e3e00003 	mvn	r0, #3
+fff003b0:	eaffffea 	b	fff00360 <io_i2c0_byte_transfer+0xe4>
+	I2C0_DATA = id & 0xFE;                  // device id and write
+	I2C0_CMD = (1<<I2C_STA) | (1<<I2C_WR);  // start condition and write cycle
+	while((I2C0_STAT & (1<<I2C_TIP)) != 0); // wait for transfer to finish
+	if((I2C0_STAT & (1<<I2C_RXACK)) != 0){  // ack received?
+//		set_cmsr(_cmsr);
+		return -1;
+fff003b4:	e3e00000 	mvn	r0, #0
+fff003b8:	eaffffe8 	b	fff00360 <io_i2c0_byte_transfer+0xe4>
+
+fff003bc <get_syscpreg>:
+// read system coprocessor register x
+   unsigned long get_syscpreg(unsigned char index)
+// ******************************************************************************
+{
+	unsigned long _cp_val;
+	switch(index){
+fff003bc:	e350000f 	cmp	r0, #15
+fff003c0:	979ff100 	ldrls	pc, [pc, r0, lsl #2]
+fff003c4:	ea00002f 	b	fff00488 <get_syscpreg+0xcc>
+fff003c8:	fff00410 	.word	0xfff00410
+fff003cc:	fff00418 	.word	0xfff00418
+fff003d0:	fff00420 	.word	0xfff00420
+fff003d4:	fff00428 	.word	0xfff00428
+fff003d8:	fff00430 	.word	0xfff00430
+fff003dc:	fff00438 	.word	0xfff00438
+fff003e0:	fff00440 	.word	0xfff00440
+fff003e4:	fff00448 	.word	0xfff00448
+fff003e8:	fff00450 	.word	0xfff00450
+fff003ec:	fff00458 	.word	0xfff00458
+fff003f0:	fff00460 	.word	0xfff00460
+fff003f4:	fff00468 	.word	0xfff00468
+fff003f8:	fff00470 	.word	0xfff00470
+fff003fc:	fff00478 	.word	0xfff00478
+fff00400:	fff00480 	.word	0xfff00480
+fff00404:	fff00408 	.word	0xfff00408
+		case 10:         asm volatile ("mrc p15,0,%0,c10,c10" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case LFSR_POLY:  asm volatile ("mrc p15,0,%0,c11,c11" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case LFSR_DATA:  asm volatile ("mrc p15,0,%0,c12,c12" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case SYS_IO:     asm volatile ("mrc p15,0,%0,c13,c13" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 14:         asm volatile ("mrc p15,0,%0,c14,c14" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 15:         asm volatile ("mrc p15,0,%0,c15,c15" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00408:	ee1f0f1f 	mrc	15, 0, r0, cr15, cr15, {0}
+fff0040c:	e12fff1e 	bx	lr
+   unsigned long get_syscpreg(unsigned char index)
+// ******************************************************************************
+{
+	unsigned long _cp_val;
+	switch(index){
+		case ID_REG_0:   asm volatile ("mrc p15,0,%0, c0, c0" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00410:	ee100f10 	mrc	15, 0, r0, cr0, cr0, {0}
+fff00414:	e12fff1e 	bx	lr
+		case ID_REG_1:   asm volatile ("mrc p15,0,%0, c1, c1" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00418:	ee110f11 	mrc	15, 0, r0, cr1, cr1, {0}
+fff0041c:	e12fff1e 	bx	lr
+		case ID_REG_2:   asm volatile ("mrc p15,0,%0, c2, c2" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00420:	ee120f12 	mrc	15, 0, r0, cr2, cr2, {0}
+fff00424:	e12fff1e 	bx	lr
+		case 3:          asm volatile ("mrc p15,0,%0, c3, c3" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00428:	ee130f13 	mrc	15, 0, r0, cr3, cr3, {0}
+fff0042c:	e12fff1e 	bx	lr
+		case 4:          asm volatile ("mrc p15,0,%0, c4, c4" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00430:	ee140f14 	mrc	15, 0, r0, cr4, cr4, {0}
+fff00434:	e12fff1e 	bx	lr
+		case 5:          asm volatile ("mrc p15,0,%0, c5, c5" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00438:	ee150f15 	mrc	15, 0, r0, cr5, cr5, {0}
+fff0043c:	e12fff1e 	bx	lr
+		case SYS_CTRL_0: asm volatile ("mrc p15,0,%0, c6, c6" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00440:	ee160f16 	mrc	15, 0, r0, cr6, cr6, {0}
+fff00444:	e12fff1e 	bx	lr
+		case 7:          asm volatile ("mrc p15,0,%0, c7, c7" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00448:	ee170f17 	mrc	15, 0, r0, cr7, cr7, {0}
+fff0044c:	e12fff1e 	bx	lr
+		case CSTAT:      asm volatile ("mrc p15,0,%0, c8, c8" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00450:	ee180f18 	mrc	15, 0, r0, cr8, cr8, {0}
+fff00454:	e12fff1e 	bx	lr
+		case ADR_FB:     asm volatile ("mrc p15,0,%0, c9, c9" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00458:	ee190f19 	mrc	15, 0, r0, cr9, cr9, {0}
+fff0045c:	e12fff1e 	bx	lr
+		case 10:         asm volatile ("mrc p15,0,%0,c10,c10" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00460:	ee1a0f1a 	mrc	15, 0, r0, cr10, cr10, {0}
+fff00464:	e12fff1e 	bx	lr
+		case LFSR_POLY:  asm volatile ("mrc p15,0,%0,c11,c11" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00468:	ee1b0f1b 	mrc	15, 0, r0, cr11, cr11, {0}
+fff0046c:	e12fff1e 	bx	lr
+		case LFSR_DATA:  asm volatile ("mrc p15,0,%0,c12,c12" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00470:	ee1c0f1c 	mrc	15, 0, r0, cr12, cr12, {0}
+fff00474:	e12fff1e 	bx	lr
+		case SYS_IO:     asm volatile ("mrc p15,0,%0,c13,c13" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00478:	ee1d0f1d 	mrc	15, 0, r0, cr13, cr13, {0}
+fff0047c:	e12fff1e 	bx	lr
+		case 14:         asm volatile ("mrc p15,0,%0,c14,c14" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff00480:	ee1e0f1e 	mrc	15, 0, r0, cr14, cr14, {0}
+fff00484:	e12fff1e 	bx	lr
+		case 15:         asm volatile ("mrc p15,0,%0,c15,c15" : "=r" (_cp_val) : /* no inputs */  ); break;
+		default:         _cp_val = 0; break;
+fff00488:	e3a00000 	mov	r0, #0
+	}
+	return _cp_val;
+}
+fff0048c:	e12fff1e 	bx	lr
+
+fff00490 <set_syscpreg>:
+// ******************************************************************************
+// write system coprocessor register x
+   void set_syscpreg(unsigned long _cp_val, unsigned char index)
+// ******************************************************************************
+{
+	switch(index){
+fff00490:	e2411006 	sub	r1, r1, #6
+fff00494:	e3510007 	cmp	r1, #7
+fff00498:	979ff101 	ldrls	pc, [pc, r1, lsl #2]
+fff0049c:	ea000008 	b	fff004c4 <set_syscpreg+0x34>
+fff004a0:	fff004d8 	.word	0xfff004d8
+fff004a4:	fff004c4 	.word	0xfff004c4
+fff004a8:	fff004c4 	.word	0xfff004c4
+fff004ac:	fff004c4 	.word	0xfff004c4
+fff004b0:	fff004c4 	.word	0xfff004c4
+fff004b4:	fff004d0 	.word	0xfff004d0
+fff004b8:	fff004c8 	.word	0xfff004c8
+fff004bc:	fff004c0 	.word	0xfff004c0
+//		case CSTAT:      asm volatile ("mcr p15,0,%0, c8, c8,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ADR_FB:     asm volatile ("mcr p15,0,%0, c9, c9,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 10:         asm volatile ("mcr p15,0,%0,c10,c10,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_POLY:  asm volatile ("mcr p15,0,%0,c11,c11,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_DATA:  asm volatile ("mcr p15,0,%0,c12,c12,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case SYS_IO:     asm volatile ("mcr p15,0,%0,c13,c13,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff004c0:	ee0d0f1d 	mcr	15, 0, r0, cr13, cr13, {0}
+fff004c4:	e12fff1e 	bx	lr
+//		case 7:          asm volatile ("mcr p15,0,%0, c7, c7,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case CSTAT:      asm volatile ("mcr p15,0,%0, c8, c8,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ADR_FB:     asm volatile ("mcr p15,0,%0, c9, c9,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 10:         asm volatile ("mcr p15,0,%0,c10,c10,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_POLY:  asm volatile ("mcr p15,0,%0,c11,c11,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_DATA:  asm volatile ("mcr p15,0,%0,c12,c12,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff004c8:	ee0c0f1c 	mcr	15, 0, r0, cr12, cr12, {0}
+fff004cc:	e12fff1e 	bx	lr
+		case SYS_CTRL_0: asm volatile ("mcr p15,0,%0, c6, c6,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 7:          asm volatile ("mcr p15,0,%0, c7, c7,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case CSTAT:      asm volatile ("mcr p15,0,%0, c8, c8,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ADR_FB:     asm volatile ("mcr p15,0,%0, c9, c9,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 10:         asm volatile ("mcr p15,0,%0,c10,c10,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_POLY:  asm volatile ("mcr p15,0,%0,c11,c11,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff004d0:	ee0b0f1b 	mcr	15, 0, r0, cr11, cr11, {0}
+fff004d4:	e12fff1e 	bx	lr
+//		case ID_REG_1:   asm volatile ("mcr p15,0,%0, c1, c1,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ID_REG_2:   asm volatile ("mcr p15,0,%0, c2, c2,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 3:          asm volatile ("mcr p15,0,%0, c3, c3,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 4:          asm volatile ("mcr p15,0,%0, c4, c4,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 5:          asm volatile ("mcr p15,0,%0, c5, c5,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case SYS_CTRL_0: asm volatile ("mcr p15,0,%0, c6, c6,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff004d8:	ee060f16 	mcr	15, 0, r0, cr6, cr6, {0}
+fff004dc:	e12fff1e 	bx	lr
+
+fff004e0 <io_enable_xint>:
+// read CMSR value
+   static inline unsigned long get_cmsr(void)
+// ******************************************************************************
+{
+	unsigned long _cmsr;
+	asm volatile (" mrs %0, cpsr" : "=r" (_cmsr) : /* no inputs */  );
+fff004e0:	e10f3000 	mrs	r3, CPSR
+// Enable all external INTs
+   void io_enable_xint(void)
+// ******************************************************************************
+{
+	unsigned long _cmsr = get_cmsr();
+	_cmsr = _cmsr & ~(1<<CMSR_FIQ) &~(1<<CMSR_IRQ);
+fff004e4:	e3c330c0 	bic	r3, r3, #192	; 0xc0
+// ******************************************************************************
+// write CMSR value
+   static inline void set_cmsr(unsigned long _cmsr)
+// ******************************************************************************
+{
+	asm volatile (" msr cpsr, %0" : /* no outputs */ : "r" (_cmsr)  );
+fff004e8:	e129f003 	msr	CPSR_fc, r3
+fff004ec:	e12fff1e 	bx	lr
+
+fff004f0 <io_disable_xint>:
+// read CMSR value
+   static inline unsigned long get_cmsr(void)
+// ******************************************************************************
+{
+	unsigned long _cmsr;
+	asm volatile (" mrs %0, cpsr" : "=r" (_cmsr) : /* no inputs */  );
+fff004f0:	e10f3000 	mrs	r3, CPSR
+// Disable all global IBTs
+   void io_disable_xint(void)
+// ******************************************************************************
+{
+	unsigned long _cmsr = get_cmsr();
+	_cmsr = _cmsr | (1<<CMSR_FIQ) | (1<<CMSR_IRQ);
+fff004f4:	e38330c0 	orr	r3, r3, #192	; 0xc0
+// ******************************************************************************
+// write CMSR value
+   static inline void set_cmsr(unsigned long _cmsr)
+// ******************************************************************************
+{
+	asm volatile (" msr cpsr, %0" : /* no outputs */ : "r" (_cmsr)  );
+fff004f8:	e129f003 	msr	CPSR_fc, r3
+fff004fc:	e12fff1e 	bx	lr
+
+fff00500 <uart0_printf>:
+   const char *uart0_printf(const char *string)
+// ############################################################################################
+{
+	char ch;
+
+	while ((ch = *string)){
+fff00500:	e5d01000 	ldrb	r1, [r0]
+fff00504:	e3510000 	cmp	r1, #0
+fff00508:	012fff1e 	bxeq	lr
+fff0050c:	e280c001 	add	ip, r0, #1
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff00510:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff00514:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff00518:	e3130001 	tst	r3, #1
+fff0051c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00520:	0afffffb 	beq	fff00514 <uart0_printf+0x14>
+	UART0_DATA = (ch & 0x000000FF);
+fff00524:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+		if (io_uart0_send_byte(ch)<=0)
+			break;
+		string++;
+fff00528:	e1a0000c 	mov	r0, ip
+   const char *uart0_printf(const char *string)
+// ############################################################################################
+{
+	char ch;
+
+	while ((ch = *string)){
+fff0052c:	e4dc1001 	ldrb	r1, [ip], #1
+fff00530:	e3510000 	cmp	r1, #0
+fff00534:	1afffff6 	bne	fff00514 <uart0_printf+0x14>
+		if (io_uart0_send_byte(ch)<=0)
+			break;
+		string++;
+	}
+	return string;
+}
+fff00538:	e12fff1e 	bx	lr
+
+fff0053c <uart0_scanf>:
+   void uart0_scanf(unsigned char *buffer, int length, unsigned char en_echo)
+// ############################################################################################
+{
+	int temp = 0;
+
+	while(length > 0){
+fff0053c:	e3510000 	cmp	r1, #0
+
+// ############################################################################################
+// Read text string via UART 0
+   void uart0_scanf(unsigned char *buffer, int length, unsigned char en_echo)
+// ############################################################################################
+{
+fff00540:	e52d4004 	push	{r4}		; (str r4, [sp, #-4]!)
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff00544:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+	int temp = 0;
+
+	while(length > 0){
+fff00548:	da00000d 	ble	fff00584 <uart0_scanf+0x48>
+fff0054c:	e513cfe3 	ldr	ip, [r3, #-4067]	; 0xfe3
+fff00550:	e31c0002 	tst	ip, #2
+fff00554:	0afffffc 	beq	fff0054c <uart0_scanf+0x10>
+		temp = UART0_DATA;
+fff00558:	e513cfe7 	ldr	ip, [r3, #-4071]	; 0xfe7
+		temp = io_uart0_read_byte();
+		if(temp != -1){
+fff0055c:	e37c0001 	cmn	ip, #1
+fff00560:	0afffff9 	beq	fff0054c <uart0_scanf+0x10>
+			temp = (unsigned char)(temp & 0x000000FF);
+fff00564:	e20cc0ff 	and	ip, ip, #255	; 0xff
+			*buffer++ = temp;
+			if(en_echo == 1)
+fff00568:	e3520001 	cmp	r2, #1
+
+	while(length > 0){
+		temp = io_uart0_read_byte();
+		if(temp != -1){
+			temp = (unsigned char)(temp & 0x000000FF);
+			*buffer++ = temp;
+fff0056c:	e5c0c000 	strb	ip, [r0]
+fff00570:	e2800001 	add	r0, r0, #1
+			if(en_echo == 1)
+fff00574:	0a000004 	beq	fff0058c <uart0_scanf+0x50>
+fff00578:	e2411001 	sub	r1, r1, #1
+   void uart0_scanf(unsigned char *buffer, int length, unsigned char en_echo)
+// ############################################################################################
+{
+	int temp = 0;
+
+	while(length > 0){
+fff0057c:	e3510000 	cmp	r1, #0
+fff00580:	cafffff1 	bgt	fff0054c <uart0_scanf+0x10>
+			if(en_echo == 1)
+				io_uart0_send_byte(temp); // echo
+			length--;
+		}
+	}
+}
+fff00584:	e49d4004 	pop	{r4}		; (ldr r4, [sp], #4)
+fff00588:	e12fff1e 	bx	lr
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0058c:	e5134fe3 	ldr	r4, [r3, #-4067]	; 0xfe3
+fff00590:	e3140001 	tst	r4, #1
+fff00594:	e3e04a0f 	mvn	r4, #61440	; 0xf000
+fff00598:	0afffffb 	beq	fff0058c <uart0_scanf+0x50>
+	UART0_DATA = (ch & 0x000000FF);
+fff0059c:	e504cfe7 	str	ip, [r4, #-4071]	; 0xfe7
+fff005a0:	eafffff4 	b	fff00578 <uart0_scanf+0x3c>
+
+fff005a4 <uart0_print_buffer>:
+// Print character buffer via UART 0
+   void uart0_print_buffer(unsigned char *buffer, int size)
+// ############################################################################################
+{
+	unsigned char char_buffer = 0;
+	while(size > 0){
+fff005a4:	e3510000 	cmp	r1, #0
+fff005a8:	d12fff1e 	bxle	lr
+fff005ac:	e080c001 	add	ip, r0, r1
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff005b0:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+		char_buffer = *buffer++;
+fff005b4:	e4d01001 	ldrb	r1, [r0], #1
+fff005b8:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff005bc:	e3130001 	tst	r3, #1
+fff005c0:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff005c4:	0afffffb 	beq	fff005b8 <uart0_print_buffer+0x14>
+// Print character buffer via UART 0
+   void uart0_print_buffer(unsigned char *buffer, int size)
+// ############################################################################################
+{
+	unsigned char char_buffer = 0;
+	while(size > 0){
+fff005c8:	e150000c 	cmp	r0, ip
+	UART0_DATA = (ch & 0x000000FF);
+fff005cc:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff005d0:	1afffff7 	bne	fff005b4 <uart0_print_buffer+0x10>
+fff005d4:	e12fff1e 	bx	lr
+
+fff005d8 <long_to_hex_string>:
+{
+	unsigned char temp_char = 0;
+	unsigned long temp_data = 0;
+
+	// fit into range
+	if(numbers > 8)
+fff005d8:	e3520008 	cmp	r2, #8
+// Convert 4/8/12/16/20/24/28/32 bit hexadecimal value to ASCII string
+   void long_to_hex_string(unsigned long data,    // max 32 bit data word
+                           unsigned char *buffer, // buffer to store the string
+						   unsigned char numbers) // number of places, max 8
+// ############################################################################################
+{
+fff005dc:	e52d4004 	push	{r4}		; (str r4, [sp, #-4]!)
+	unsigned char temp_char = 0;
+	unsigned long temp_data = 0;
+
+	// fit into range
+	if(numbers > 8)
+		numbers = 8;
+fff005e0:	83a02008 	movhi	r2, #8
+{
+	unsigned char temp_char = 0;
+	unsigned long temp_data = 0;
+
+	// fit into range
+	if(numbers > 8)
+fff005e4:	8a000001 	bhi	fff005f0 <long_to_hex_string+0x18>
+		numbers = 8;
+	if(numbers < 1)
+		numbers = 1;
+fff005e8:	e3520000 	cmp	r2, #0
+fff005ec:	03a02001 	moveq	r2, #1
+fff005f0:	e1a03002 	mov	r3, r2
+fff005f4:	e1a04001 	mov	r4, r1
+
+	while(numbers > 0){
+		// isolate one 4-bit value
+		if(numbers > 1)
+fff005f8:	e3530001 	cmp	r3, #1
+			temp_data = data >> ((numbers-1)*4);
+fff005fc:	12433001 	subne	r3, r3, #1
+fff00600:	11a0c103 	lslne	ip, r3, #2
+fff00604:	11a0cc30 	lsrne	ip, r0, ip
+		else
+			temp_data = data;
+fff00608:	01a0c000 	moveq	ip, r0
+		temp_data = temp_data & 0x0000000F;
+fff0060c:	e20cc00f 	and	ip, ip, #15
+fff00610:	03a03000 	moveq	r3, #0
+		numbers--;
+fff00614:	e20330ff 	and	r3, r3, #255	; 0xff
+
+		// convert 4-bit value temp_data to char temp_char
+		if(temp_data < 10)
+fff00618:	e35c0009 	cmp	ip, #9
+			temp_char = '0' + temp_data;
+fff0061c:	928cc030 	addls	ip, ip, #48	; 0x30
+		else
+			temp_char = 'A' + temp_data - 10;
+fff00620:	828cc037 	addhi	ip, ip, #55	; 0x37
+	if(numbers > 8)
+		numbers = 8;
+	if(numbers < 1)
+		numbers = 1;
+
+	while(numbers > 0){
+fff00624:	e3530000 	cmp	r3, #0
+			temp_char = '0' + temp_data;
+		else
+			temp_char = 'A' + temp_data - 10;
+
+		// save character
+		*buffer++ = temp_char;
+fff00628:	e4c4c001 	strb	ip, [r4], #1
+	if(numbers > 8)
+		numbers = 8;
+	if(numbers < 1)
+		numbers = 1;
+
+	while(numbers > 0){
+fff0062c:	1afffff1 	bne	fff005f8 <long_to_hex_string+0x20>
+fff00630:	e2422001 	sub	r2, r2, #1
+fff00634:	e20220ff 	and	r2, r2, #255	; 0xff
+
+		// save character
+		*buffer++ = temp_char;
+	}
+
+	*buffer++ = 0; // terminate string
+fff00638:	e0811002 	add	r1, r1, r2
+fff0063c:	e5c13001 	strb	r3, [r1, #1]
+}
+fff00640:	e49d4004 	pop	{r4}		; (ldr r4, [sp], #4)
+fff00644:	e12fff1e 	bx	lr
+
+fff00648 <get_adc>:
+   unsigned int get_adc(int adc_index) // adc 0..7
+// ############################################################################################
+{
+	unsigned long temp;
+
+	if ((adc_index < 0) || (adc_index > 7))
+fff00648:	e3500007 	cmp	r0, #7
+fff0064c:	8a000023 	bhi	fff006e0 <get_adc+0x98>
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+	// devices update their serial input on a rising edge of sclk,
+	// so we need to update the mosi output of the core before
+	// -> at the falling edge of sclk = set SPI_TX_NEG
+	if(auto_cs == 1)
+		SPI0_CONF = (1<<SPI_ACS) | (1<<SPI_TX_NEG) | data_size; // auto assert cs
+fff00650:	e59f3090 	ldr	r3, [pc, #144]	; fff006e8 <get_adc+0xa0>
+fff00654:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff00658:	e5013fcf 	str	r3, [r1, #-4047]	; 0xfcf
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		SPI0_SCSR = SPI0_SCSR | (1<<device);
+fff0065c:	e5113fc7 	ldr	r3, [r1, #-4039]	; 0xfc7
+fff00660:	e3833040 	orr	r3, r3, #64	; 0x40
+fff00664:	e5013fc7 	str	r3, [r1, #-4039]	; 0xfc7
+
+	// config spi
+	io_spi0_config(1,16); // auto assert cs, 16 bit transfer
+	io_spi0_enable(adc_cs);
+
+	temp = adc_index * 2048;
+fff00668:	e1a00580 	lsl	r0, r0, #11
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	// spi transmission
+	while((SPI0_CONF & (1<<SPI_BUSY)) != 0); // wait for prev tx to finish
+fff0066c:	e5113fcf 	ldr	r3, [r1, #-4047]	; 0xfcf
+fff00670:	e2133c01 	ands	r3, r3, #256	; 0x100
+fff00674:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff00678:	1afffffb 	bne	fff0066c <get_adc+0x24>
+	SPI0_DAT0 = data;
+fff0067c:	e5023fbf 	str	r3, [r2, #-4031]	; 0xfbf
+	SPI0_CONF = SPI0_CONF | (1<<SPI_BUSY); // start transmitter
+fff00680:	e5123fcf 	ldr	r3, [r2, #-4047]	; 0xfcf
+fff00684:	e3833c01 	orr	r3, r3, #256	; 0x100
+fff00688:	e5023fcf 	str	r3, [r2, #-4047]	; 0xfcf
+	while((SPI0_CONF & (1<<SPI_BUSY)) != 0); // wait for rx to finish
+fff0068c:	e5123fcf 	ldr	r3, [r2, #-4047]	; 0xfcf
+fff00690:	e3130c01 	tst	r3, #256	; 0x100
+fff00694:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff00698:	1afffffb 	bne	fff0068c <get_adc+0x44>
+	unsigned long temp = SPI0_DAT0;
+fff0069c:	e5132fbf 	ldr	r2, [r3, #-4031]	; 0xfbf
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	// spi transmission
+	while((SPI0_CONF & (1<<SPI_BUSY)) != 0); // wait for prev tx to finish
+fff006a0:	e1a02003 	mov	r2, r3
+fff006a4:	e5123fcf 	ldr	r3, [r2, #-4047]	; 0xfcf
+fff006a8:	e3130c01 	tst	r3, #256	; 0x100
+fff006ac:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff006b0:	1afffffb 	bne	fff006a4 <get_adc+0x5c>
+	SPI0_DAT0 = data;
+fff006b4:	e5030fbf 	str	r0, [r3, #-4031]	; 0xfbf
+	SPI0_CONF = SPI0_CONF | (1<<SPI_BUSY); // start transmitter
+fff006b8:	e5132fcf 	ldr	r2, [r3, #-4047]	; 0xfcf
+fff006bc:	e3822c01 	orr	r2, r2, #256	; 0x100
+fff006c0:	e5032fcf 	str	r2, [r3, #-4047]	; 0xfcf
+	while((SPI0_CONF & (1<<SPI_BUSY)) != 0); // wait for rx to finish
+fff006c4:	e1a01003 	mov	r1, r3
+fff006c8:	e5113fcf 	ldr	r3, [r1, #-4047]	; 0xfcf
+fff006cc:	e3130c01 	tst	r3, #256	; 0x100
+fff006d0:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff006d4:	1afffffb 	bne	fff006c8 <get_adc+0x80>
+	unsigned long temp = SPI0_DAT0;
+fff006d8:	e5120fbf 	ldr	r0, [r2, #-4031]	; 0xfbf
+	io_spi0_trans(0); // dummy read
+	return (unsigned int)io_spi0_trans(temp);
+fff006dc:	e12fff1e 	bx	lr
+// ############################################################################################
+{
+	unsigned long temp;
+
+	if ((adc_index < 0) || (adc_index > 7))
+		return 0;
+fff006e0:	e3a00000 	mov	r0, #0
+	io_spi0_enable(adc_cs);
+
+	temp = adc_index * 2048;
+	io_spi0_trans(0); // dummy read
+	return (unsigned int)io_spi0_trans(temp);
+}
+fff006e4:	e12fff1e 	bx	lr
+fff006e8:	00002410 	.word	0x00002410
+
+fff006ec <delay>:
+// ############################################################################################
+// simple delay routine
+   void delay(int time) // waits time*10000 clock ticks
+// ############################################################################################
+{
+	time = time*2500*4;
+fff006ec:	e0603280 	rsb	r3, r0, r0, lsl #5
+fff006f0:	e0800103 	add	r0, r0, r3, lsl #2
+fff006f4:	e0800100 	add	r0, r0, r0, lsl #2
+fff006f8:	e1a03200 	lsl	r3, r0, #4
+	while(time > 0){
+fff006fc:	e3530000 	cmp	r3, #0
+fff00700:	d12fff1e 	bxle	lr
+		asm volatile ("NOP");
+fff00704:	e1a00000 	nop			; (mov r0, r0)
+// simple delay routine
+   void delay(int time) // waits time*10000 clock ticks
+// ############################################################################################
+{
+	time = time*2500*4;
+	while(time > 0){
+fff00708:	e2533001 	subs	r3, r3, #1
+fff0070c:	1afffffc 	bne	fff00704 <delay+0x18>
+fff00710:	e12fff1e 	bx	lr
+
+fff00714 <string_cmpc>:
+// ############################################################################################
+// String compare, buffered string with immediate const char string
+   unsigned char string_cmpc(unsigned char *string1, const char *string2, unsigned char length)
+// ############################################################################################
+{
+	while(length != 0){
+fff00714:	e2523000 	subs	r3, r2, #0
+fff00718:	0a00000b 	beq	fff0074c <string_cmpc+0x38>
+		if(*string1++ != (unsigned char)*string2++)
+fff0071c:	e5d0c000 	ldrb	ip, [r0]
+fff00720:	e5d12000 	ldrb	r2, [r1]
+fff00724:	e15c0002 	cmp	ip, r2
+fff00728:	0a000004 	beq	fff00740 <string_cmpc+0x2c>
+fff0072c:	ea000008 	b	fff00754 <string_cmpc+0x40>
+fff00730:	e5f0c001 	ldrb	ip, [r0, #1]!
+fff00734:	e5f12001 	ldrb	r2, [r1, #1]!
+fff00738:	e15c0002 	cmp	ip, r2
+fff0073c:	1a000004 	bne	fff00754 <string_cmpc+0x40>
+			return(0); // missmatch
+		length--;
+fff00740:	e2433001 	sub	r3, r3, #1
+// ############################################################################################
+// String compare, buffered string with immediate const char string
+   unsigned char string_cmpc(unsigned char *string1, const char *string2, unsigned char length)
+// ############################################################################################
+{
+	while(length != 0){
+fff00744:	e21330ff 	ands	r3, r3, #255	; 0xff
+fff00748:	1afffff8 	bne	fff00730 <string_cmpc+0x1c>
+		if(*string1++ != (unsigned char)*string2++)
+			return(0); // missmatch
+		length--;
+	}
+	return(1); // match
+fff0074c:	e3a00001 	mov	r0, #1
+fff00750:	e12fff1e 	bx	lr
+   unsigned char string_cmpc(unsigned char *string1, const char *string2, unsigned char length)
+// ############################################################################################
+{
+	while(length != 0){
+		if(*string1++ != (unsigned char)*string2++)
+			return(0); // missmatch
+fff00754:	e3a00000 	mov	r0, #0
+		length--;
+	}
+	return(1); // match
+}
+fff00758:	e12fff1e 	bx	lr
+
+fff0075c <hex_string_to_long>:
+unsigned long int hex_string_to_long ( char *hexstr, int charlen )
+{
+	unsigned long int hexval =  0 ;
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+fff0075c:	e1a01081 	lsl	r1, r1, #1
+fff00760:	e3510000 	cmp	r1, #0
+#include "../lib/uart.c"
+#include "../lib/utilities.c"
+//#include <stdlib.h>
+
+unsigned long int hex_string_to_long ( char *hexstr, int charlen )
+{
+fff00764:	e52d4004 	push	{r4}		; (str r4, [sp, #-4]!)
+	unsigned long int hexval =  0 ;
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+fff00768:	da000018 	ble	fff007d0 <hex_string_to_long+0x74>
+fff0076c:	e1a02000 	mov	r2, r0
+fff00770:	e0804001 	add	r4, r0, r1
+#include "../lib/utilities.c"
+//#include <stdlib.h>
+
+unsigned long int hex_string_to_long ( char *hexstr, int charlen )
+{
+	unsigned long int hexval =  0 ;
+fff00774:	e3a00000 	mov	r0, #0
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+		if (( hexstr[i] >= 48 ) & (hexstr[i] <= 57 )) 
+fff00778:	e4d23001 	ldrb	r3, [r2], #1
+fff0077c:	e2431030 	sub	r1, r3, #48	; 0x30
+fff00780:	e20110ff 	and	r1, r1, #255	; 0xff
+fff00784:	e3510009 	cmp	r1, #9
+			hexval = (hexval <<4 ) + hexstr[i] - (int) '0';
+		else if (( hexstr[i] >= 65 ) & ( hexstr[i] <= 70 )) 
+fff00788:	e243c041 	sub	ip, r3, #65	; 0x41
+	unsigned long int hexval =  0 ;
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+		if (( hexstr[i] >= 48 ) & (hexstr[i] <= 57 )) 
+			hexval = (hexval <<4 ) + hexstr[i] - (int) '0';
+fff0078c:	90830200 	addls	r0, r3, r0, lsl #4
+		else if (( hexstr[i] >= 65 ) & ( hexstr[i] <= 70 )) 
+fff00790:	e20cc0ff 	and	ip, ip, #255	; 0xff
+	unsigned long int hexval =  0 ;
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+		if (( hexstr[i] >= 48 ) & (hexstr[i] <= 57 )) 
+			hexval = (hexval <<4 ) + hexstr[i] - (int) '0';
+fff00794:	92400030 	subls	r0, r0, #48	; 0x30
+{
+	unsigned long int hexval =  0 ;
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+		if (( hexstr[i] >= 48 ) & (hexstr[i] <= 57 )) 
+fff00798:	9a000008 	bls	fff007c0 <hex_string_to_long+0x64>
+			hexval = (hexval <<4 ) + hexstr[i] - (int) '0';
+		else if (( hexstr[i] >= 65 ) & ( hexstr[i] <= 70 )) 
+fff0079c:	e35c0005 	cmp	ip, #5
+			hexval = (hexval <<4 ) + hexstr[i] + 10 - (int) 'A';
+		else if (( hexstr[i] >= 97 ) & ( hexstr[i] <= 102)) 
+fff007a0:	e2431061 	sub	r1, r3, #97	; 0x61
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+		if (( hexstr[i] >= 48 ) & (hexstr[i] <= 57 )) 
+			hexval = (hexval <<4 ) + hexstr[i] - (int) '0';
+		else if (( hexstr[i] >= 65 ) & ( hexstr[i] <= 70 )) 
+			hexval = (hexval <<4 ) + hexstr[i] + 10 - (int) 'A';
+fff007a4:	90830200 	addls	r0, r3, r0, lsl #4
+		else if (( hexstr[i] >= 97 ) & ( hexstr[i] <= 102)) 
+fff007a8:	e20110ff 	and	r1, r1, #255	; 0xff
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+		if (( hexstr[i] >= 48 ) & (hexstr[i] <= 57 )) 
+			hexval = (hexval <<4 ) + hexstr[i] - (int) '0';
+		else if (( hexstr[i] >= 65 ) & ( hexstr[i] <= 70 )) 
+			hexval = (hexval <<4 ) + hexstr[i] + 10 - (int) 'A';
+fff007ac:	92400037 	subls	r0, r0, #55	; 0x37
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+		if (( hexstr[i] >= 48 ) & (hexstr[i] <= 57 )) 
+			hexval = (hexval <<4 ) + hexstr[i] - (int) '0';
+		else if (( hexstr[i] >= 65 ) & ( hexstr[i] <= 70 )) 
+fff007b0:	9a000002 	bls	fff007c0 <hex_string_to_long+0x64>
+			hexval = (hexval <<4 ) + hexstr[i] + 10 - (int) 'A';
+		else if (( hexstr[i] >= 97 ) & ( hexstr[i] <= 102)) 
+fff007b4:	e3510005 	cmp	r1, #5
+			hexval = (hexval <<4 ) + hexstr[i] +10 - (int) 'a';
+fff007b8:	90830200 	addls	r0, r3, r0, lsl #4
+fff007bc:	92400057 	subls	r0, r0, #87	; 0x57
+unsigned long int hex_string_to_long ( char *hexstr, int charlen )
+{
+	unsigned long int hexval =  0 ;
+	int i;
+
+	for (i=0 ; i< (charlen*2) ; i++ ) {
+fff007c0:	e1520004 	cmp	r2, r4
+fff007c4:	1affffeb 	bne	fff00778 <hex_string_to_long+0x1c>
+		else if (( hexstr[i] >= 97 ) & ( hexstr[i] <= 102)) 
+			hexval = (hexval <<4 ) + hexstr[i] +10 - (int) 'a';
+	} //for
+ 
+	return hexval;
+}
+fff007c8:	e49d4004 	pop	{r4}		; (ldr r4, [sp], #4)
+fff007cc:	e12fff1e 	bx	lr
+#include "../lib/utilities.c"
+//#include <stdlib.h>
+
+unsigned long int hex_string_to_long ( char *hexstr, int charlen )
+{
+	unsigned long int hexval =  0 ;
+fff007d0:	e3a00000 	mov	r0, #0
+fff007d4:	eafffffb 	b	fff007c8 <hex_string_to_long+0x6c>
+
+fff007d8 <qbytes_to_long>:
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff007d8:	e5d03001 	ldrb	r3, [r0, #1]
+fff007dc:	e5d01002 	ldrb	r1, [r0, #2]
+fff007e0:	e5d02003 	ldrb	r2, [r0, #3]
+fff007e4:	e1a03803 	lsl	r3, r3, #16
+fff007e8:	e1833401 	orr	r3, r3, r1, lsl #8
+fff007ec:	e5d00000 	ldrb	r0, [r0]
+fff007f0:	e1833002 	orr	r3, r3, r2
+	return n;
+}
+fff007f4:	e1830c00 	orr	r0, r3, r0, lsl #24
+fff007f8:	e12fff1e 	bx	lr
+fff007fc:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00800:	0d0a2b2d 	.word	0x0d0a2b2d
+fff00804:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00808:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0080c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00810:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00814:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00818:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0081c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00820:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00824:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00828:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0082c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00830:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00834:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00838:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0083c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00840:	2d2d2d2b 	.word	0x2d2d2d2b
+fff00844:	0d0a0000 	.word	0x0d0a0000
+fff00848:	7c202020 	.word	0x7c202020
+fff0084c:	203c3c3c 	.word	0x203c3c3c
+fff00850:	2053544f 	.word	0x2053544f
+fff00854:	524d2043 	.word	0x524d2043
+fff00858:	6f726520 	.word	0x6f726520
+fff0085c:	50726f63 	.word	0x50726f63
+fff00860:	6573736f 	.word	0x6573736f
+fff00864:	72205379 	.word	0x72205379
+fff00868:	7374656d 	.word	0x7374656d
+fff0086c:	202d2042 	.word	0x202d2042
+fff00870:	79205374 	.word	0x79205374
+fff00874:	65706861 	.word	0x65706861
+fff00878:	6e204e6f 	.word	0x6e204e6f
+fff0087c:	6c74696e 	.word	0x6c74696e
+fff00880:	67203e3e 	.word	0x67203e3e
+fff00884:	3e202020 	.word	0x3e202020
+fff00888:	207c0d0a 	.word	0x207c0d0a
+fff0088c:	00000000 	.word	0x00000000
+fff00890:	2b2d2d2d 	.word	0x2b2d2d2d
+fff00894:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00898:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0089c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008a0:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008a4:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008a8:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008ac:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008b0:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008b4:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008b8:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008bc:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008c0:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008c4:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008c8:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008cc:	2d2d2d2d 	.word	0x2d2d2d2d
+fff008d0:	2d2b0d0a 	.word	0x2d2b0d0a
+fff008d4:	00000000 	.word	0x00000000
+fff008d8:	7c202020 	.word	0x7c202020
+fff008dc:	20202020 	.word	0x20202020
+fff008e0:	2020426f 	.word	0x2020426f
+fff008e4:	6f746c6f 	.word	0x6f746c6f
+fff008e8:	61646572 	.word	0x61646572
+fff008ec:	20666f72 	.word	0x20666f72
+fff008f0:	2053544f 	.word	0x2053544f
+fff008f4:	524d2053 	.word	0x524d2053
+fff008f8:	6f432020 	.word	0x6f432020
+fff008fc:	20566572 	.word	0x20566572
+fff00900:	73696f6e 	.word	0x73696f6e
+fff00904:	3a203230 	.word	0x3a203230
+fff00908:	31323035 	.word	0x31323035
+fff0090c:	32342d44 	.word	0x32342d44
+fff00910:	20202020 	.word	0x20202020
+fff00914:	20202020 	.word	0x20202020
+fff00918:	207c0d0a 	.word	0x207c0d0a
+fff0091c:	00000000 	.word	0x00000000
+fff00920:	7c202020 	.word	0x7c202020
+fff00924:	20202020 	.word	0x20202020
+fff00928:	20202020 	.word	0x20202020
+fff0092c:	20202020 	.word	0x20202020
+fff00930:	436f6e74 	.word	0x436f6e74
+fff00934:	6163743a 	.word	0x6163743a
+fff00938:	2073746e 	.word	0x2073746e
+fff0093c:	6f6c7469 	.word	0x6f6c7469
+fff00940:	6e674067 	.word	0x6e674067
+fff00944:	6f6f676c 	.word	0x6f6f676c
+fff00948:	656d6169 	.word	0x656d6169
+fff0094c:	6c2e636f 	.word	0x6c2e636f
+fff00950:	6d202020 	.word	0x6d202020
+fff00954:	20202020 	.word	0x20202020
+fff00958:	20202020 	.word	0x20202020
+fff0095c:	20202020 	.word	0x20202020
+fff00960:	207c0d0a 	.word	0x207c0d0a
+fff00964:	00000000 	.word	0x00000000
+fff00968:	2b2d2d2d 	.word	0x2b2d2d2d
+fff0096c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00970:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00974:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00978:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0097c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00980:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00984:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00988:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0098c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00990:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00994:	2d2d2d2d 	.word	0x2d2d2d2d
+fff00998:	2d2d2d2d 	.word	0x2d2d2d2d
+fff0099c:	2d2d2d2d 	.word	0x2d2d2d2d
+fff009a0:	2d2d2d2d 	.word	0x2d2d2d2d
+fff009a4:	2d2d2d2d 	.word	0x2d2d2d2d
+fff009a8:	2d2b0d0a 	.word	0x2d2b0d0a
+fff009ac:	0d0a0000 	.word	0x0d0a0000
+fff009b0:	203c2057 	.word	0x203c2057
+fff009b4:	656c636f 	.word	0x656c636f
+fff009b8:	6d652074 	.word	0x6d652074
+fff009bc:	6f207468 	.word	0x6f207468
+fff009c0:	65205354 	.word	0x65205354
+fff009c4:	4f524d20 	.word	0x4f524d20
+fff009c8:	536f4320 	.word	0x536f4320
+fff009cc:	626f6f74 	.word	0x626f6f74
+fff009d0:	6c6f6164 	.word	0x6c6f6164
+fff009d4:	65722063 	.word	0x65722063
+fff009d8:	6f6e736f 	.word	0x6f6e736f
+fff009dc:	6c652120 	.word	0x6c652120
+fff009e0:	3e0d0a20 	.word	0x3e0d0a20
+fff009e4:	3c205365 	.word	0x3c205365
+fff009e8:	6c656374 	.word	0x6c656374
+fff009ec:	20616e20 	.word	0x20616e20
+fff009f0:	6f706572 	.word	0x6f706572
+fff009f4:	6174696f 	.word	0x6174696f
+fff009f8:	6e206672 	.word	0x6e206672
+fff009fc:	6f6d2074 	.word	0x6f6d2074
+fff00a00:	6865206d 	.word	0x6865206d
+fff00a04:	656e7520 	.word	0x656e7520
+fff00a08:	62656c6f 	.word	0x62656c6f
+fff00a0c:	77206f72 	.word	0x77206f72
+fff00a10:	20707265 	.word	0x20707265
+fff00a14:	7373203e 	.word	0x7373203e
+fff00a18:	0d0a0000 	.word	0x0d0a0000
+fff00a1c:	203c2074 	.word	0x203c2074
+fff00a20:	68652062 	.word	0x68652062
+fff00a24:	6f6f7420 	.word	0x6f6f7420
+fff00a28:	6b657920 	.word	0x6b657920
+fff00a2c:	666f7220 	.word	0x666f7220
+fff00a30:	696d6d65 	.word	0x696d6d65
+fff00a34:	64696174 	.word	0x64696174
+fff00a38:	65206170 	.word	0x65206170
+fff00a3c:	706c6963 	.word	0x706c6963
+fff00a40:	6174696f 	.word	0x6174696f
+fff00a44:	6e207374 	.word	0x6e207374
+fff00a48:	6172742e 	.word	0x6172742e
+fff00a4c:	203e0d0a 	.word	0x203e0d0a
+fff00a50:	0d0a0000 	.word	0x0d0a0000
+fff00a54:	2030202d 	.word	0x2030202d
+fff00a58:	20626f6f 	.word	0x20626f6f
+fff00a5c:	74206672 	.word	0x74206672
+fff00a60:	6f6d2063 	.word	0x6f6d2063
+fff00a64:	6f726520 	.word	0x6f726520
+fff00a68:	52414d20 	.word	0x52414d20
+fff00a6c:	28737461 	.word	0x28737461
+fff00a70:	72742061 	.word	0x72742061
+fff00a74:	70706c69 	.word	0x70706c69
+fff00a78:	63617469 	.word	0x63617469
+fff00a7c:	6f6e290d 	.word	0x6f6e290d
+fff00a80:	0a203120 	.word	0x0a203120
+fff00a84:	2d207072 	.word	0x2d207072
+fff00a88:	6f677261 	.word	0x6f677261
+fff00a8c:	6d20636f 	.word	0x6d20636f
+fff00a90:	72652052 	.word	0x72652052
+fff00a94:	414d2076 	.word	0x414d2076
+fff00a98:	69612055 	.word	0x69612055
+fff00a9c:	4152545f 	.word	0x4152545f
+fff00aa0:	300d0a20 	.word	0x300d0a20
+fff00aa4:	32202d20 	.word	0x32202d20
+fff00aa8:	636f7265 	.word	0x636f7265
+fff00aac:	2052414d 	.word	0x2052414d
+fff00ab0:	2064756d 	.word	0x2064756d
+fff00ab4:	700d0a00 	.word	0x700d0a00
+fff00ab8:	2033202d 	.word	0x2033202d
+fff00abc:	20626f6f 	.word	0x20626f6f
+fff00ac0:	74206672 	.word	0x74206672
+fff00ac4:	6f6d2049 	.word	0x6f6d2049
+fff00ac8:	32432045 	.word	0x32432045
+fff00acc:	4550524f 	.word	0x4550524f
+fff00ad0:	4d0d0a20 	.word	0x4d0d0a20
+fff00ad4:	34202d20 	.word	0x34202d20
+fff00ad8:	70726f67 	.word	0x70726f67
+fff00adc:	72616d20 	.word	0x72616d20
+fff00ae0:	49324320 	.word	0x49324320
+fff00ae4:	45455052 	.word	0x45455052
+fff00ae8:	4f4d2076 	.word	0x4f4d2076
+fff00aec:	69612055 	.word	0x69612055
+fff00af0:	4152545f 	.word	0x4152545f
+fff00af4:	300d0a20 	.word	0x300d0a20
+fff00af8:	35202d20 	.word	0x35202d20
+fff00afc:	73686f77 	.word	0x73686f77
+fff00b00:	20636f6e 	.word	0x20636f6e
+fff00b04:	74656e74 	.word	0x74656e74
+fff00b08:	206f6620 	.word	0x206f6620
+fff00b0c:	49324320 	.word	0x49324320
+fff00b10:	45455052 	.word	0x45455052
+fff00b14:	4f4d0d0a 	.word	0x4f4d0d0a
+fff00b18:	00000000 	.word	0x00000000
+fff00b1c:	2061202d 	.word	0x2061202d
+fff00b20:	20617574 	.word	0x20617574
+fff00b24:	6f6d6174 	.word	0x6f6d6174
+fff00b28:	69632062 	.word	0x69632062
+fff00b2c:	6f6f7420 	.word	0x6f6f7420
+fff00b30:	636f6e66 	.word	0x636f6e66
+fff00b34:	69677572 	.word	0x69677572
+fff00b38:	6174696f 	.word	0x6174696f
+fff00b3c:	6e0d0a20 	.word	0x6e0d0a20
+fff00b40:	68202d20 	.word	0x68202d20
+fff00b44:	68656c70 	.word	0x68656c70
+fff00b48:	0d0a2072 	.word	0x0d0a2072
+fff00b4c:	202d2072 	.word	0x202d2072
+fff00b50:	65737461 	.word	0x65737461
+fff00b54:	72742073 	.word	0x72742073
+fff00b58:	79737465 	.word	0x79737465
+fff00b5c:	6d0d0a0d 	.word	0x6d0d0a0d
+fff00b60:	0a53656c 	.word	0x0a53656c
+fff00b64:	6563743a 	.word	0x6563743a
+fff00b68:	20000000 	.word	0x20000000
+fff00b6c:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00b70:	4170706c 	.word	0x4170706c
+fff00b74:	69636174 	.word	0x69636174
+fff00b78:	696f6e20 	.word	0x696f6e20
+fff00b7c:	77696c6c 	.word	0x77696c6c
+fff00b80:	20737461 	.word	0x20737461
+fff00b84:	72742061 	.word	0x72742061
+fff00b88:	75746f6d 	.word	0x75746f6d
+fff00b8c:	61746963 	.word	0x61746963
+fff00b90:	616c6c79 	.word	0x616c6c79
+fff00b94:	20616674 	.word	0x20616674
+fff00b98:	65722064 	.word	0x65722064
+fff00b9c:	6f776e6c 	.word	0x6f776e6c
+fff00ba0:	6f61642e 	.word	0x6f61642e
+fff00ba4:	0d0a2d3e 	.word	0x0d0a2d3e
+fff00ba8:	20576169 	.word	0x20576169
+fff00bac:	74696e67 	.word	0x74696e67
+fff00bb0:	20666f72 	.word	0x20666f72
+fff00bb4:	20277374 	.word	0x20277374
+fff00bb8:	6f726d5f 	.word	0x6f726d5f
+fff00bbc:	70726f67 	.word	0x70726f67
+fff00bc0:	72616d2e 	.word	0x72616d2e
+fff00bc4:	62696e27 	.word	0x62696e27
+fff00bc8:	20696e20 	.word	0x20696e20
+fff00bcc:	62797465 	.word	0x62797465
+fff00bd0:	2d737472 	.word	0x2d737472
+fff00bd4:	65616d20 	.word	0x65616d20
+fff00bd8:	6d6f6465 	.word	0x6d6f6465
+fff00bdc:	2e2e2e00 	.word	0x2e2e2e00
+fff00be0:	20496e76 	.word	0x20496e76
+fff00be4:	616c6964 	.word	0x616c6964
+fff00be8:	2070726f 	.word	0x2070726f
+fff00bec:	6772616d 	.word	0x6772616d
+fff00bf0:	6d696e67 	.word	0x6d696e67
+fff00bf4:	2066696c 	.word	0x2066696c
+fff00bf8:	65210d0a 	.word	0x65210d0a
+fff00bfc:	0d0a5365 	.word	0x0d0a5365
+fff00c00:	6c656374 	.word	0x6c656374
+fff00c04:	3a200000 	.word	0x3a200000
+fff00c08:	20455252 	.word	0x20455252
+fff00c0c:	4f522120 	.word	0x4f522120
+fff00c10:	50726f67 	.word	0x50726f67
+fff00c14:	72616d20 	.word	0x72616d20
+fff00c18:	66696c65 	.word	0x66696c65
+fff00c1c:	20746f6f 	.word	0x20746f6f
+fff00c20:	20626967 	.word	0x20626967
+fff00c24:	210d0a0d 	.word	0x210d0a0d
+fff00c28:	0a000000 	.word	0x0a000000
+fff00c2c:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00c30:	41626f72 	.word	0x41626f72
+fff00c34:	74206475 	.word	0x74206475
+fff00c38:	6d70696e 	.word	0x6d70696e
+fff00c3c:	67206279 	.word	0x67206279
+fff00c40:	20707265 	.word	0x20707265
+fff00c44:	7373696e 	.word	0x7373696e
+fff00c48:	6720616e 	.word	0x6720616e
+fff00c4c:	79206b65 	.word	0x79206b65
+fff00c50:	792e0d0a 	.word	0x792e0d0a
+fff00c54:	50726573 	.word	0x50726573
+fff00c58:	7320616e 	.word	0x7320616e
+fff00c5c:	79206b65 	.word	0x79206b65
+fff00c60:	7920746f 	.word	0x7920746f
+fff00c64:	20636f6e 	.word	0x20636f6e
+fff00c68:	74696e75 	.word	0x74696e75
+fff00c6c:	652e0d0a 	.word	0x652e0d0a
+fff00c70:	0d0a0000 	.word	0x0d0a0000
+fff00c74:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00c78:	44756d70 	.word	0x44756d70
+fff00c7c:	696e6720 	.word	0x696e6720
+fff00c80:	636f6d70 	.word	0x636f6d70
+fff00c84:	6c657465 	.word	0x6c657465
+fff00c88:	642e0d0a 	.word	0x642e0d0a
+fff00c8c:	0d0a5365 	.word	0x0d0a5365
+fff00c90:	6c656374 	.word	0x6c656374
+fff00c94:	3a200000 	.word	0x3a200000
+fff00c98:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00c9c:	456e7465 	.word	0x456e7465
+fff00ca0:	72206465 	.word	0x72206465
+fff00ca4:	76696365 	.word	0x76696365
+fff00ca8:	20616464 	.word	0x20616464
+fff00cac:	72657373 	.word	0x72657373
+fff00cb0:	20283278 	.word	0x20283278
+fff00cb4:	20686578 	.word	0x20686578
+fff00cb8:	5f636861 	.word	0x5f636861
+fff00cbc:	72732c20 	.word	0x72732c20
+fff00cc0:	73657420 	.word	0x73657420
+fff00cc4:	4c534220 	.word	0x4c534220
+fff00cc8:	746f2027 	.word	0x746f2027
+fff00ccc:	3027293a 	.word	0x3027293a
+fff00cd0:	20000000 	.word	0x20000000
+fff00cd4:	20496e76 	.word	0x20496e76
+fff00cd8:	616c6964 	.word	0x616c6964
+fff00cdc:	20616464 	.word	0x20616464
+fff00ce0:	72657373 	.word	0x72657373
+fff00ce4:	210d0a0d 	.word	0x210d0a0d
+fff00ce8:	0a53656c 	.word	0x0a53656c
+fff00cec:	6563743a 	.word	0x6563743a
+fff00cf0:	20000000 	.word	0x20000000
+fff00cf4:	20496e76 	.word	0x20496e76
+fff00cf8:	616c6964 	.word	0x616c6964
+fff00cfc:	20626f6f 	.word	0x20626f6f
+fff00d00:	74206465 	.word	0x74206465
+fff00d04:	76696365 	.word	0x76696365
+fff00d08:	206f7220 	.word	0x206f7220
+fff00d0c:	66696c65 	.word	0x66696c65
+fff00d10:	210d0a0d 	.word	0x210d0a0d
+fff00d14:	0a53656c 	.word	0x0a53656c
+fff00d18:	6563743a 	.word	0x6563743a
+fff00d1c:	20000000 	.word	0x20000000
+fff00d20:	2055706c 	.word	0x2055706c
+fff00d24:	6f616420 	.word	0x6f616420
+fff00d28:	636f6d70 	.word	0x636f6d70
+fff00d2c:	6c657465 	.word	0x6c657465
+fff00d30:	0d0a0000 	.word	0x0d0a0000
+fff00d34:	0d0a496e 	.word	0x0d0a496e
+fff00d38:	76616c69 	.word	0x76616c69
+fff00d3c:	64206164 	.word	0x64206164
+fff00d40:	64726573 	.word	0x64726573
+fff00d44:	73210d0a 	.word	0x73210d0a
+fff00d48:	0d0a5365 	.word	0x0d0a5365
+fff00d4c:	6c656374 	.word	0x6c656374
+fff00d50:	3a200000 	.word	0x3a200000
+fff00d54:	0d0a4461 	.word	0x0d0a4461
+fff00d58:	74612077 	.word	0x74612077
+fff00d5c:	696c6c20 	.word	0x696c6c20
+fff00d60:	6f766572 	.word	0x6f766572
+fff00d64:	77726974 	.word	0x77726974
+fff00d68:	65205241 	.word	0x65205241
+fff00d6c:	4d20636f 	.word	0x4d20636f
+fff00d70:	6e74656e 	.word	0x6e74656e
+fff00d74:	74210d0a 	.word	0x74210d0a
+fff00d78:	2d3e2057 	.word	0x2d3e2057
+fff00d7c:	61697469 	.word	0x61697469
+fff00d80:	6e672066 	.word	0x6e672066
+fff00d84:	6f722027 	.word	0x6f722027
+fff00d88:	73746f72 	.word	0x73746f72
+fff00d8c:	6d5f7072 	.word	0x6d5f7072
+fff00d90:	6f677261 	.word	0x6f677261
+fff00d94:	6d2e6269 	.word	0x6d2e6269
+fff00d98:	6e272069 	.word	0x6e272069
+fff00d9c:	6e206279 	.word	0x6e206279
+fff00da0:	74652d73 	.word	0x74652d73
+fff00da4:	74726561 	.word	0x74726561
+fff00da8:	6d206d6f 	.word	0x6d206d6f
+fff00dac:	64652e2e 	.word	0x64652e2e
+fff00db0:	2e000000 	.word	0x2e000000
+fff00db4:	20496e76 	.word	0x20496e76
+fff00db8:	616c6964 	.word	0x616c6964
+fff00dbc:	20626f6f 	.word	0x20626f6f
+fff00dc0:	74206465 	.word	0x74206465
+fff00dc4:	76696365 	.word	0x76696365
+fff00dc8:	206f7220 	.word	0x206f7220
+fff00dcc:	66696c65 	.word	0x66696c65
+fff00dd0:	210d0a0d 	.word	0x210d0a0d
+fff00dd4:	0a000000 	.word	0x0a000000
+fff00dd8:	20446f77 	.word	0x20446f77
+fff00ddc:	6e6c6f61 	.word	0x6e6c6f61
+fff00de0:	6420636f 	.word	0x6420636f
+fff00de4:	6d706c65 	.word	0x6d706c65
+fff00de8:	7465640d 	.word	0x7465640d
+fff00dec:	0a000000 	.word	0x0a000000
+fff00df0:	57726974 	.word	0x57726974
+fff00df4:	696e6720 	.word	0x696e6720
+fff00df8:	62756666 	.word	0x62756666
+fff00dfc:	65722074 	.word	0x65722074
+fff00e00:	6f206932 	.word	0x6f206932
+fff00e04:	63204545 	.word	0x63204545
+fff00e08:	50524f4d 	.word	0x50524f4d
+fff00e0c:	2e2e2e00 	.word	0x2e2e2e00
+fff00e10:	20436f6d 	.word	0x20436f6d
+fff00e14:	706c6574 	.word	0x706c6574
+fff00e18:	65640d0a 	.word	0x65640d0a
+fff00e1c:	0d0a0000 	.word	0x0d0a0000
+fff00e20:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00e24:	456e7465 	.word	0x456e7465
+fff00e28:	72206465 	.word	0x72206465
+fff00e2c:	76696365 	.word	0x76696365
+fff00e30:	20616464 	.word	0x20616464
+fff00e34:	72657373 	.word	0x72657373
+fff00e38:	20283220 	.word	0x20283220
+fff00e3c:	6865782d 	.word	0x6865782d
+fff00e40:	63686172 	.word	0x63686172
+fff00e44:	732c2073 	.word	0x732c2073
+fff00e48:	6574204c 	.word	0x6574204c
+fff00e4c:	53422074 	.word	0x53422074
+fff00e50:	6f202730 	.word	0x6f202730
+fff00e54:	27293a20 	.word	0x27293a20
+fff00e58:	00000000 	.word	0x00000000
+fff00e5c:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00e60:	41626f72 	.word	0x41626f72
+fff00e64:	74206475 	.word	0x74206475
+fff00e68:	6d70696e 	.word	0x6d70696e
+fff00e6c:	67206279 	.word	0x67206279
+fff00e70:	20707265 	.word	0x20707265
+fff00e74:	7373696e 	.word	0x7373696e
+fff00e78:	6720616e 	.word	0x6720616e
+fff00e7c:	79206b65 	.word	0x79206b65
+fff00e80:	792e2049 	.word	0x792e2049
+fff00e84:	66206e6f 	.word	0x66206e6f
+fff00e88:	20646174 	.word	0x20646174
+fff00e8c:	61206973 	.word	0x61206973
+fff00e90:	2073686f 	.word	0x2073686f
+fff00e94:	776e2c0d 	.word	0x776e2c0d
+fff00e98:	0a000000 	.word	0x0a000000
+fff00e9c:	74686520 	.word	0x74686520
+fff00ea0:	73656c65 	.word	0x73656c65
+fff00ea4:	63746564 	.word	0x63746564
+fff00ea8:	20646576 	.word	0x20646576
+fff00eac:	69636520 	.word	0x69636520
+fff00eb0:	6973206e 	.word	0x6973206e
+fff00eb4:	6f742072 	.word	0x6f742072
+fff00eb8:	6573706f 	.word	0x6573706f
+fff00ebc:	6e64696e 	.word	0x6e64696e
+fff00ec0:	672e2050 	.word	0x672e2050
+fff00ec4:	72657373 	.word	0x72657373
+fff00ec8:	20616e79 	.word	0x20616e79
+fff00ecc:	206b6579 	.word	0x206b6579
+fff00ed0:	20746f20 	.word	0x20746f20
+fff00ed4:	636f6e74 	.word	0x636f6e74
+fff00ed8:	696e7565 	.word	0x696e7565
+fff00edc:	2e0d0a0d 	.word	0x2e0d0a0d
+fff00ee0:	0a000000 	.word	0x0a000000
+fff00ee4:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00ee8:	41626f72 	.word	0x41626f72
+fff00eec:	74656421 	.word	0x74656421
+fff00ef0:	00000000 	.word	0x00000000
+fff00ef4:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00ef8:	4175746f 	.word	0x4175746f
+fff00efc:	6d617469 	.word	0x6d617469
+fff00f00:	6320626f 	.word	0x6320626f
+fff00f04:	6f742063 	.word	0x6f742063
+fff00f08:	6f6e6669 	.word	0x6f6e6669
+fff00f0c:	67757261 	.word	0x67757261
+fff00f10:	74696f6e 	.word	0x74696f6e
+fff00f14:	20666f72 	.word	0x20666f72
+fff00f18:	20706f77 	.word	0x20706f77
+fff00f1c:	65722d75 	.word	0x65722d75
+fff00f20:	703a0d0a 	.word	0x703a0d0a
+fff00f24:	00000000 	.word	0x00000000
+fff00f28:	5b333231 	.word	0x5b333231
+fff00f2c:	305d2063 	.word	0x305d2063
+fff00f30:	6f6e6669 	.word	0x6f6e6669
+fff00f34:	67757261 	.word	0x67757261
+fff00f38:	74696f6e 	.word	0x74696f6e
+fff00f3c:	20444950 	.word	0x20444950
+fff00f40:	20737769 	.word	0x20737769
+fff00f44:	7463680d 	.word	0x7463680d
+fff00f48:	0a203030 	.word	0x0a203030
+fff00f4c:	3030202d 	.word	0x3030202d
+fff00f50:	20537461 	.word	0x20537461
+fff00f54:	72742062 	.word	0x72742062
+fff00f58:	6f6f746c 	.word	0x6f6f746c
+fff00f5c:	6f616465 	.word	0x6f616465
+fff00f60:	7220636f 	.word	0x7220636f
+fff00f64:	6e736f6c 	.word	0x6e736f6c
+fff00f68:	650d0a20 	.word	0x650d0a20
+fff00f6c:	30303031 	.word	0x30303031
+fff00f70:	202d2041 	.word	0x202d2041
+fff00f74:	75746f6d 	.word	0x75746f6d
+fff00f78:	61746963 	.word	0x61746963
+fff00f7c:	20626f6f 	.word	0x20626f6f
+fff00f80:	74206672 	.word	0x74206672
+fff00f84:	6f6d2063 	.word	0x6f6d2063
+fff00f88:	6f726520 	.word	0x6f726520
+fff00f8c:	52414d0d 	.word	0x52414d0d
+fff00f90:	0a000000 	.word	0x0a000000
+fff00f94:	20303031 	.word	0x20303031
+fff00f98:	30202d20 	.word	0x30202d20
+fff00f9c:	4175746f 	.word	0x4175746f
+fff00fa0:	6d617469 	.word	0x6d617469
+fff00fa4:	6320626f 	.word	0x6320626f
+fff00fa8:	6f742066 	.word	0x6f742066
+fff00fac:	726f6d20 	.word	0x726f6d20
+fff00fb0:	49324320 	.word	0x49324320
+fff00fb4:	45455052 	.word	0x45455052
+fff00fb8:	4f4d2028 	.word	0x4f4d2028
+fff00fbc:	41646472 	.word	0x41646472
+fff00fc0:	65737320 	.word	0x65737320
+fff00fc4:	30784130 	.word	0x30784130
+fff00fc8:	290d0a0d 	.word	0x290d0a0d
+fff00fcc:	0a53656c 	.word	0x0a53656c
+fff00fd0:	6563743a 	.word	0x6563743a
+fff00fd4:	20000000 	.word	0x20000000
+fff00fd8:	0d0a0d0a 	.word	0x0d0a0d0a
+fff00fdc:	53544f52 	.word	0x53544f52
+fff00fe0:	4d20536f 	.word	0x4d20536f
+fff00fe4:	4320626f 	.word	0x4320626f
+fff00fe8:	6f746c6f 	.word	0x6f746c6f
+fff00fec:	61646572 	.word	0x61646572
+fff00ff0:	0d0a0000 	.word	0x0d0a0000
+fff00ff4:	2730273a 	.word	0x2730273a
+fff00ff8:	20457865 	.word	0x20457865
+fff00ffc:	63757465 	.word	0x63757465
+fff01000:	2070726f 	.word	0x2070726f
+fff01004:	6772616d 	.word	0x6772616d
+fff01008:	20696e20 	.word	0x20696e20
+fff0100c:	52414d2e 	.word	0x52414d2e
+fff01010:	0d0a0000 	.word	0x0d0a0000
+fff01014:	2731273a 	.word	0x2731273a
+fff01018:	20577269 	.word	0x20577269
+fff0101c:	74652027 	.word	0x74652027
+fff01020:	73746f72 	.word	0x73746f72
+fff01024:	6d5f7072 	.word	0x6d5f7072
+fff01028:	6f677261 	.word	0x6f677261
+fff0102c:	6d2e6269 	.word	0x6d2e6269
+fff01030:	6e272074 	.word	0x6e272074
+fff01034:	6f207468 	.word	0x6f207468
+fff01038:	6520636f 	.word	0x6520636f
+fff0103c:	72652773 	.word	0x72652773
+fff01040:	2052414d 	.word	0x2052414d
+fff01044:	20766961 	.word	0x20766961
+fff01048:	20554152 	.word	0x20554152
+fff0104c:	542e0d0a 	.word	0x542e0d0a
+fff01050:	00000000 	.word	0x00000000
+fff01054:	2732273a 	.word	0x2732273a
+fff01058:	20507269 	.word	0x20507269
+fff0105c:	6e742063 	.word	0x6e742063
+fff01060:	75727265 	.word	0x75727265
+fff01064:	6e742063 	.word	0x6e742063
+fff01068:	6f6e7465 	.word	0x6f6e7465
+fff0106c:	6e74206f 	.word	0x6e74206f
+fff01070:	6620636f 	.word	0x6620636f
+fff01074:	6d706c65 	.word	0x6d706c65
+fff01078:	74652063 	.word	0x74652063
+fff0107c:	6f726520 	.word	0x6f726520
+fff01080:	52414d2e 	.word	0x52414d2e
+fff01084:	0d0a0000 	.word	0x0d0a0000
+fff01088:	2733273a 	.word	0x2733273a
+fff0108c:	204c6f61 	.word	0x204c6f61
+fff01090:	6420626f 	.word	0x6420626f
+fff01094:	6f742069 	.word	0x6f742069
+fff01098:	6d616765 	.word	0x6d616765
+fff0109c:	2066726f 	.word	0x2066726f
+fff010a0:	6d204545 	.word	0x6d204545
+fff010a4:	50524f4d 	.word	0x50524f4d
+fff010a8:	20616e64 	.word	0x20616e64
+fff010ac:	20737461 	.word	0x20737461
+fff010b0:	72742061 	.word	0x72742061
+fff010b4:	70706c69 	.word	0x70706c69
+fff010b8:	63617469 	.word	0x63617469
+fff010bc:	6f6e2e0d 	.word	0x6f6e2e0d
+fff010c0:	0a000000 	.word	0x0a000000
+fff010c4:	2734273a 	.word	0x2734273a
+fff010c8:	20577269 	.word	0x20577269
+fff010cc:	74652027 	.word	0x74652027
+fff010d0:	73746f72 	.word	0x73746f72
+fff010d4:	6d5f7072 	.word	0x6d5f7072
+fff010d8:	6f677261 	.word	0x6f677261
+fff010dc:	6d2e6269 	.word	0x6d2e6269
+fff010e0:	6e272074 	.word	0x6e272074
+fff010e4:	6f204932 	.word	0x6f204932
+fff010e8:	43204545 	.word	0x43204545
+fff010ec:	50524f4d 	.word	0x50524f4d
+fff010f0:	20766961 	.word	0x20766961
+fff010f4:	20554152 	.word	0x20554152
+fff010f8:	542e0d0a 	.word	0x542e0d0a
+fff010fc:	00000000 	.word	0x00000000
+fff01100:	2735273a 	.word	0x2735273a
+fff01104:	20507269 	.word	0x20507269
+fff01108:	6e742063 	.word	0x6e742063
+fff0110c:	6f6e7465 	.word	0x6f6e7465
+fff01110:	6e74206f 	.word	0x6e74206f
+fff01114:	66204932 	.word	0x66204932
+fff01118:	43204545 	.word	0x43204545
+fff0111c:	50524f4d 	.word	0x50524f4d
+fff01120:	2e0d0a00 	.word	0x2e0d0a00
+fff01124:	2761273a 	.word	0x2761273a
+fff01128:	2053686f 	.word	0x2053686f
+fff0112c:	77204449 	.word	0x77204449
+fff01130:	50207377 	.word	0x50207377
+fff01134:	69746368 	.word	0x69746368
+fff01138:	20636f6e 	.word	0x20636f6e
+fff0113c:	66696775 	.word	0x66696775
+fff01140:	72617469 	.word	0x72617469
+fff01144:	6f6e7320 	.word	0x6f6e7320
+fff01148:	666f7220 	.word	0x666f7220
+fff0114c:	6175746f 	.word	0x6175746f
+fff01150:	6d617469 	.word	0x6d617469
+fff01154:	6320626f 	.word	0x6320626f
+fff01158:	6f742e0d 	.word	0x6f742e0d
+fff0115c:	0a000000 	.word	0x0a000000
+fff01160:	2768273a 	.word	0x2768273a
+fff01164:	2053686f 	.word	0x2053686f
+fff01168:	77207468 	.word	0x77207468
+fff0116c:	69732073 	.word	0x69732073
+fff01170:	63726565 	.word	0x63726565
+fff01174:	6e2e0d0a 	.word	0x6e2e0d0a
+fff01178:	00000000 	.word	0x00000000
+fff0117c:	2772273a 	.word	0x2772273a
+fff01180:	20526573 	.word	0x20526573
+fff01184:	65742073 	.word	0x65742073
+fff01188:	79737465 	.word	0x79737465
+fff0118c:	6d2e0d0a 	.word	0x6d2e0d0a
+fff01190:	0d0a0000 	.word	0x0d0a0000
+fff01194:	426f6f74 	.word	0x426f6f74
+fff01198:	20454550 	.word	0x20454550
+fff0119c:	524f4d3a 	.word	0x524f4d3a
+fff011a0:	20323478 	.word	0x20323478
+fff011a4:	786e6e6e 	.word	0x786e6e6e
+fff011a8:	20286c69 	.word	0x20286c69
+fff011ac:	6b652032 	.word	0x6b652032
+fff011b0:	34414136 	.word	0x34414136
+fff011b4:	34292c20 	.word	0x34292c20
+fff011b8:	37206269 	.word	0x37206269
+fff011bc:	74206164 	.word	0x74206164
+fff011c0:	64726573 	.word	0x64726573
+fff011c4:	73202b20 	.word	0x73202b20
+fff011c8:	646f6e74 	.word	0x646f6e74
+fff011cc:	2d636172 	.word	0x2d636172
+fff011d0:	65206269 	.word	0x65206269
+fff011d4:	742c0d0a 	.word	0x742c0d0a
+fff011d8:	00000000 	.word	0x00000000
+fff011dc:	636f6e6e 	.word	0x636f6e6e
+fff011e0:	65637465 	.word	0x65637465
+fff011e4:	6420746f 	.word	0x6420746f
+fff011e8:	20493243 	.word	0x20493243
+fff011ec:	5f434f4e 	.word	0x5f434f4e
+fff011f0:	54524f4c 	.word	0x54524f4c
+fff011f4:	4c45525f 	.word	0x4c45525f
+fff011f8:	302c206f 	.word	0x302c206f
+fff011fc:	70657261 	.word	0x70657261
+fff01200:	74696e67 	.word	0x74696e67
+fff01204:	20667265 	.word	0x20667265
+fff01208:	7175656e 	.word	0x7175656e
+fff0120c:	63792069 	.word	0x63792069
+fff01210:	73203130 	.word	0x73203130
+fff01214:	306b487a 	.word	0x306b487a
+fff01218:	2c0d0a00 	.word	0x2c0d0a00
+fff0121c:	6d617869 	.word	0x6d617869
+fff01220:	6d756d20 	.word	0x6d756d20
+fff01224:	45455052 	.word	0x45455052
+fff01228:	4f4d2073 	.word	0x4f4d2073
+fff0122c:	697a6520 	.word	0x697a6520
+fff01230:	3d203635 	.word	0x3d203635
+fff01234:	35333620 	.word	0x35333620
+fff01238:	62797465 	.word	0x62797465
+fff0123c:	203d3e20 	.word	0x203d3e20
+fff01240:	31362062 	.word	0x31362062
+fff01244:	69742061 	.word	0x69742061
+fff01248:	64647265 	.word	0x64647265
+fff0124c:	73736573 	.word	0x73736573
+fff01250:	2c0d0a00 	.word	0x2c0d0a00
+fff01254:	66697865 	.word	0x66697865
+fff01258:	6420626f 	.word	0x6420626f
+fff0125c:	6f742064 	.word	0x6f742064
+fff01260:	65766963 	.word	0x65766963
+fff01264:	65206164 	.word	0x65206164
+fff01268:	64726573 	.word	0x64726573
+fff0126c:	733a2030 	.word	0x733a2030
+fff01270:	7841300d 	.word	0x7841300d
+fff01274:	0a0d0a00 	.word	0x0a0d0a00
+fff01278:	5465726d 	.word	0x5465726d
+fff0127c:	696e616c 	.word	0x696e616c
+fff01280:	20736574 	.word	0x20736574
+fff01284:	75703a20 	.word	0x75703a20
+fff01288:	39363030 	.word	0x39363030
+fff0128c:	20626175 	.word	0x20626175
+fff01290:	642c2038 	.word	0x642c2038
+fff01294:	20646174 	.word	0x20646174
+fff01298:	61206269 	.word	0x61206269
+fff0129c:	74732c20 	.word	0x74732c20
+fff012a0:	6e6f2070 	.word	0x6e6f2070
+fff012a4:	61726974 	.word	0x61726974
+fff012a8:	792c2031 	.word	0x792c2031
+fff012ac:	2073746f 	.word	0x2073746f
+fff012b0:	70206269 	.word	0x70206269
+fff012b4:	740d0a0d 	.word	0x740d0a0d
+fff012b8:	0a000000 	.word	0x0a000000
+fff012bc:	466f7220 	.word	0x466f7220
+fff012c0:	6d6f7265 	.word	0x6d6f7265
+fff012c4:	20696e66 	.word	0x20696e66
+fff012c8:	6f726d61 	.word	0x6f726d61
+fff012cc:	74696f6e 	.word	0x74696f6e
+fff012d0:	20736565 	.word	0x20736565
+fff012d4:	20746865 	.word	0x20746865
+fff012d8:	2053544f 	.word	0x2053544f
+fff012dc:	524d2043 	.word	0x524d2043
+fff012e0:	6f726520 	.word	0x6f726520
+fff012e4:	2f205354 	.word	0x2f205354
+fff012e8:	4f524d20 	.word	0x4f524d20
+fff012ec:	536f4320 	.word	0x536f4320
+fff012f0:	64617461 	.word	0x64617461
+fff012f4:	73686565 	.word	0x73686565
+fff012f8:	740d0a00 	.word	0x740d0a00
+fff012fc:	68747470 	.word	0x68747470
+fff01300:	3a2f2f6f 	.word	0x3a2f2f6f
+fff01304:	70656e63 	.word	0x70656e63
+fff01308:	6f726573 	.word	0x6f726573
+fff0130c:	2e6f7267 	.word	0x2e6f7267
+fff01310:	2f70726f 	.word	0x2f70726f
+fff01314:	6a656374 	.word	0x6a656374
+fff01318:	2c73746f 	.word	0x2c73746f
+fff0131c:	726d5f63 	.word	0x726d5f63
+fff01320:	6f72650d 	.word	0x6f72650d
+fff01324:	0a000000 	.word	0x0a000000
+fff01328:	68747470 	.word	0x68747470
+fff0132c:	3a2f2f6f 	.word	0x3a2f2f6f
+fff01330:	70656e63 	.word	0x70656e63
+fff01334:	6f726573 	.word	0x6f726573
+fff01338:	2e6f7267 	.word	0x2e6f7267
+fff0133c:	2f70726f 	.word	0x2f70726f
+fff01340:	6a656374 	.word	0x6a656374
+fff01344:	2c73746f 	.word	0x2c73746f
+fff01348:	726d5f73 	.word	0x726d5f73
+fff0134c:	6f630d0a 	.word	0x6f630d0a
+fff01350:	00000000 	.word	0x00000000
+fff01354:	436f6e74 	.word	0x436f6e74
+fff01358:	6163743a 	.word	0x6163743a
+fff0135c:	2073746e 	.word	0x2073746e
+fff01360:	6f6c7469 	.word	0x6f6c7469
+fff01364:	6e674067 	.word	0x6e674067
+fff01368:	6f6f676c 	.word	0x6f6f676c
+fff0136c:	656d6169 	.word	0x656d6169
+fff01370:	6c2e636f 	.word	0x6c2e636f
+fff01374:	6d0d0a00 	.word	0x6d0d0a00
+fff01378:	28632920 	.word	0x28632920
+fff0137c:	32303132 	.word	0x32303132
+fff01380:	20627920 	.word	0x20627920
+fff01384:	53746570 	.word	0x53746570
+fff01388:	68616e20 	.word	0x68616e20
+fff0138c:	4e6f6c74 	.word	0x4e6f6c74
+fff01390:	696e670d 	.word	0x696e670d
+fff01394:	0a0d0a53 	.word	0x0a0d0a53
+fff01398:	656c6563 	.word	0x656c6563
+fff0139c:	743a2000 	.word	0x743a2000
+fff013a0:	0d0a0d0a 	.word	0x0d0a0d0a
+fff013a4:	5765276c 	.word	0x5765276c
+fff013a8:	6c207365 	.word	0x6c207365
+fff013ac:	6e642079 	.word	0x6e642079
+fff013b0:	6f752062 	.word	0x6f752062
+fff013b4:	61636b20 	.word	0x61636b20
+fff013b8:	2d20746f 	.word	0x2d20746f
+fff013bc:	20746865 	.word	0x20746865
+fff013c0:	20667574 	.word	0x20667574
+fff013c4:	75726521 	.word	0x75726521
+fff013c8:	2e0d0a0d 	.word	0x2e0d0a0d
+fff013cc:	0a000000 	.word	0x0a000000
+fff013d0:	202d2044 	.word	0x202d2044
+fff013d4:	6f63746f 	.word	0x6f63746f
+fff013d8:	7220456d 	.word	0x7220456d
+fff013dc:	6d657420 	.word	0x6d657420
+fff013e0:	4c2e2042 	.word	0x4c2e2042
+fff013e4:	726f776e 	.word	0x726f776e
+fff013e8:	0d0a0d0a 	.word	0x0d0a0d0a
+fff013ec:	53656c65 	.word	0x53656c65
+fff013f0:	63743a20 	.word	0x63743a20
+fff013f4:	00000000 	.word	0x00000000
+fff013f8:	20496e76 	.word	0x20496e76
+fff013fc:	616c6964 	.word	0x616c6964
+fff01400:	206f7065 	.word	0x206f7065
+fff01404:	72617469 	.word	0x72617469
+fff01408:	6f6e210d 	.word	0x6f6e210d
+fff0140c:	0a547279 	.word	0x0a547279
+fff01410:	20616761 	.word	0x20616761
+fff01414:	696e3a20 	.word	0x696e3a20
+fff01418:	00000000 	.word	0x00000000
+fff0141c:	0d0a4170 	.word	0x0d0a4170
+fff01420:	706c6963 	.word	0x706c6963
+fff01424:	6174696f 	.word	0x6174696f
+fff01428:	6e207769 	.word	0x6e207769
+fff0142c:	6c6c2073 	.word	0x6c6c2073
+fff01430:	74617274 	.word	0x74617274
+fff01434:	20617574 	.word	0x20617574
+fff01438:	6f6d6174 	.word	0x6f6d6174
+fff0143c:	6963616c 	.word	0x6963616c
+fff01440:	6c792061 	.word	0x6c792061
+fff01444:	66746572 	.word	0x66746572
+fff01448:	2075706c 	.word	0x2075706c
+fff0144c:	6f61642e 	.word	0x6f61642e
+fff01450:	0d0a2d3e 	.word	0x0d0a2d3e
+fff01454:	204c6f61 	.word	0x204c6f61
+fff01458:	64696e67 	.word	0x64696e67
+fff0145c:	20626f6f 	.word	0x20626f6f
+fff01460:	7420696d 	.word	0x7420696d
+fff01464:	6167652e 	.word	0x6167652e
+fff01468:	2e2e0000 	.word	0x2e2e0000
+fff0146c:	0d0a0d0a 	.word	0x0d0a0d0a
+fff01470:	2d3e2053 	.word	0x2d3e2053
+fff01474:	74617274 	.word	0x74617274
+fff01478:	696e6720 	.word	0x696e6720
+fff0147c:	6170706c 	.word	0x6170706c
+fff01480:	69636174 	.word	0x69636174
+fff01484:	696f6e2e 	.word	0x696f6e2e
+fff01488:	2e2e0d0a 	.word	0x2e2e0d0a
+fff0148c:	0d0a0000 	.word	0x0d0a0000
+
+Disassembly of section .text.startup:
+
+fff01490 <main>:
+
+// ############################################################################################
+// STORM SoC Bootloader
+   int main(void)
+// ############################################################################################
+{
+fff01490:	e92d47f0 	push	{r4, r5, r6, r7, r8, r9, sl, lr}
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+		GPIO0_OUT = value;
+fff01494:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01498:	e3a02000 	mov	r2, #0
+fff0149c:	e5032fff 	str	r2, [r3, #-4095]	; 0xfff
+fff014a0:	e24dd010 	sub	sp, sp, #16
+//		case CSTAT:      asm volatile ("mcr p15,0,%0, c8, c8,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ADR_FB:     asm volatile ("mcr p15,0,%0, c9, c9,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 10:         asm volatile ("mcr p15,0,%0,c10,c10,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_POLY:  asm volatile ("mcr p15,0,%0,c11,c11,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_DATA:  asm volatile ("mcr p15,0,%0,c12,c12,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case SYS_IO:     asm volatile ("mcr p15,0,%0,c13,c13,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff014a4:	e3a030c3 	mov	r3, #195	; 0xc3
+fff014a8:	ee0d3f1d 	mcr	15, 0, r3, cr13, cr13, {0}
+   void io_i2c0_speed(unsigned long clk_divider)
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+		I2C0_CTRL = I2C0_CTRL & ~(1<<I2C_EN); // disable i2c core
+fff014ac:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff014b0:	e5130f97 	ldr	r0, [r3, #-3991]	; 0xf97
+		I2C0_PRLO = clk_divider;
+fff014b4:	e3a01063 	mov	r1, #99	; 0x63
+   void io_i2c0_speed(unsigned long clk_divider)
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+		I2C0_CTRL = I2C0_CTRL & ~(1<<I2C_EN); // disable i2c core
+fff014b8:	e3c00080 	bic	r0, r0, #128	; 0x80
+fff014bc:	e5030f97 	str	r0, [r3, #-3991]	; 0xf97
+		I2C0_PRLO = clk_divider;
+fff014c0:	e5031f9f 	str	r1, [r3, #-3999]	; 0xf9f
+		I2C0_PRHI = clk_divider >> 8;
+fff014c4:	e5032f9b 	str	r2, [r3, #-3995]	; 0xf9b
+		I2C0_CTRL = I2C0_CTRL | (1<<I2C_EN); // enable i2c core
+fff014c8:	e5132f97 	ldr	r2, [r3, #-3991]	; 0xf97
+fff014cc:	e3822080 	orr	r2, r2, #128	; 0x80
+fff014d0:	e5032f97 	str	r2, [r3, #-3991]	; 0xf97
+		case ID_REG_1:   asm volatile ("mrc p15,0,%0, c1, c1" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case ID_REG_2:   asm volatile ("mrc p15,0,%0, c2, c2" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 3:          asm volatile ("mrc p15,0,%0, c3, c3" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 4:          asm volatile ("mrc p15,0,%0, c4, c4" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 5:          asm volatile ("mrc p15,0,%0, c5, c5" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case SYS_CTRL_0: asm volatile ("mrc p15,0,%0, c6, c6" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff014d4:	ee163f16 	mrc	15, 0, r3, cr6, cr6, {0}
+
+	// init I2C
+	io_i2c0_speed(0x0063); // 100kHz
+
+	// enable write-through strategy
+	set_syscpreg(get_syscpreg(SYS_CTRL_0) | (1<<DC_WTHRU), SYS_CTRL_0);
+fff014d8:	e3833008 	orr	r3, r3, #8
+//		case ID_REG_1:   asm volatile ("mcr p15,0,%0, c1, c1,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ID_REG_2:   asm volatile ("mcr p15,0,%0, c2, c2,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 3:          asm volatile ("mcr p15,0,%0, c3, c3,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 4:          asm volatile ("mcr p15,0,%0, c4, c4,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 5:          asm volatile ("mcr p15,0,%0, c5, c5,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case SYS_CTRL_0: asm volatile ("mcr p15,0,%0, c6, c6,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff014dc:	ee063f16 	mcr	15, 0, r3, cr6, cr6, {0}
+		case CSTAT:      asm volatile ("mrc p15,0,%0, c8, c8" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case ADR_FB:     asm volatile ("mrc p15,0,%0, c9, c9" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 10:         asm volatile ("mrc p15,0,%0,c10,c10" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case LFSR_POLY:  asm volatile ("mrc p15,0,%0,c11,c11" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case LFSR_DATA:  asm volatile ("mrc p15,0,%0,c12,c12" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case SYS_IO:     asm volatile ("mrc p15,0,%0,c13,c13" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff014e0:	ee1d3f1d 	mrc	15, 0, r3, cr13, cr13, {0}
+
+	// Check config switches for immediate boot-config
+	function_sel = (int)((~(get_syscpreg(SYS_IO) >> 17)) & 0x0F);
+fff014e4:	e1e038a3 	mvn	r3, r3, lsr #17
+fff014e8:	e203300f 	and	r3, r3, #15
+	switch(function_sel){
+fff014ec:	e3530001 	cmp	r3, #1
+fff014f0:	0a00008c 	beq	fff01728 <main+0x298>
+fff014f4:	e3530002 	cmp	r3, #2
+fff014f8:	1a00009c 	bne	fff01770 <main+0x2e0>
+// ############################################################################################
+// STORM SoC Bootloader
+   int main(void)
+// ############################################################################################
+{
+	int function_sel, data, i, start_app = 0;
+fff014fc:	e3a07000 	mov	r7, #0
+
+	// Check config switches for immediate boot-config
+	function_sel = (int)((~(get_syscpreg(SYS_IO) >> 17)) & 0x0F);
+	switch(function_sel){
+		case 1: function_sel = '0'; goto main_menu; break; // auto start application from RAM
+		case 2: function_sel = '3'; goto main_menu; start_app = 1; device_id = 0xA0; break; // auto boot from i2c EEPROM 0xA0
+fff01500:	e3a03033 	mov	r3, #51	; 0x33
+fff01504:	e28d5008 	add	r5, sp, #8
+fff01508:	ee1d2f1d 	mrc	15, 0, r2, cr13, cr13, {0}
+		function_sel = io_uart0_read_byte();
+
+main_menu:
+
+		// boot button
+		if (((get_syscpreg(SYS_IO) >> 16) & 0x01) == 0){
+fff0150c:	e3120801 	tst	r2, #65536	; 0x10000
+fff01510:	0a000039 	beq	fff015fc <main+0x16c>
+			start_app    = 1;
+			device_id    = 0xA0;
+		}
+
+		// main functions
+		switch(function_sel){
+fff01514:	e3530034 	cmp	r3, #52	; 0x34
+fff01518:	0a00010f 	beq	fff0195c <main+0x4cc>
+fff0151c:	da00036d 	ble	fff022d8 <main+0xe48>
+fff01520:	e3530066 	cmp	r3, #102	; 0x66
+fff01524:	0a000329 	beq	fff021d0 <main+0xd40>
+fff01528:	ca000082 	bgt	fff01738 <main+0x2a8>
+fff0152c:	e3530035 	cmp	r3, #53	; 0x35
+fff01530:	0a000343 	beq	fff02244 <main+0xdb4>
+fff01534:	e3530061 	cmp	r3, #97	; 0x61
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01538:	03e03a0f 	mvneq	r3, #61440	; 0xf000
+fff0153c:	1a000311 	bne	fff02188 <main+0xcf8>
+fff01540:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff01544:	e3120001 	tst	r2, #1
+fff01548:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff0154c:	0afffffb 	beq	fff01540 <main+0xb0>
+	UART0_DATA = (ch & 0x000000FF);
+fff01550:	e3a03061 	mov	r3, #97	; 0x61
+fff01554:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff01558:	e59f0f14 	ldr	r0, [pc, #3860]	; fff02474 <main+0xfe4>
+   const char *uart0_printf(const char *string)
+// ############################################################################################
+{
+	char ch;
+
+	while ((ch = *string)){
+fff0155c:	e3a0200d 	mov	r2, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01560:	e5113fe3 	ldr	r3, [r1, #-4067]	; 0xfe3
+fff01564:	e3130001 	tst	r3, #1
+fff01568:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0156c:	0afffffb 	beq	fff01560 <main+0xd0>
+	UART0_DATA = (ch & 0x000000FF);
+fff01570:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01574:	e5f02001 	ldrb	r2, [r0, #1]!
+fff01578:	e3520000 	cmp	r2, #0
+fff0157c:	1afffff7 	bne	fff01560 <main+0xd0>
+fff01580:	e59fcef0 	ldr	ip, [pc, #3824]	; fff02478 <main+0xfe8>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01584:	e1a00003 	mov	r0, r3
+fff01588:	e3a0205b 	mov	r2, #91	; 0x5b
+fff0158c:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01590:	e3110001 	tst	r1, #1
+fff01594:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01598:	0afffffb 	beq	fff0158c <main+0xfc>
+	UART0_DATA = (ch & 0x000000FF);
+fff0159c:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff015a0:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff015a4:	e3520000 	cmp	r2, #0
+fff015a8:	1afffff7 	bne	fff0158c <main+0xfc>
+fff015ac:	e59f0ec8 	ldr	r0, [pc, #3784]	; fff0247c <main+0xfec>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff015b0:	e1a01003 	mov	r1, r3
+fff015b4:	e3a03020 	mov	r3, #32
+fff015b8:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff015bc:	e3120001 	tst	r2, #1
+fff015c0:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff015c4:	0afffffb 	beq	fff015b8 <main+0x128>
+	UART0_DATA = (ch & 0x000000FF);
+fff015c8:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff015cc:	e5f03001 	ldrb	r3, [r0, #1]!
+fff015d0:	e3530000 	cmp	r3, #0
+fff015d4:	1afffff7 	bne	fff015b8 <main+0x128>
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff015d8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff015dc:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff015e0:	e3120002 	tst	r2, #2
+		temp = UART0_DATA;
+fff015e4:	15133fe7 	ldrne	r3, [r3, #-4071]	; 0xfe7
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff015e8:	1affffc6 	bne	fff01508 <main+0x78>
+		temp = UART0_DATA;
+	else
+		temp = -1;
+fff015ec:	e3e03000 	mvn	r3, #0
+		case CSTAT:      asm volatile ("mrc p15,0,%0, c8, c8" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case ADR_FB:     asm volatile ("mrc p15,0,%0, c9, c9" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 10:         asm volatile ("mrc p15,0,%0,c10,c10" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case LFSR_POLY:  asm volatile ("mrc p15,0,%0,c11,c11" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case LFSR_DATA:  asm volatile ("mrc p15,0,%0,c12,c12" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case SYS_IO:     asm volatile ("mrc p15,0,%0,c13,c13" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff015f0:	ee1d2f1d 	mrc	15, 0, r2, cr13, cr13, {0}
+		function_sel = io_uart0_read_byte();
+
+main_menu:
+
+		// boot button
+		if (((get_syscpreg(SYS_IO) >> 16) & 0x01) == 0){
+fff015f4:	e3120801 	tst	r2, #65536	; 0x10000
+fff015f8:	1affffc5 	bne	fff01514 <main+0x84>
+			function_sel = '3';
+			start_app    = 1;
+fff015fc:	e3a07001 	mov	r7, #1
+			device_id    = 0xA0;
+fff01600:	e3a040a0 	mov	r4, #160	; 0xa0
+fff01604:	e59f3e74 	ldr	r3, [pc, #3700]	; fff02480 <main+0xff0>
+fff01608:	e3a0600d 	mov	r6, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0160c:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff01610:	e5121fe3 	ldr	r1, [r2, #-4067]	; 0xfe3
+fff01614:	e3110001 	tst	r1, #1
+fff01618:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff0161c:	0afffffb 	beq	fff01610 <main+0x180>
+	UART0_DATA = (ch & 0x000000FF);
+fff01620:	e5016fe7 	str	r6, [r1, #-4071]	; 0xfe7
+fff01624:	e5f36001 	ldrb	r6, [r3, #1]!
+fff01628:	e3560000 	cmp	r6, #0
+fff0162c:	1afffff7 	bne	fff01610 <main+0x180>
+					}
+				}
+
+				uart0_printf("\r\nApplication will start automatically after upload.\r\n-> Loading boot image...");
+				cnt = 0;
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01630:	e1a01004 	mov	r1, r4
+fff01634:	e1a02006 	mov	r2, r6
+fff01638:	e3a03002 	mov	r3, #2
+fff0163c:	e58d6000 	str	r6, [sp]
+fff01640:	e3a00072 	mov	r0, #114	; 0x72
+fff01644:	ebfffb0c 	bl	fff0027c <io_i2c0_byte_transfer>
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01648:	e1a01004 	mov	r1, r4
+					}
+				}
+
+				uart0_printf("\r\nApplication will start automatically after upload.\r\n-> Loading boot image...");
+				cnt = 0;
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff0164c:	e5cd0008 	strb	r0, [sp, #8]
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01650:	e3a02001 	mov	r2, #1
+fff01654:	e3a03002 	mov	r3, #2
+fff01658:	e58d6000 	str	r6, [sp]
+fff0165c:	e3a00072 	mov	r0, #114	; 0x72
+fff01660:	ebfffb05 	bl	fff0027c <io_i2c0_byte_transfer>
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01664:	e3a02002 	mov	r2, #2
+fff01668:	e1a03002 	mov	r3, r2
+				}
+
+				uart0_printf("\r\nApplication will start automatically after upload.\r\n-> Loading boot image...");
+				cnt = 0;
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff0166c:	e5cd0009 	strb	r0, [sp, #9]
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01670:	e1a01004 	mov	r1, r4
+fff01674:	e58d6000 	str	r6, [sp]
+fff01678:	e3a00072 	mov	r0, #114	; 0x72
+fff0167c:	ebfffafe 	bl	fff0027c <io_i2c0_byte_transfer>
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01680:	e3a02003 	mov	r2, #3
+
+				uart0_printf("\r\nApplication will start automatically after upload.\r\n-> Loading boot image...");
+				cnt = 0;
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01684:	e5cd000a 	strb	r0, [sp, #10]
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01688:	e3a03002 	mov	r3, #2
+fff0168c:	e58d6000 	str	r6, [sp]
+fff01690:	e1a01004 	mov	r1, r4
+fff01694:	e3a00072 	mov	r0, #114	; 0x72
+fff01698:	ebfffaf7 	bl	fff0027c <io_i2c0_byte_transfer>
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+fff0169c:	e5dd2008 	ldrb	r2, [sp, #8]
+				uart0_printf("\r\nApplication will start automatically after upload.\r\n-> Loading boot image...");
+				cnt = 0;
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff016a0:	e20030ff 	and	r3, r0, #255	; 0xff
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+fff016a4:	e3520053 	cmp	r2, #83	; 0x53
+				uart0_printf("\r\nApplication will start automatically after upload.\r\n-> Loading boot image...");
+				cnt = 0;
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff016a8:	e5cd300b 	strb	r3, [sp, #11]
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+fff016ac:	0a00016d 	beq	fff01c68 <main+0x7d8>
+fff016b0:	e59f2dcc 	ldr	r2, [pc, #3532]	; fff02484 <main+0xff4>
+					buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					adr_buffer = qbytes_to_long(buffer);
+					data_pointer = 0;
+fff016b4:	e3a03020 	mov	r3, #32
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff016b8:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff016bc:	e5110fe3 	ldr	r0, [r1, #-4067]	; 0xfe3
+fff016c0:	e3100001 	tst	r0, #1
+fff016c4:	e3e00a0f 	mvn	r0, #61440	; 0xf000
+fff016c8:	0afffffb 	beq	fff016bc <main+0x22c>
+	UART0_DATA = (ch & 0x000000FF);
+fff016cc:	e5003fe7 	str	r3, [r0, #-4071]	; 0xfe7
+fff016d0:	e5f23001 	ldrb	r3, [r2, #1]!
+fff016d4:	e3530000 	cmp	r3, #0
+fff016d8:	1afffff7 	bne	fff016bc <main+0x22c>
+				break;
+
+		}
+
+		// start application request
+		if(start_app != 0)
+fff016dc:	e3570000 	cmp	r7, #0
+fff016e0:	0affffbc 	beq	fff015d8 <main+0x148>
+fff016e4:	e59f0d9c 	ldr	r0, [pc, #3484]	; fff02488 <main+0xff8>
+fff016e8:	e3a0100d 	mov	r1, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff016ec:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff016f0:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff016f4:	e3130001 	tst	r3, #1
+fff016f8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff016fc:	0afffffb 	beq	fff016f0 <main+0x260>
+	UART0_DATA = (ch & 0x000000FF);
+fff01700:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff01704:	e5f01001 	ldrb	r1, [r0, #1]!
+fff01708:	e3510000 	cmp	r1, #0
+fff0170c:	1afffff7 	bne	fff016f0 <main+0x260>
+//		case CSTAT:      asm volatile ("mcr p15,0,%0, c8, c8,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ADR_FB:     asm volatile ("mcr p15,0,%0, c9, c9,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 10:         asm volatile ("mcr p15,0,%0,c10,c10,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_POLY:  asm volatile ("mcr p15,0,%0,c11,c11,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case LFSR_DATA:  asm volatile ("mcr p15,0,%0,c12,c12,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case SYS_IO:     asm volatile ("mcr p15,0,%0,c13,c13,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff01710:	ee0d1f1d 	mcr	15, 0, r1, cr13, cr13, {0}
+		case ID_REG_1:   asm volatile ("mrc p15,0,%0, c1, c1" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case ID_REG_2:   asm volatile ("mrc p15,0,%0, c2, c2" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 3:          asm volatile ("mrc p15,0,%0, c3, c3" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 4:          asm volatile ("mrc p15,0,%0, c4, c4" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case 5:          asm volatile ("mrc p15,0,%0, c5, c5" : "=r" (_cp_val) : /* no inputs */  ); break;
+		case SYS_CTRL_0: asm volatile ("mrc p15,0,%0, c6, c6" : "=r" (_cp_val) : /* no inputs */  ); break;
+fff01714:	ee163f16 	mrc	15, 0, r3, cr6, cr6, {0}
+	// start application
+	uart0_printf("\r\n\r\n-> Starting application...\r\n\r\n");
+	set_syscpreg(0x00, SYS_IO);
+
+	// disable write-through strategy
+	set_syscpreg(get_syscpreg(SYS_CTRL_0) & ~(1<<DC_WTHRU), SYS_CTRL_0);
+fff01718:	e3c33008 	bic	r3, r3, #8
+//		case ID_REG_1:   asm volatile ("mcr p15,0,%0, c1, c1,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case ID_REG_2:   asm volatile ("mcr p15,0,%0, c2, c2,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 3:          asm volatile ("mcr p15,0,%0, c3, c3,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 4:          asm volatile ("mcr p15,0,%0, c4, c4,0" : /* no outputs */ : "r" (_cp_val)); break;
+//		case 5:          asm volatile ("mcr p15,0,%0, c5, c5,0" : /* no outputs */ : "r" (_cp_val)); break;
+		case SYS_CTRL_0: asm volatile ("mcr p15,0,%0, c6, c6,0" : /* no outputs */ : "r" (_cp_val)); break;
+fff0171c:	ee063f16 	mcr	15, 0, r3, cr6, cr6, {0}
+
+	// jump to application
+	asm volatile ("mov pc, #0");
+fff01720:	e3a0f000 	mov	pc, #0
+fff01724:	eafffffe 	b	fff01724 <main+0x294>
+// ############################################################################################
+// STORM SoC Bootloader
+   int main(void)
+// ############################################################################################
+{
+	int function_sel, data, i, start_app = 0;
+fff01728:	e3a07000 	mov	r7, #0
+	set_syscpreg(get_syscpreg(SYS_CTRL_0) | (1<<DC_WTHRU), SYS_CTRL_0);
+
+	// Check config switches for immediate boot-config
+	function_sel = (int)((~(get_syscpreg(SYS_IO) >> 17)) & 0x0F);
+	switch(function_sel){
+		case 1: function_sel = '0'; goto main_menu; break; // auto start application from RAM
+fff0172c:	e3a03030 	mov	r3, #48	; 0x30
+fff01730:	e28d5008 	add	r5, sp, #8
+fff01734:	eaffff73 	b	fff01508 <main+0x78>
+			start_app    = 1;
+			device_id    = 0xA0;
+		}
+
+		// main functions
+		switch(function_sel){
+fff01738:	e3530068 	cmp	r3, #104	; 0x68
+fff0173c:	0a0001a1 	beq	fff01dc8 <main+0x938>
+fff01740:	e3530072 	cmp	r3, #114	; 0x72
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01744:	03e02a0f 	mvneq	r2, #61440	; 0xf000
+fff01748:	1a00028e 	bne	fff02188 <main+0xcf8>
+fff0174c:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff01750:	e3130001 	tst	r3, #1
+fff01754:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01758:	0afffffb 	beq	fff0174c <main+0x2bc>
+	UART0_DATA = (ch & 0x000000FF);
+fff0175c:	e3a02072 	mov	r2, #114	; 0x72
+fff01760:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+
+			// restart system
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case 'r':
+				io_uart0_send_byte((char)function_sel);
+				asm volatile ("mov r0,     #0x0FF00000");
+fff01764:	e3a006ff 	mov	r0, #267386880	; 0xff00000
+				asm volatile ("add pc, r0, #0xF0000000"); // jump to bootloader
+fff01768:	e280f20f 	add	pc, r0, #-268435456	; 0xf0000000
+fff0176c:	eafffffe 	b	fff0176c <main+0x2dc>
+fff01770:	e59f0d14 	ldr	r0, [pc, #3348]	; fff0248c <main+0xffc>
+fff01774:	e3a0100d 	mov	r1, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01778:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff0177c:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff01780:	e3130001 	tst	r3, #1
+fff01784:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01788:	0afffffb 	beq	fff0177c <main+0x2ec>
+	UART0_DATA = (ch & 0x000000FF);
+fff0178c:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff01790:	e5f01001 	ldrb	r1, [r0, #1]!
+fff01794:	e3510000 	cmp	r1, #0
+fff01798:	1afffff7 	bne	fff0177c <main+0x2ec>
+fff0179c:	e59f0cec 	ldr	r0, [pc, #3308]	; fff02490 <main+0x1000>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff017a0:	e1a02003 	mov	r2, r3
+fff017a4:	e3a0107c 	mov	r1, #124	; 0x7c
+fff017a8:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff017ac:	e3130001 	tst	r3, #1
+fff017b0:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff017b4:	0afffffb 	beq	fff017a8 <main+0x318>
+	UART0_DATA = (ch & 0x000000FF);
+fff017b8:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff017bc:	e5f01001 	ldrb	r1, [r0, #1]!
+fff017c0:	e3510000 	cmp	r1, #0
+fff017c4:	1afffff7 	bne	fff017a8 <main+0x318>
+fff017c8:	e59f0cc4 	ldr	r0, [pc, #3268]	; fff02494 <main+0x1004>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff017cc:	e1a02003 	mov	r2, r3
+fff017d0:	e3a0102b 	mov	r1, #43	; 0x2b
+fff017d4:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff017d8:	e3130001 	tst	r3, #1
+fff017dc:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff017e0:	0afffffb 	beq	fff017d4 <main+0x344>
+	UART0_DATA = (ch & 0x000000FF);
+fff017e4:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff017e8:	e5f01001 	ldrb	r1, [r0, #1]!
+fff017ec:	e3510000 	cmp	r1, #0
+fff017f0:	1afffff7 	bne	fff017d4 <main+0x344>
+fff017f4:	e59f0c9c 	ldr	r0, [pc, #3228]	; fff02498 <main+0x1008>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff017f8:	e1a02003 	mov	r2, r3
+fff017fc:	e3a0107c 	mov	r1, #124	; 0x7c
+fff01800:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff01804:	e3130001 	tst	r3, #1
+fff01808:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0180c:	0afffffb 	beq	fff01800 <main+0x370>
+	UART0_DATA = (ch & 0x000000FF);
+fff01810:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff01814:	e5f01001 	ldrb	r1, [r0, #1]!
+fff01818:	e3510000 	cmp	r1, #0
+fff0181c:	1afffff7 	bne	fff01800 <main+0x370>
+fff01820:	e59f0c74 	ldr	r0, [pc, #3188]	; fff0249c <main+0x100c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01824:	e1a02003 	mov	r2, r3
+fff01828:	e3a0107c 	mov	r1, #124	; 0x7c
+fff0182c:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff01830:	e3130001 	tst	r3, #1
+fff01834:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01838:	0afffffb 	beq	fff0182c <main+0x39c>
+	UART0_DATA = (ch & 0x000000FF);
+fff0183c:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff01840:	e5f01001 	ldrb	r1, [r0, #1]!
+fff01844:	e3510000 	cmp	r1, #0
+fff01848:	1afffff7 	bne	fff0182c <main+0x39c>
+fff0184c:	e59f0c4c 	ldr	r0, [pc, #3148]	; fff024a0 <main+0x1010>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01850:	e1a02003 	mov	r2, r3
+fff01854:	e3a0102b 	mov	r1, #43	; 0x2b
+fff01858:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff0185c:	e3130001 	tst	r3, #1
+fff01860:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01864:	0afffffb 	beq	fff01858 <main+0x3c8>
+	UART0_DATA = (ch & 0x000000FF);
+fff01868:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff0186c:	e5f01001 	ldrb	r1, [r0, #1]!
+fff01870:	e3510000 	cmp	r1, #0
+fff01874:	1afffff7 	bne	fff01858 <main+0x3c8>
+fff01878:	e59f0c24 	ldr	r0, [pc, #3108]	; fff024a4 <main+0x1014>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0187c:	e1a02003 	mov	r2, r3
+fff01880:	e3a01020 	mov	r1, #32
+fff01884:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff01888:	e3130001 	tst	r3, #1
+fff0188c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01890:	0afffffb 	beq	fff01884 <main+0x3f4>
+	UART0_DATA = (ch & 0x000000FF);
+fff01894:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff01898:	e5f01001 	ldrb	r1, [r0, #1]!
+fff0189c:	e3510000 	cmp	r1, #0
+fff018a0:	1afffff7 	bne	fff01884 <main+0x3f4>
+fff018a4:	e59f0bfc 	ldr	r0, [pc, #3068]	; fff024a8 <main+0x1018>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff018a8:	e1a02003 	mov	r2, r3
+fff018ac:	e3a01020 	mov	r1, #32
+fff018b0:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff018b4:	e3130001 	tst	r3, #1
+fff018b8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff018bc:	0afffffb 	beq	fff018b0 <main+0x420>
+	UART0_DATA = (ch & 0x000000FF);
+fff018c0:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff018c4:	e5f01001 	ldrb	r1, [r0, #1]!
+fff018c8:	e3510000 	cmp	r1, #0
+fff018cc:	1afffff7 	bne	fff018b0 <main+0x420>
+fff018d0:	e59f0bd4 	ldr	r0, [pc, #3028]	; fff024ac <main+0x101c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff018d4:	e1a02003 	mov	r2, r3
+fff018d8:	e3a01020 	mov	r1, #32
+fff018dc:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff018e0:	e3130001 	tst	r3, #1
+fff018e4:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff018e8:	0afffffb 	beq	fff018dc <main+0x44c>
+	UART0_DATA = (ch & 0x000000FF);
+fff018ec:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff018f0:	e5f01001 	ldrb	r1, [r0, #1]!
+fff018f4:	e3510000 	cmp	r1, #0
+fff018f8:	1afffff7 	bne	fff018dc <main+0x44c>
+fff018fc:	e59f0bac 	ldr	r0, [pc, #2988]	; fff024b0 <main+0x1020>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01900:	e1a02003 	mov	r2, r3
+fff01904:	e3a01020 	mov	r1, #32
+fff01908:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff0190c:	e3130001 	tst	r3, #1
+fff01910:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01914:	0afffffb 	beq	fff01908 <main+0x478>
+	UART0_DATA = (ch & 0x000000FF);
+fff01918:	e5031fe7 	str	r1, [r3, #-4071]	; 0xfe7
+fff0191c:	e5f01001 	ldrb	r1, [r0, #1]!
+fff01920:	e3510000 	cmp	r1, #0
+fff01924:	1afffff7 	bne	fff01908 <main+0x478>
+fff01928:	e59f1b84 	ldr	r1, [pc, #2948]	; fff024b4 <main+0x1024>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0192c:	e1a02003 	mov	r2, r3
+fff01930:	e3a07020 	mov	r7, #32
+fff01934:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff01938:	e3130001 	tst	r3, #1
+fff0193c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01940:	0afffffb 	beq	fff01934 <main+0x4a4>
+	UART0_DATA = (ch & 0x000000FF);
+fff01944:	e5037fe7 	str	r7, [r3, #-4071]	; 0xfe7
+fff01948:	e5f17001 	ldrb	r7, [r1, #1]!
+fff0194c:	e3570000 	cmp	r7, #0
+fff01950:	1afffff7 	bne	fff01934 <main+0x4a4>
+fff01954:	e28d5008 	add	r5, sp, #8
+fff01958:	eaffff1e 	b	fff015d8 <main+0x148>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0195c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01960:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff01964:	e3120001 	tst	r2, #1
+fff01968:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff0196c:	0afffffb 	beq	fff01960 <main+0x4d0>
+	UART0_DATA = (ch & 0x000000FF);
+fff01970:	e3a03034 	mov	r3, #52	; 0x34
+fff01974:	e59f0be8 	ldr	r0, [pc, #3048]	; fff02564 <main+0x10d4>
+fff01978:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff0197c:	e3a0300d 	mov	r3, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01980:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff01984:	e3120001 	tst	r2, #1
+fff01988:	e3e06a0f 	mvn	r6, #61440	; 0xf000
+fff0198c:	0afffffb 	beq	fff01980 <main+0x4f0>
+	UART0_DATA = (ch & 0x000000FF);
+fff01990:	e5063fe7 	str	r3, [r6, #-4071]	; 0xfe7
+fff01994:	e5f03001 	ldrb	r3, [r0, #1]!
+fff01998:	e3530000 	cmp	r3, #0
+fff0199c:	1afffff7 	bne	fff01980 <main+0x4f0>
+			// program I2C EEPROM
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '4':
+				io_uart0_send_byte((char)function_sel);
+				uart0_printf("\r\n\r\nEnter device address (2x hex_chars, set LSB to '0'): ");
+				uart0_scanf(buffer,2,1);
+fff019a0:	e1a00005 	mov	r0, r5
+fff019a4:	e3a01002 	mov	r1, #2
+fff019a8:	e3a02001 	mov	r2, #1
+fff019ac:	ebfffae2 	bl	fff0053c <uart0_scanf>
+				device_id = (unsigned char)hex_string_to_long(buffer, 2);
+fff019b0:	e1a00005 	mov	r0, r5
+fff019b4:	e3a01002 	mov	r1, #2
+fff019b8:	ebfffb67 	bl	fff0075c <hex_string_to_long>
+				if(device_id == 0){
+fff019bc:	e21040ff 	ands	r4, r0, #255	; 0xff
+fff019c0:	1a00000a 	bne	fff019f0 <main+0x560>
+fff019c4:	e59f2aec 	ldr	r2, [pc, #2796]	; fff024b8 <main+0x1028>
+fff019c8:	e3a0300d 	mov	r3, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff019cc:	e5161fe3 	ldr	r1, [r6, #-4067]	; 0xfe3
+fff019d0:	e3110001 	tst	r1, #1
+fff019d4:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff019d8:	0afffffb 	beq	fff019cc <main+0x53c>
+	UART0_DATA = (ch & 0x000000FF);
+fff019dc:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff019e0:	e5f23001 	ldrb	r3, [r2, #1]!
+fff019e4:	e3530000 	cmp	r3, #0
+fff019e8:	1afffff7 	bne	fff019cc <main+0x53c>
+fff019ec:	eafffef9 	b	fff015d8 <main+0x148>
+fff019f0:	e59f3ac4 	ldr	r3, [pc, #2756]	; fff024bc <main+0x102c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff019f4:	e1a02006 	mov	r2, r6
+fff019f8:	e3a0600d 	mov	r6, #13
+fff019fc:	e5121fe3 	ldr	r1, [r2, #-4067]	; 0xfe3
+fff01a00:	e3110001 	tst	r1, #1
+fff01a04:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff01a08:	0afffffb 	beq	fff019fc <main+0x56c>
+	UART0_DATA = (ch & 0x000000FF);
+fff01a0c:	e5016fe7 	str	r6, [r1, #-4071]	; 0xfe7
+fff01a10:	e5f36001 	ldrb	r6, [r3, #1]!
+fff01a14:	e3560000 	cmp	r6, #0
+fff01a18:	1afffff7 	bne	fff019fc <main+0x56c>
+					uart0_printf("\r\nInvalid address!\r\n\r\nSelect: ");
+					break;
+				}
+
+				uart0_printf("\r\nData will overwrite RAM content!\r\n-> Waiting for 'storm_program.bin' in byte-stream mode...");
+				uart0_scanf(buffer,4,0);
+fff01a1c:	e1a00005 	mov	r0, r5
+fff01a20:	e3a01004 	mov	r1, #4
+fff01a24:	e1a02006 	mov	r2, r6
+fff01a28:	ebfffac3 	bl	fff0053c <uart0_scanf>
+				if((buffer[0]=='S') && (buffer[1]=='M') && (buffer[2]=='B') && (buffer[3]=='R')){
+fff01a2c:	e5dd3008 	ldrb	r3, [sp, #8]
+fff01a30:	e3530053 	cmp	r3, #83	; 0x53
+fff01a34:	0a000016 	beq	fff01a94 <main+0x604>
+fff01a38:	e59f2a80 	ldr	r2, [pc, #2688]	; fff024c0 <main+0x1030>
+fff01a3c:	e3a03020 	mov	r3, #32
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01a40:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff01a44:	e5110fe3 	ldr	r0, [r1, #-4067]	; 0xfe3
+fff01a48:	e3100001 	tst	r0, #1
+fff01a4c:	e3e00a0f 	mvn	r0, #61440	; 0xf000
+fff01a50:	0afffffb 	beq	fff01a44 <main+0x5b4>
+	UART0_DATA = (ch & 0x000000FF);
+fff01a54:	e5003fe7 	str	r3, [r0, #-4071]	; 0xfe7
+fff01a58:	e5f23001 	ldrb	r3, [r2, #1]!
+fff01a5c:	e3530000 	cmp	r3, #0
+fff01a60:	1afffff7 	bne	fff01a44 <main+0x5b4>
+fff01a64:	e59f2a58 	ldr	r2, [pc, #2648]	; fff024c4 <main+0x1034>
+fff01a68:	e3a03053 	mov	r3, #83	; 0x53
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01a6c:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff01a70:	e5110fe3 	ldr	r0, [r1, #-4067]	; 0xfe3
+fff01a74:	e3100001 	tst	r0, #1
+fff01a78:	e3e00a0f 	mvn	r0, #61440	; 0xf000
+fff01a7c:	0afffffb 	beq	fff01a70 <main+0x5e0>
+	UART0_DATA = (ch & 0x000000FF);
+fff01a80:	e5003fe7 	str	r3, [r0, #-4071]	; 0xfe7
+fff01a84:	e5f23001 	ldrb	r3, [r2, #1]!
+fff01a88:	e3530000 	cmp	r3, #0
+fff01a8c:	1afffff7 	bne	fff01a70 <main+0x5e0>
+fff01a90:	eafffed0 	b	fff015d8 <main+0x148>
+fff01a94:	e5dd2009 	ldrb	r2, [sp, #9]
+fff01a98:	e352004d 	cmp	r2, #77	; 0x4d
+fff01a9c:	1affffe5 	bne	fff01a38 <main+0x5a8>
+fff01aa0:	e5dd200a 	ldrb	r2, [sp, #10]
+fff01aa4:	e3520042 	cmp	r2, #66	; 0x42
+fff01aa8:	1affffe2 	bne	fff01a38 <main+0x5a8>
+fff01aac:	e5dd200b 	ldrb	r2, [sp, #11]
+fff01ab0:	e3520052 	cmp	r2, #82	; 0x52
+fff01ab4:	1affffdf 	bne	fff01a38 <main+0x5a8>
+					char_pointer = 0; // beginning of RAM
+					*char_pointer++ = 'S'; asm volatile ("NOP");
+fff01ab8:	e5c63000 	strb	r3, [r6]
+fff01abc:	e1a00000 	nop			; (mov r0, r0)
+					*char_pointer++ = 'M'; asm volatile ("NOP");
+fff01ac0:	e3a03000 	mov	r3, #0
+fff01ac4:	e3a0204d 	mov	r2, #77	; 0x4d
+fff01ac8:	e5c32001 	strb	r2, [r3, #1]
+fff01acc:	e1a00000 	nop			; (mov r0, r0)
+					*char_pointer++ = 'B'; asm volatile ("NOP");
+fff01ad0:	e3a02042 	mov	r2, #66	; 0x42
+fff01ad4:	e5c32002 	strb	r2, [r3, #2]
+fff01ad8:	e1a00000 	nop			; (mov r0, r0)
+					*char_pointer++ = 'R'; asm volatile ("NOP");
+fff01adc:	e3a02052 	mov	r2, #82	; 0x52
+fff01ae0:	e5c32003 	strb	r2, [r3, #3]
+fff01ae4:	e1a00000 	nop			; (mov r0, r0)
+					uart0_scanf(buffer,4,0);
+fff01ae8:	e3a01004 	mov	r1, #4
+fff01aec:	e1a00005 	mov	r0, r5
+fff01af0:	e3a02000 	mov	r2, #0
+fff01af4:	ebfffa90 	bl	fff0053c <uart0_scanf>
+					*char_pointer++ = buffer[0];
+fff01af8:	e5dd2008 	ldrb	r2, [sp, #8]
+fff01afc:	e3a03000 	mov	r3, #0
+fff01b00:	e5c32004 	strb	r2, [r3, #4]
+					*char_pointer++ = buffer[1];
+fff01b04:	e5dd2009 	ldrb	r2, [sp, #9]
+fff01b08:	e5c32005 	strb	r2, [r3, #5]
+					*char_pointer++ = buffer[2];
+fff01b0c:	e5dd200a 	ldrb	r2, [sp, #10]
+fff01b10:	e5c32006 	strb	r2, [r3, #6]
+					*char_pointer++ = buffer[3];
+fff01b14:	e5dd200b 	ldrb	r2, [sp, #11]
+fff01b18:	e5c32007 	strb	r2, [r3, #7]
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff01b1c:	e5dd1009 	ldrb	r1, [sp, #9]
+fff01b20:	e5dd000a 	ldrb	r0, [sp, #10]
+fff01b24:	e1a01801 	lsl	r1, r1, #16
+fff01b28:	e5dd200b 	ldrb	r2, [sp, #11]
+fff01b2c:	e1811400 	orr	r1, r1, r0, lsl #8
+fff01b30:	e5dd0008 	ldrb	r0, [sp, #8]
+fff01b34:	e1812002 	orr	r2, r1, r2
+					*char_pointer++ = buffer[0];
+					*char_pointer++ = buffer[1];
+					*char_pointer++ = buffer[2];
+					*char_pointer++ = buffer[3];
+					cnt = qbytes_to_long(buffer);
+					if(cnt > 0xFFFC){
+fff01b38:	e59f1988 	ldr	r1, [pc, #2440]	; fff024c8 <main+0x1038>
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff01b3c:	e1822c00 	orr	r2, r2, r0, lsl #24
+					*char_pointer++ = buffer[0];
+					*char_pointer++ = buffer[1];
+					*char_pointer++ = buffer[2];
+					*char_pointer++ = buffer[3];
+					cnt = qbytes_to_long(buffer);
+					if(cnt > 0xFFFC){
+fff01b40:	e1520001 	cmp	r2, r1
+fff01b44:	8a000018 	bhi	fff01bac <main+0x71c>
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff01b48:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff01b4c:	e1a0e001 	mov	lr, r1
+fff01b50:	e282c004 	add	ip, r2, #4
+						uart0_printf(" ERROR! Program file too big!\r\n\r\n");
+						break;
+					}
+
+					for(i=0; i<cnt+4; i++){
+fff01b54:	e15c0003 	cmp	ip, r3
+fff01b58:	9a000008 	bls	fff01b80 <main+0x6f0>
+fff01b5c:	e5110fe3 	ldr	r0, [r1, #-4067]	; 0xfe3
+fff01b60:	e3100002 	tst	r0, #2
+fff01b64:	0afffffc 	beq	fff01b5c <main+0x6cc>
+		temp = UART0_DATA;
+fff01b68:	e51e0fe7 	ldr	r0, [lr, #-4071]	; 0xfe7
+						data = -1;
+						while(data == -1)
+fff01b6c:	e3700001 	cmn	r0, #1
+fff01b70:	0afffff9 	beq	fff01b5c <main+0x6cc>
+							data = io_uart0_read_byte();
+						*char_pointer++ = (unsigned char)data;
+fff01b74:	e5c30008 	strb	r0, [r3, #8]
+					if(cnt > 0xFFFC){
+						uart0_printf(" ERROR! Program file too big!\r\n\r\n");
+						break;
+					}
+
+					for(i=0; i<cnt+4; i++){
+fff01b78:	e2833001 	add	r3, r3, #1
+fff01b7c:	eafffff4 	b	fff01b54 <main+0x6c4>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01b80:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff01b84:	e59f3940 	ldr	r3, [pc, #2368]	; fff024cc <main+0x103c>
+fff01b88:	e1a0c001 	mov	ip, r1
+fff01b8c:	e5f30001 	ldrb	r0, [r3, #1]!
+fff01b90:	e3500000 	cmp	r0, #0
+fff01b94:	0a00000f 	beq	fff01bd8 <main+0x748>
+fff01b98:	e511efe3 	ldr	lr, [r1, #-4067]	; 0xfe3
+fff01b9c:	e31e0001 	tst	lr, #1
+fff01ba0:	0afffffc 	beq	fff01b98 <main+0x708>
+	UART0_DATA = (ch & 0x000000FF);
+fff01ba4:	e50c0fe7 	str	r0, [ip, #-4071]	; 0xfe7
+fff01ba8:	eafffff7 	b	fff01b8c <main+0x6fc>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01bac:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff01bb0:	e59f39b8 	ldr	r3, [pc, #2488]	; fff02570 <main+0x10e0>
+fff01bb4:	e1a00002 	mov	r0, r2
+fff01bb8:	e5f31001 	ldrb	r1, [r3, #1]!
+fff01bbc:	e3510000 	cmp	r1, #0
+fff01bc0:	0afffe84 	beq	fff015d8 <main+0x148>
+fff01bc4:	e512cfe3 	ldr	ip, [r2, #-4067]	; 0xfe3
+fff01bc8:	e31c0001 	tst	ip, #1
+fff01bcc:	0afffffc 	beq	fff01bc4 <main+0x734>
+	UART0_DATA = (ch & 0x000000FF);
+fff01bd0:	e5001fe7 	str	r1, [r0, #-4071]	; 0xfe7
+fff01bd4:	eafffff7 	b	fff01bb8 <main+0x728>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01bd8:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff01bdc:	e59f38ec 	ldr	r3, [pc, #2284]	; fff024d0 <main+0x1040>
+fff01be0:	e1a00001 	mov	r0, r1
+fff01be4:	e5f36001 	ldrb	r6, [r3, #1]!
+fff01be8:	e3560000 	cmp	r6, #0
+fff01bec:	0a000004 	beq	fff01c04 <main+0x774>
+fff01bf0:	e511cfe3 	ldr	ip, [r1, #-4067]	; 0xfe3
+fff01bf4:	e31c0001 	tst	ip, #1
+fff01bf8:	0afffffc 	beq	fff01bf0 <main+0x760>
+	UART0_DATA = (ch & 0x000000FF);
+fff01bfc:	e5006fe7 	str	r6, [r0, #-4071]	; 0xfe7
+fff01c00:	eafffff7 	b	fff01be4 <main+0x754>
+fff01c04:	e282800c 	add	r8, r2, #12
+					}
+					uart0_printf(" Download completed\r\n");
+
+					uart0_printf("Writing buffer to i2c EEPROM...");
+					char_pointer = 0; // beginning of RAM
+					for(i=0; i<cnt+12; i++){
+fff01c08:	e1560008 	cmp	r6, r8
+fff01c0c:	e1a09006 	mov	r9, r6
+fff01c10:	2a000009 	bcs	fff01c3c <main+0x7ac>
+						char_tmp = *char_pointer++;
+fff01c14:	e4d6a001 	ldrb	sl, [r6], #1
+						while(io_i2c0_byte_transfer('w', device_id, i, 2, char_tmp) != 0);
+fff01c18:	e58da000 	str	sl, [sp]
+fff01c1c:	e3a00077 	mov	r0, #119	; 0x77
+fff01c20:	e1a01004 	mov	r1, r4
+fff01c24:	e1a02009 	mov	r2, r9
+fff01c28:	e3a03002 	mov	r3, #2
+fff01c2c:	ebfff992 	bl	fff0027c <io_i2c0_byte_transfer>
+fff01c30:	e3500000 	cmp	r0, #0
+fff01c34:	1afffff7 	bne	fff01c18 <main+0x788>
+fff01c38:	eafffff2 	b	fff01c08 <main+0x778>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01c3c:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff01c40:	e59f388c 	ldr	r3, [pc, #2188]	; fff024d4 <main+0x1044>
+fff01c44:	e1a00002 	mov	r0, r2
+fff01c48:	e5f31001 	ldrb	r1, [r3, #1]!
+fff01c4c:	e3510000 	cmp	r1, #0
+fff01c50:	0affff83 	beq	fff01a64 <main+0x5d4>
+fff01c54:	e512cfe3 	ldr	ip, [r2, #-4067]	; 0xfe3
+fff01c58:	e31c0001 	tst	ip, #1
+fff01c5c:	0afffffc 	beq	fff01c54 <main+0x7c4>
+	UART0_DATA = (ch & 0x000000FF);
+fff01c60:	e5001fe7 	str	r1, [r0, #-4071]	; 0xfe7
+fff01c64:	eafffff7 	b	fff01c48 <main+0x7b8>
+				cnt = 0;
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+fff01c68:	e5dd2009 	ldrb	r2, [sp, #9]
+fff01c6c:	e352004d 	cmp	r2, #77	; 0x4d
+fff01c70:	1afffe8e 	bne	fff016b0 <main+0x220>
+fff01c74:	e5dd200a 	ldrb	r2, [sp, #10]
+fff01c78:	e3520042 	cmp	r2, #66	; 0x42
+fff01c7c:	1afffe8b 	bne	fff016b0 <main+0x220>
+fff01c80:	e3530052 	cmp	r3, #82	; 0x52
+fff01c84:	1afffe89 	bne	fff016b0 <main+0x220>
+					buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01c88:	e1a01004 	mov	r1, r4
+fff01c8c:	e3a02004 	mov	r2, #4
+fff01c90:	e3a03002 	mov	r3, #2
+fff01c94:	e58d6000 	str	r6, [sp]
+fff01c98:	e3a00072 	mov	r0, #114	; 0x72
+fff01c9c:	ebfff976 	bl	fff0027c <io_i2c0_byte_transfer>
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01ca0:	e1a01004 	mov	r1, r4
+				buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+					buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01ca4:	e5cd0008 	strb	r0, [sp, #8]
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01ca8:	e3a02005 	mov	r2, #5
+fff01cac:	e3a03002 	mov	r3, #2
+fff01cb0:	e58d6000 	str	r6, [sp]
+fff01cb4:	e3a00072 	mov	r0, #114	; 0x72
+fff01cb8:	ebfff96f 	bl	fff0027c <io_i2c0_byte_transfer>
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01cbc:	e1a01004 	mov	r1, r4
+				buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+					buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01cc0:	e5cd0009 	strb	r0, [sp, #9]
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01cc4:	e3a02006 	mov	r2, #6
+fff01cc8:	e3a03002 	mov	r3, #2
+fff01ccc:	e58d6000 	str	r6, [sp]
+fff01cd0:	e3a00072 	mov	r0, #114	; 0x72
+fff01cd4:	ebfff968 	bl	fff0027c <io_i2c0_byte_transfer>
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01cd8:	e3a02007 	mov	r2, #7
+				buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+					buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01cdc:	e5cd000a 	strb	r0, [sp, #10]
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01ce0:	e3a03002 	mov	r3, #2
+fff01ce4:	e58d6000 	str	r6, [sp]
+fff01ce8:	e1a01004 	mov	r1, r4
+fff01cec:	e3a00072 	mov	r0, #114	; 0x72
+fff01cf0:	ebfff961 	bl	fff0027c <io_i2c0_byte_transfer>
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff01cf4:	e5dd300a 	ldrb	r3, [sp, #10]
+fff01cf8:	e5dd2009 	ldrb	r2, [sp, #9]
+fff01cfc:	e1a03403 	lsl	r3, r3, #8
+fff01d00:	e5dd7008 	ldrb	r7, [sp, #8]
+fff01d04:	e1832802 	orr	r2, r3, r2, lsl #16
+fff01d08:	e1827c07 	orr	r7, r2, r7, lsl #24
+fff01d0c:	e20030ff 	and	r3, r0, #255	; 0xff
+fff01d10:	e1877003 	orr	r7, r7, r3
+				buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+					buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d14:	e5cd000b 	strb	r0, [sp, #11]
+fff01d18:	e2877004 	add	r7, r7, #4
+					adr_buffer = qbytes_to_long(buffer);
+					data_pointer = 0;
+					while((data_pointer != adr_buffer+4) && (data_pointer < IRAM_SIZE)){
+						buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d1c:	e1a05006 	mov	r5, r6
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					adr_buffer = qbytes_to_long(buffer);
+					data_pointer = 0;
+					while((data_pointer != adr_buffer+4) && (data_pointer < IRAM_SIZE)){
+fff01d20:	e1560007 	cmp	r6, r7
+						buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d24:	e1a01004 	mov	r1, r4
+fff01d28:	e3a03002 	mov	r3, #2
+fff01d2c:	e3a00072 	mov	r0, #114	; 0x72
+fff01d30:	e2862008 	add	r2, r6, #8
+					buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					adr_buffer = qbytes_to_long(buffer);
+					data_pointer = 0;
+					while((data_pointer != adr_buffer+4) && (data_pointer < IRAM_SIZE)){
+fff01d34:	0a000106 	beq	fff02154 <main+0xcc4>
+fff01d38:	e3560902 	cmp	r6, #32768	; 0x8000
+fff01d3c:	0a000104 	beq	fff02154 <main+0xcc4>
+						buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d40:	e58d5000 	str	r5, [sp]
+fff01d44:	ebfff94c 	bl	fff0027c <io_i2c0_byte_transfer>
+						buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d48:	e2862009 	add	r2, r6, #9
+					buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					adr_buffer = qbytes_to_long(buffer);
+					data_pointer = 0;
+					while((data_pointer != adr_buffer+4) && (data_pointer < IRAM_SIZE)){
+						buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d4c:	e5cd0008 	strb	r0, [sp, #8]
+						buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d50:	e1a01004 	mov	r1, r4
+fff01d54:	e3a03002 	mov	r3, #2
+fff01d58:	e58d5000 	str	r5, [sp]
+fff01d5c:	e3a00072 	mov	r0, #114	; 0x72
+fff01d60:	ebfff945 	bl	fff0027c <io_i2c0_byte_transfer>
+						buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d64:	e286200a 	add	r2, r6, #10
+					buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+					adr_buffer = qbytes_to_long(buffer);
+					data_pointer = 0;
+					while((data_pointer != adr_buffer+4) && (data_pointer < IRAM_SIZE)){
+						buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+						buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d68:	e5cd0009 	strb	r0, [sp, #9]
+						buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d6c:	e1a01004 	mov	r1, r4
+fff01d70:	e3a03002 	mov	r3, #2
+fff01d74:	e58d5000 	str	r5, [sp]
+fff01d78:	e3a00072 	mov	r0, #114	; 0x72
+fff01d7c:	ebfff93e 	bl	fff0027c <io_i2c0_byte_transfer>
+						buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d80:	e286200b 	add	r2, r6, #11
+					adr_buffer = qbytes_to_long(buffer);
+					data_pointer = 0;
+					while((data_pointer != adr_buffer+4) && (data_pointer < IRAM_SIZE)){
+						buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+						buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+						buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d84:	e5cd000a 	strb	r0, [sp, #10]
+						buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01d88:	e1a01004 	mov	r1, r4
+fff01d8c:	e3a03002 	mov	r3, #2
+fff01d90:	e58d5000 	str	r5, [sp]
+fff01d94:	e3a00072 	mov	r0, #114	; 0x72
+fff01d98:	ebfff937 	bl	fff0027c <io_i2c0_byte_transfer>
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff01d9c:	e5dd300a 	ldrb	r3, [sp, #10]
+fff01da0:	e5dd2009 	ldrb	r2, [sp, #9]
+fff01da4:	e1a03403 	lsl	r3, r3, #8
+fff01da8:	e5dd1008 	ldrb	r1, [sp, #8]
+fff01dac:	e1832802 	orr	r2, r3, r2, lsl #16
+fff01db0:	e1822c01 	orr	r2, r2, r1, lsl #24
+fff01db4:	e20030ff 	and	r3, r0, #255	; 0xff
+fff01db8:	e1823003 	orr	r3, r2, r3
+					data_pointer = 0;
+					while((data_pointer != adr_buffer+4) && (data_pointer < IRAM_SIZE)){
+						buffer[0] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+						buffer[1] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+						buffer[2] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+						buffer[3] = (unsigned char)io_i2c0_byte_transfer('r',device_id,cnt++,2,0x00);
+fff01dbc:	e5cd000b 	strb	r0, [sp, #11]
+						*data_pointer = qbytes_to_long(buffer); // store memory entry
+fff01dc0:	e4863004 	str	r3, [r6], #4
+fff01dc4:	eaffffd5 	b	fff01d20 <main+0x890>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01dc8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01dcc:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff01dd0:	e3120001 	tst	r2, #1
+fff01dd4:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff01dd8:	0afffffb 	beq	fff01dcc <main+0x93c>
+	UART0_DATA = (ch & 0x000000FF);
+fff01ddc:	e3a03068 	mov	r3, #104	; 0x68
+fff01de0:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff01de4:	e59f06ec 	ldr	r0, [pc, #1772]	; fff024d8 <main+0x1048>
+fff01de8:	e3a0200d 	mov	r2, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01dec:	e5113fe3 	ldr	r3, [r1, #-4067]	; 0xfe3
+fff01df0:	e3130001 	tst	r3, #1
+fff01df4:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01df8:	0afffffb 	beq	fff01dec <main+0x95c>
+	UART0_DATA = (ch & 0x000000FF);
+fff01dfc:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01e00:	e5f02001 	ldrb	r2, [r0, #1]!
+fff01e04:	e3520000 	cmp	r2, #0
+fff01e08:	1afffff7 	bne	fff01dec <main+0x95c>
+fff01e0c:	e59fc6c8 	ldr	ip, [pc, #1736]	; fff024dc <main+0x104c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01e10:	e1a00003 	mov	r0, r3
+fff01e14:	e3a02027 	mov	r2, #39	; 0x27
+fff01e18:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01e1c:	e3110001 	tst	r1, #1
+fff01e20:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01e24:	0afffffb 	beq	fff01e18 <main+0x988>
+	UART0_DATA = (ch & 0x000000FF);
+fff01e28:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01e2c:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01e30:	e3520000 	cmp	r2, #0
+fff01e34:	1afffff7 	bne	fff01e18 <main+0x988>
+fff01e38:	e59fc6a0 	ldr	ip, [pc, #1696]	; fff024e0 <main+0x1050>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01e3c:	e1a00003 	mov	r0, r3
+fff01e40:	e3a02027 	mov	r2, #39	; 0x27
+fff01e44:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01e48:	e3110001 	tst	r1, #1
+fff01e4c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01e50:	0afffffb 	beq	fff01e44 <main+0x9b4>
+	UART0_DATA = (ch & 0x000000FF);
+fff01e54:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01e58:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01e5c:	e3520000 	cmp	r2, #0
+fff01e60:	1afffff7 	bne	fff01e44 <main+0x9b4>
+fff01e64:	e59fc678 	ldr	ip, [pc, #1656]	; fff024e4 <main+0x1054>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01e68:	e1a00003 	mov	r0, r3
+fff01e6c:	e3a02027 	mov	r2, #39	; 0x27
+fff01e70:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01e74:	e3110001 	tst	r1, #1
+fff01e78:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01e7c:	0afffffb 	beq	fff01e70 <main+0x9e0>
+	UART0_DATA = (ch & 0x000000FF);
+fff01e80:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01e84:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01e88:	e3520000 	cmp	r2, #0
+fff01e8c:	1afffff7 	bne	fff01e70 <main+0x9e0>
+fff01e90:	e59fc650 	ldr	ip, [pc, #1616]	; fff024e8 <main+0x1058>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01e94:	e1a00003 	mov	r0, r3
+fff01e98:	e3a02027 	mov	r2, #39	; 0x27
+fff01e9c:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01ea0:	e3110001 	tst	r1, #1
+fff01ea4:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01ea8:	0afffffb 	beq	fff01e9c <main+0xa0c>
+	UART0_DATA = (ch & 0x000000FF);
+fff01eac:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01eb0:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01eb4:	e3520000 	cmp	r2, #0
+fff01eb8:	1afffff7 	bne	fff01e9c <main+0xa0c>
+fff01ebc:	e59fc628 	ldr	ip, [pc, #1576]	; fff024ec <main+0x105c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01ec0:	e1a00003 	mov	r0, r3
+fff01ec4:	e3a02027 	mov	r2, #39	; 0x27
+fff01ec8:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01ecc:	e3110001 	tst	r1, #1
+fff01ed0:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01ed4:	0afffffb 	beq	fff01ec8 <main+0xa38>
+	UART0_DATA = (ch & 0x000000FF);
+fff01ed8:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01edc:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01ee0:	e3520000 	cmp	r2, #0
+fff01ee4:	1afffff7 	bne	fff01ec8 <main+0xa38>
+fff01ee8:	e59fc600 	ldr	ip, [pc, #1536]	; fff024f0 <main+0x1060>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01eec:	e1a00003 	mov	r0, r3
+fff01ef0:	e3a02027 	mov	r2, #39	; 0x27
+fff01ef4:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01ef8:	e3110001 	tst	r1, #1
+fff01efc:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01f00:	0afffffb 	beq	fff01ef4 <main+0xa64>
+	UART0_DATA = (ch & 0x000000FF);
+fff01f04:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01f08:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01f0c:	e3520000 	cmp	r2, #0
+fff01f10:	1afffff7 	bne	fff01ef4 <main+0xa64>
+fff01f14:	e59fc5d8 	ldr	ip, [pc, #1496]	; fff024f4 <main+0x1064>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01f18:	e1a00003 	mov	r0, r3
+fff01f1c:	e3a02027 	mov	r2, #39	; 0x27
+fff01f20:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01f24:	e3110001 	tst	r1, #1
+fff01f28:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01f2c:	0afffffb 	beq	fff01f20 <main+0xa90>
+	UART0_DATA = (ch & 0x000000FF);
+fff01f30:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01f34:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01f38:	e3520000 	cmp	r2, #0
+fff01f3c:	1afffff7 	bne	fff01f20 <main+0xa90>
+fff01f40:	e59fc5b0 	ldr	ip, [pc, #1456]	; fff024f8 <main+0x1068>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01f44:	e1a00003 	mov	r0, r3
+fff01f48:	e3a02027 	mov	r2, #39	; 0x27
+fff01f4c:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01f50:	e3110001 	tst	r1, #1
+fff01f54:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01f58:	0afffffb 	beq	fff01f4c <main+0xabc>
+	UART0_DATA = (ch & 0x000000FF);
+fff01f5c:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01f60:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01f64:	e3520000 	cmp	r2, #0
+fff01f68:	1afffff7 	bne	fff01f4c <main+0xabc>
+fff01f6c:	e59fc588 	ldr	ip, [pc, #1416]	; fff024fc <main+0x106c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01f70:	e1a00003 	mov	r0, r3
+fff01f74:	e3a02027 	mov	r2, #39	; 0x27
+fff01f78:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01f7c:	e3110001 	tst	r1, #1
+fff01f80:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01f84:	0afffffb 	beq	fff01f78 <main+0xae8>
+	UART0_DATA = (ch & 0x000000FF);
+fff01f88:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01f8c:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01f90:	e3520000 	cmp	r2, #0
+fff01f94:	1afffff7 	bne	fff01f78 <main+0xae8>
+fff01f98:	e59fc560 	ldr	ip, [pc, #1376]	; fff02500 <main+0x1070>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01f9c:	e1a00003 	mov	r0, r3
+fff01fa0:	e3a02042 	mov	r2, #66	; 0x42
+fff01fa4:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01fa8:	e3110001 	tst	r1, #1
+fff01fac:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01fb0:	0afffffb 	beq	fff01fa4 <main+0xb14>
+	UART0_DATA = (ch & 0x000000FF);
+fff01fb4:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01fb8:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01fbc:	e3520000 	cmp	r2, #0
+fff01fc0:	1afffff7 	bne	fff01fa4 <main+0xb14>
+fff01fc4:	e59fc538 	ldr	ip, [pc, #1336]	; fff02504 <main+0x1074>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01fc8:	e1a00003 	mov	r0, r3
+fff01fcc:	e3a02063 	mov	r2, #99	; 0x63
+fff01fd0:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff01fd4:	e3110001 	tst	r1, #1
+fff01fd8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff01fdc:	0afffffb 	beq	fff01fd0 <main+0xb40>
+	UART0_DATA = (ch & 0x000000FF);
+fff01fe0:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff01fe4:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff01fe8:	e3520000 	cmp	r2, #0
+fff01fec:	1afffff7 	bne	fff01fd0 <main+0xb40>
+fff01ff0:	e59fc510 	ldr	ip, [pc, #1296]	; fff02508 <main+0x1078>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff01ff4:	e1a00003 	mov	r0, r3
+fff01ff8:	e3a0206d 	mov	r2, #109	; 0x6d
+fff01ffc:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff02000:	e3110001 	tst	r1, #1
+fff02004:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02008:	0afffffb 	beq	fff01ffc <main+0xb6c>
+	UART0_DATA = (ch & 0x000000FF);
+fff0200c:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff02010:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff02014:	e3520000 	cmp	r2, #0
+fff02018:	1afffff7 	bne	fff01ffc <main+0xb6c>
+fff0201c:	e59fc4e8 	ldr	ip, [pc, #1256]	; fff0250c <main+0x107c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02020:	e1a00003 	mov	r0, r3
+fff02024:	e3a02066 	mov	r2, #102	; 0x66
+fff02028:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff0202c:	e3110001 	tst	r1, #1
+fff02030:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02034:	0afffffb 	beq	fff02028 <main+0xb98>
+	UART0_DATA = (ch & 0x000000FF);
+fff02038:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff0203c:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff02040:	e3520000 	cmp	r2, #0
+fff02044:	1afffff7 	bne	fff02028 <main+0xb98>
+fff02048:	e59fc4c0 	ldr	ip, [pc, #1216]	; fff02510 <main+0x1080>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0204c:	e1a00003 	mov	r0, r3
+fff02050:	e3a02054 	mov	r2, #84	; 0x54
+fff02054:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff02058:	e3110001 	tst	r1, #1
+fff0205c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02060:	0afffffb 	beq	fff02054 <main+0xbc4>
+	UART0_DATA = (ch & 0x000000FF);
+fff02064:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff02068:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff0206c:	e3520000 	cmp	r2, #0
+fff02070:	1afffff7 	bne	fff02054 <main+0xbc4>
+fff02074:	e59fc498 	ldr	ip, [pc, #1176]	; fff02514 <main+0x1084>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02078:	e1a00003 	mov	r0, r3
+fff0207c:	e3a02046 	mov	r2, #70	; 0x46
+fff02080:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff02084:	e3110001 	tst	r1, #1
+fff02088:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff0208c:	0afffffb 	beq	fff02080 <main+0xbf0>
+	UART0_DATA = (ch & 0x000000FF);
+fff02090:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff02094:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff02098:	e3520000 	cmp	r2, #0
+fff0209c:	1afffff7 	bne	fff02080 <main+0xbf0>
+fff020a0:	e59fc470 	ldr	ip, [pc, #1136]	; fff02518 <main+0x1088>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff020a4:	e1a00003 	mov	r0, r3
+fff020a8:	e3a02068 	mov	r2, #104	; 0x68
+fff020ac:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff020b0:	e3110001 	tst	r1, #1
+fff020b4:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff020b8:	0afffffb 	beq	fff020ac <main+0xc1c>
+	UART0_DATA = (ch & 0x000000FF);
+fff020bc:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff020c0:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff020c4:	e3520000 	cmp	r2, #0
+fff020c8:	1afffff7 	bne	fff020ac <main+0xc1c>
+fff020cc:	e59fc448 	ldr	ip, [pc, #1096]	; fff0251c <main+0x108c>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff020d0:	e1a00003 	mov	r0, r3
+fff020d4:	e3a02068 	mov	r2, #104	; 0x68
+fff020d8:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff020dc:	e3110001 	tst	r1, #1
+fff020e0:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff020e4:	0afffffb 	beq	fff020d8 <main+0xc48>
+	UART0_DATA = (ch & 0x000000FF);
+fff020e8:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff020ec:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff020f0:	e3520000 	cmp	r2, #0
+fff020f4:	1afffff7 	bne	fff020d8 <main+0xc48>
+fff020f8:	e59fc420 	ldr	ip, [pc, #1056]	; fff02520 <main+0x1090>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff020fc:	e1a00003 	mov	r0, r3
+fff02100:	e3a02043 	mov	r2, #67	; 0x43
+fff02104:	e5101fe3 	ldr	r1, [r0, #-4067]	; 0xfe3
+fff02108:	e3110001 	tst	r1, #1
+fff0210c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02110:	0afffffb 	beq	fff02104 <main+0xc74>
+	UART0_DATA = (ch & 0x000000FF);
+fff02114:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff02118:	e5fc2001 	ldrb	r2, [ip, #1]!
+fff0211c:	e3520000 	cmp	r2, #0
+fff02120:	1afffff7 	bne	fff02104 <main+0xc74>
+fff02124:	e59f03f8 	ldr	r0, [pc, #1016]	; fff02524 <main+0x1094>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02128:	e1a01003 	mov	r1, r3
+fff0212c:	e3a03028 	mov	r3, #40	; 0x28
+fff02130:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff02134:	e3120001 	tst	r2, #1
+fff02138:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff0213c:	0afffffb 	beq	fff02130 <main+0xca0>
+	UART0_DATA = (ch & 0x000000FF);
+fff02140:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff02144:	e5f03001 	ldrb	r3, [r0, #1]!
+fff02148:	e3530000 	cmp	r3, #0
+fff0214c:	1afffff7 	bne	fff02130 <main+0xca0>
+fff02150:	eafffd20 	b	fff015d8 <main+0x148>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02154:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02158:	e59f33c8 	ldr	r3, [pc, #968]	; fff02528 <main+0x1098>
+fff0215c:	e1a00002 	mov	r0, r2
+fff02160:	e5f31001 	ldrb	r1, [r3, #1]!
+fff02164:	e3510000 	cmp	r1, #0
+fff02168:	0afffd5d 	beq	fff016e4 <main+0x254>
+fff0216c:	e512cfe3 	ldr	ip, [r2, #-4067]	; 0xfe3
+fff02170:	e31c0001 	tst	ip, #1
+fff02174:	0afffffc 	beq	fff0216c <main+0xcdc>
+	UART0_DATA = (ch & 0x000000FF);
+fff02178:	e5001fe7 	str	r1, [r0, #-4071]	; 0xfe7
+fff0217c:	eafffff7 	b	fff02160 <main+0xcd0>
+			start_app    = 1;
+			device_id    = 0xA0;
+		}
+
+		// main functions
+		switch(function_sel){
+fff02180:	e3530033 	cmp	r3, #51	; 0x33
+fff02184:	0a00016d 	beq	fff02740 <main+0x12b0>
+				break;
+
+			// invalid selection
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			default:
+				io_uart0_send_byte((char)function_sel);
+fff02188:	e20330ff 	and	r3, r3, #255	; 0xff
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0218c:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02190:	e5121fe3 	ldr	r1, [r2, #-4067]	; 0xfe3
+fff02194:	e3110001 	tst	r1, #1
+fff02198:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff0219c:	0afffffb 	beq	fff02190 <main+0xd00>
+fff021a0:	e59f0384 	ldr	r0, [pc, #900]	; fff0252c <main+0x109c>
+	UART0_DATA = (ch & 0x000000FF);
+fff021a4:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff021a8:	e3a03020 	mov	r3, #32
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff021ac:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff021b0:	e3120001 	tst	r2, #1
+fff021b4:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff021b8:	0afffffb 	beq	fff021ac <main+0xd1c>
+	UART0_DATA = (ch & 0x000000FF);
+fff021bc:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff021c0:	e5f03001 	ldrb	r3, [r0, #1]!
+fff021c4:	e3530000 	cmp	r3, #0
+fff021c8:	1afffff7 	bne	fff021ac <main+0xd1c>
+fff021cc:	eafffd01 	b	fff015d8 <main+0x148>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff021d0:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff021d4:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff021d8:	e3120001 	tst	r2, #1
+fff021dc:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff021e0:	0afffffb 	beq	fff021d4 <main+0xd44>
+	UART0_DATA = (ch & 0x000000FF);
+fff021e4:	e3a03066 	mov	r3, #102	; 0x66
+fff021e8:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff021ec:	e59f033c 	ldr	r0, [pc, #828]	; fff02530 <main+0x10a0>
+fff021f0:	e3a0200d 	mov	r2, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff021f4:	e5113fe3 	ldr	r3, [r1, #-4067]	; 0xfe3
+fff021f8:	e3130001 	tst	r3, #1
+fff021fc:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02200:	0afffffb 	beq	fff021f4 <main+0xd64>
+	UART0_DATA = (ch & 0x000000FF);
+fff02204:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff02208:	e5f02001 	ldrb	r2, [r0, #1]!
+fff0220c:	e3520000 	cmp	r2, #0
+fff02210:	1afffff7 	bne	fff021f4 <main+0xd64>
+fff02214:	e59f0318 	ldr	r0, [pc, #792]	; fff02534 <main+0x10a4>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02218:	e1a01003 	mov	r1, r3
+fff0221c:	e3a03020 	mov	r3, #32
+fff02220:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff02224:	e3120001 	tst	r2, #1
+fff02228:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff0222c:	0afffffb 	beq	fff02220 <main+0xd90>
+	UART0_DATA = (ch & 0x000000FF);
+fff02230:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff02234:	e5f03001 	ldrb	r3, [r0, #1]!
+fff02238:	e3530000 	cmp	r3, #0
+fff0223c:	1afffff7 	bne	fff02220 <main+0xd90>
+fff02240:	eafffce4 	b	fff015d8 <main+0x148>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02244:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02248:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff0224c:	e3120001 	tst	r2, #1
+fff02250:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff02254:	0afffffb 	beq	fff02248 <main+0xdb8>
+	UART0_DATA = (ch & 0x000000FF);
+fff02258:	e3a03035 	mov	r3, #53	; 0x35
+fff0225c:	e59f02d4 	ldr	r0, [pc, #724]	; fff02538 <main+0x10a8>
+fff02260:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff02264:	e3a0300d 	mov	r3, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02268:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff0226c:	e3120001 	tst	r2, #1
+fff02270:	e3e06a0f 	mvn	r6, #61440	; 0xf000
+fff02274:	0afffffb 	beq	fff02268 <main+0xdd8>
+	UART0_DATA = (ch & 0x000000FF);
+fff02278:	e5063fe7 	str	r3, [r6, #-4071]	; 0xfe7
+fff0227c:	e5f03001 	ldrb	r3, [r0, #1]!
+fff02280:	e3530000 	cmp	r3, #0
+fff02284:	1afffff7 	bne	fff02268 <main+0xdd8>
+			// show content of I2C EEPROM
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '5':
+				io_uart0_send_byte((char)function_sel);
+				uart0_printf("\r\n\r\nEnter device address (2 hex-chars, set LSB to '0'): ");
+				uart0_scanf(buffer,2,1);
+fff02288:	e1a00005 	mov	r0, r5
+fff0228c:	e3a01002 	mov	r1, #2
+fff02290:	e3a02001 	mov	r2, #1
+fff02294:	ebfff8a8 	bl	fff0053c <uart0_scanf>
+				device_id = (unsigned char)hex_string_to_long(buffer, 2);
+fff02298:	e1a00005 	mov	r0, r5
+fff0229c:	e3a01002 	mov	r1, #2
+fff022a0:	ebfff92d 	bl	fff0075c <hex_string_to_long>
+				if(device_id == 0){
+fff022a4:	e21040ff 	ands	r4, r0, #255	; 0xff
+fff022a8:	1a000019 	bne	fff02314 <main+0xe84>
+fff022ac:	e59f2288 	ldr	r2, [pc, #648]	; fff0253c <main+0x10ac>
+fff022b0:	e3a03020 	mov	r3, #32
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff022b4:	e5161fe3 	ldr	r1, [r6, #-4067]	; 0xfe3
+fff022b8:	e3110001 	tst	r1, #1
+fff022bc:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff022c0:	0afffffb 	beq	fff022b4 <main+0xe24>
+	UART0_DATA = (ch & 0x000000FF);
+fff022c4:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff022c8:	e5f23001 	ldrb	r3, [r2, #1]!
+fff022cc:	e3530000 	cmp	r3, #0
+fff022d0:	1afffff7 	bne	fff022b4 <main+0xe24>
+fff022d4:	eafffcbf 	b	fff015d8 <main+0x148>
+			start_app    = 1;
+			device_id    = 0xA0;
+		}
+
+		// main functions
+		switch(function_sel){
+fff022d8:	e3530031 	cmp	r3, #49	; 0x31
+fff022dc:	0a0000f3 	beq	fff026b0 <main+0x1220>
+fff022e0:	ca0000a3 	bgt	fff02574 <main+0x10e4>
+fff022e4:	e3730001 	cmn	r3, #1
+fff022e8:	0afffcba 	beq	fff015d8 <main+0x148>
+fff022ec:	e3530030 	cmp	r3, #48	; 0x30
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff022f0:	03e02a0f 	mvneq	r2, #61440	; 0xf000
+fff022f4:	1affffa3 	bne	fff02188 <main+0xcf8>
+fff022f8:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff022fc:	e3130001 	tst	r3, #1
+fff02300:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02304:	0afffffb 	beq	fff022f8 <main+0xe68>
+	UART0_DATA = (ch & 0x000000FF);
+fff02308:	e3a02030 	mov	r2, #48	; 0x30
+fff0230c:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+			// boot from RAM (start application)
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '0':
+				io_uart0_send_byte((char)function_sel);
+				start_app = 1;
+				break;
+fff02310:	eafffcf3 	b	fff016e4 <main+0x254>
+fff02314:	e59f1224 	ldr	r1, [pc, #548]	; fff02540 <main+0x10b0>
+fff02318:	e3a0300d 	mov	r3, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0231c:	e5162fe3 	ldr	r2, [r6, #-4067]	; 0xfe3
+fff02320:	e3120001 	tst	r2, #1
+fff02324:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02328:	0afffffb 	beq	fff0231c <main+0xe8c>
+	UART0_DATA = (ch & 0x000000FF);
+fff0232c:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff02330:	e5f13001 	ldrb	r3, [r1, #1]!
+fff02334:	e3530000 	cmp	r3, #0
+fff02338:	1afffff7 	bne	fff0231c <main+0xe8c>
+fff0233c:	e59f1200 	ldr	r1, [pc, #512]	; fff02544 <main+0x10b4>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02340:	e1a00002 	mov	r0, r2
+fff02344:	e3a03074 	mov	r3, #116	; 0x74
+fff02348:	e5102fe3 	ldr	r2, [r0, #-4067]	; 0xfe3
+fff0234c:	e3120001 	tst	r2, #1
+fff02350:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02354:	0afffffb 	beq	fff02348 <main+0xeb8>
+	UART0_DATA = (ch & 0x000000FF);
+fff02358:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff0235c:	e5f13001 	ldrb	r3, [r1, #1]!
+fff02360:	e3530000 	cmp	r3, #0
+fff02364:	1afffff7 	bne	fff02348 <main+0xeb8>
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff02368:	e1a03002 	mov	r3, r2
+fff0236c:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff02370:	e3120002 	tst	r2, #2
+fff02374:	0afffffc 	beq	fff0236c <main+0xedc>
+		temp = UART0_DATA;
+fff02378:	e5132fe7 	ldr	r2, [r3, #-4071]	; 0xfe7
+					uart0_printf(" Invalid address!\r\n\r\nSelect: ");
+					break;
+				}
+				uart0_printf("\r\n\r\nAbort dumping by pressing any key. If no data is shown,\r\n");
+				uart0_printf("the selected device is not responding. Press any key to continue.\r\n\r\n");
+				while(io_uart0_read_byte() == -1);
+fff0237c:	e3720001 	cmn	r2, #1
+fff02380:	0afffff9 	beq	fff0236c <main+0xedc>
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff02384:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02388:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff0238c:	e3120002 	tst	r2, #2
+fff02390:	1a000033 	bne	fff02464 <main+0xfd4>
+fff02394:	e3a06000 	mov	r6, #0
+				while(io_uart0_read_byte() != -1);
+				for(i=0; i<0xFFFF; i++){
+						data = -1;
+						while(data < 0){
+							data = io_i2c0_byte_transfer('r', device_id, i, 2, 0x00);
+fff02398:	e1a0a006 	mov	sl, r6
+fff0239c:	e3e08a0f 	mvn	r8, #61440	; 0xf000
+				}
+				uart0_printf("\r\n\r\nAbort dumping by pressing any key. If no data is shown,\r\n");
+				uart0_printf("the selected device is not responding. Press any key to continue.\r\n\r\n");
+				while(io_uart0_read_byte() == -1);
+				while(io_uart0_read_byte() != -1);
+				for(i=0; i<0xFFFF; i++){
+fff023a0:	e59f91a0 	ldr	r9, [pc, #416]	; fff02548 <main+0x10b8>
+fff023a4:	ea000001 	b	fff023b0 <main+0xf20>
+						data = -1;
+						while(data < 0){
+fff023a8:	e3500000 	cmp	r0, #0
+fff023ac:	aa000022 	bge	fff0243c <main+0xfac>
+							data = io_i2c0_byte_transfer('r', device_id, i, 2, 0x00);
+fff023b0:	e3a03002 	mov	r3, #2
+fff023b4:	e58da000 	str	sl, [sp]
+fff023b8:	e3a00072 	mov	r0, #114	; 0x72
+fff023bc:	e1a01004 	mov	r1, r4
+fff023c0:	e1a02006 	mov	r2, r6
+fff023c4:	ebfff7ac 	bl	fff0027c <io_i2c0_byte_transfer>
+fff023c8:	e5183fe3 	ldr	r3, [r8, #-4067]	; 0xfe3
+fff023cc:	e3130002 	tst	r3, #2
+fff023d0:	0afffff4 	beq	fff023a8 <main+0xf18>
+		temp = UART0_DATA;
+fff023d4:	e5183fe7 	ldr	r3, [r8, #-4071]	; 0xfe7
+							if(io_uart0_read_byte() != -1){
+fff023d8:	e3730001 	cmn	r3, #1
+fff023dc:	0afffff1 	beq	fff023a8 <main+0xf18>
+fff023e0:	e59f2164 	ldr	r2, [pc, #356]	; fff0254c <main+0x10bc>
+fff023e4:	e3a0300d 	mov	r3, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff023e8:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff023ec:	e5110fe3 	ldr	r0, [r1, #-4067]	; 0xfe3
+fff023f0:	e3100001 	tst	r0, #1
+fff023f4:	e3e00a0f 	mvn	r0, #61440	; 0xf000
+fff023f8:	0afffffb 	beq	fff023ec <main+0xf5c>
+	UART0_DATA = (ch & 0x000000FF);
+fff023fc:	e5003fe7 	str	r3, [r0, #-4071]	; 0xfe7
+fff02400:	e5f23001 	ldrb	r3, [r2, #1]!
+fff02404:	e3530000 	cmp	r3, #0
+fff02408:	1afffff7 	bne	fff023ec <main+0xf5c>
+fff0240c:	e59f2144 	ldr	r2, [pc, #324]	; fff02558 <main+0x10c8>
+fff02410:	e3a0300d 	mov	r3, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02414:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff02418:	e5110fe3 	ldr	r0, [r1, #-4067]	; 0xfe3
+fff0241c:	e3100001 	tst	r0, #1
+fff02420:	e3e00a0f 	mvn	r0, #61440	; 0xf000
+fff02424:	0afffffb 	beq	fff02418 <main+0xf88>
+	UART0_DATA = (ch & 0x000000FF);
+fff02428:	e5003fe7 	str	r3, [r0, #-4071]	; 0xfe7
+fff0242c:	e5f23001 	ldrb	r3, [r2, #1]!
+fff02430:	e3530000 	cmp	r3, #0
+fff02434:	1afffff7 	bne	fff02418 <main+0xf88>
+fff02438:	eafffc66 	b	fff015d8 <main+0x148>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff0243c:	e5183fe3 	ldr	r3, [r8, #-4067]	; 0xfe3
+fff02440:	e3130001 	tst	r3, #1
+fff02444:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02448:	0afffffb 	beq	fff0243c <main+0xfac>
+				}
+				uart0_printf("\r\n\r\nAbort dumping by pressing any key. If no data is shown,\r\n");
+				uart0_printf("the selected device is not responding. Press any key to continue.\r\n\r\n");
+				while(io_uart0_read_byte() == -1);
+				while(io_uart0_read_byte() != -1);
+				for(i=0; i<0xFFFF; i++){
+fff0244c:	e2866001 	add	r6, r6, #1
+	UART0_DATA = (ch & 0x000000FF);
+fff02450:	e20000ff 	and	r0, r0, #255	; 0xff
+fff02454:	e1560009 	cmp	r6, r9
+fff02458:	e5030fe7 	str	r0, [r3, #-4071]	; 0xfe7
+fff0245c:	1affffd3 	bne	fff023b0 <main+0xf20>
+fff02460:	eaffffe9 	b	fff0240c <main+0xf7c>
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+		temp = UART0_DATA;
+fff02464:	e5132fe7 	ldr	r2, [r3, #-4071]	; 0xfe7
+					break;
+				}
+				uart0_printf("\r\n\r\nAbort dumping by pressing any key. If no data is shown,\r\n");
+				uart0_printf("the selected device is not responding. Press any key to continue.\r\n\r\n");
+				while(io_uart0_read_byte() == -1);
+				while(io_uart0_read_byte() != -1);
+fff02468:	e3720001 	cmn	r2, #1
+fff0246c:	1affffc5 	bne	fff02388 <main+0xef8>
+fff02470:	eaffffc7 	b	fff02394 <main+0xf04>
+fff02474:	fff00ef4 	.word	0xfff00ef4
+fff02478:	fff00f28 	.word	0xfff00f28
+fff0247c:	fff00f94 	.word	0xfff00f94
+fff02480:	fff0141c 	.word	0xfff0141c
+fff02484:	fff00cf4 	.word	0xfff00cf4
+fff02488:	fff0146c 	.word	0xfff0146c
+fff0248c:	fff007fc 	.word	0xfff007fc
+fff02490:	fff00848 	.word	0xfff00848
+fff02494:	fff00890 	.word	0xfff00890
+fff02498:	fff008d8 	.word	0xfff008d8
+fff0249c:	fff00920 	.word	0xfff00920
+fff024a0:	fff00968 	.word	0xfff00968
+fff024a4:	fff009b0 	.word	0xfff009b0
+fff024a8:	fff00a1c 	.word	0xfff00a1c
+fff024ac:	fff00a54 	.word	0xfff00a54
+fff024b0:	fff00ab8 	.word	0xfff00ab8
+fff024b4:	fff00b1c 	.word	0xfff00b1c
+fff024b8:	fff00d34 	.word	0xfff00d34
+fff024bc:	fff00d54 	.word	0xfff00d54
+fff024c0:	fff00db4 	.word	0xfff00db4
+fff024c4:	fff013ec 	.word	0xfff013ec
+fff024c8:	0000fffc 	.word	0x0000fffc
+fff024cc:	fff00dd7 	.word	0xfff00dd7
+fff024d0:	fff00def 	.word	0xfff00def
+fff024d4:	fff00e0f 	.word	0xfff00e0f
+fff024d8:	fff00fd8 	.word	0xfff00fd8
+fff024dc:	fff00ff4 	.word	0xfff00ff4
+fff024e0:	fff01014 	.word	0xfff01014
+fff024e4:	fff01054 	.word	0xfff01054
+fff024e8:	fff01088 	.word	0xfff01088
+fff024ec:	fff010c4 	.word	0xfff010c4
+fff024f0:	fff01100 	.word	0xfff01100
+fff024f4:	fff01124 	.word	0xfff01124
+fff024f8:	fff01160 	.word	0xfff01160
+fff024fc:	fff0117c 	.word	0xfff0117c
+fff02500:	fff01194 	.word	0xfff01194
+fff02504:	fff011dc 	.word	0xfff011dc
+fff02508:	fff0121c 	.word	0xfff0121c
+fff0250c:	fff01254 	.word	0xfff01254
+fff02510:	fff01278 	.word	0xfff01278
+fff02514:	fff012bc 	.word	0xfff012bc
+fff02518:	fff012fc 	.word	0xfff012fc
+fff0251c:	fff01328 	.word	0xfff01328
+fff02520:	fff01354 	.word	0xfff01354
+fff02524:	fff01378 	.word	0xfff01378
+fff02528:	fff00d1f 	.word	0xfff00d1f
+fff0252c:	fff013f8 	.word	0xfff013f8
+fff02530:	fff013a0 	.word	0xfff013a0
+fff02534:	fff013d0 	.word	0xfff013d0
+fff02538:	fff00e20 	.word	0xfff00e20
+fff0253c:	fff00cd4 	.word	0xfff00cd4
+fff02540:	fff00e5c 	.word	0xfff00e5c
+fff02544:	fff00e9c 	.word	0xfff00e9c
+fff02548:	0000ffff 	.word	0x0000ffff
+fff0254c:	fff00ee4 	.word	0xfff00ee4
+fff02550:	fff00c2c 	.word	0xfff00c2c
+fff02554:	00007ffc 	.word	0x00007ffc
+fff02558:	fff00c74 	.word	0xfff00c74
+fff0255c:	fff00b6c 	.word	0xfff00b6c
+fff02560:	fff00be0 	.word	0xfff00be0
+fff02564:	fff00c98 	.word	0xfff00c98
+fff02568:	fff00cd5 	.word	0xfff00cd5
+fff0256c:	00007ff8 	.word	0x00007ff8
+fff02570:	fff00c07 	.word	0xfff00c07
+			start_app    = 1;
+			device_id    = 0xA0;
+		}
+
+		// main functions
+		switch(function_sel){
+fff02574:	e3530032 	cmp	r3, #50	; 0x32
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02578:	03e03a0f 	mvneq	r3, #61440	; 0xf000
+fff0257c:	1afffeff 	bne	fff02180 <main+0xcf0>
+fff02580:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff02584:	e3120001 	tst	r2, #1
+fff02588:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff0258c:	0afffffb 	beq	fff02580 <main+0x10f0>
+	UART0_DATA = (ch & 0x000000FF);
+fff02590:	e3a03032 	mov	r3, #50	; 0x32
+fff02594:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff02598:	e51f0050 	ldr	r0, [pc, #-80]	; fff02550 <main+0x10c0>
+fff0259c:	e3a0200d 	mov	r2, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff025a0:	e5113fe3 	ldr	r3, [r1, #-4067]	; 0xfe3
+fff025a4:	e3130001 	tst	r3, #1
+fff025a8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff025ac:	0afffffb 	beq	fff025a0 <main+0x1110>
+	UART0_DATA = (ch & 0x000000FF);
+fff025b0:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff025b4:	e5f02001 	ldrb	r2, [r0, #1]!
+fff025b8:	e3520000 	cmp	r2, #0
+fff025bc:	1afffff7 	bne	fff025a0 <main+0x1110>
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff025c0:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff025c4:	e3120002 	tst	r2, #2
+fff025c8:	0afffffc 	beq	fff025c0 <main+0x1130>
+		temp = UART0_DATA;
+fff025cc:	e5132fe7 	ldr	r2, [r3, #-4071]	; 0xfe7
+			// ram memory dump
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '2':
+				io_uart0_send_byte((char)function_sel);
+				uart0_printf("\r\n\r\nAbort dumping by pressing any key.\r\nPress any key to continue.\r\n\r\n");
+				while(io_uart0_read_byte() == -1);
+fff025d0:	e3720001 	cmn	r2, #1
+fff025d4:	0afffff9 	beq	fff025c0 <main+0x1130>
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff025d8:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff025dc:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff025e0:	e3120002 	tst	r2, #2
+fff025e4:	1a00009e 	bne	fff02864 <main+0x13d4>
+				while(io_uart0_read_byte() != -1);
+				data_pointer = 0;
+				while(data_pointer != RAM_SIZE){
+fff025e8:	e51fc09c 	ldr	ip, [pc, #-156]	; fff02554 <main+0x10c4>
+fff025ec:	e3e00003 	mvn	r0, #3
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff025f0:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+					word_buffer = *data_pointer;
+fff025f4:	e5b01004 	ldr	r1, [r0, #4]!
+					io_uart0_send_byte(word_buffer >> 24);
+fff025f8:	e1a0ec21 	lsr	lr, r1, #24
+fff025fc:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff02600:	e3120001 	tst	r2, #1
+fff02604:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02608:	0afffffb 	beq	fff025fc <main+0x116c>
+	UART0_DATA = (ch & 0x000000FF);
+fff0260c:	e502efe7 	str	lr, [r2, #-4071]	; 0xfe7
+					io_uart0_send_byte(word_buffer >> 16);
+fff02610:	e1a0e821 	lsr	lr, r1, #16
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02614:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff02618:	e3120001 	tst	r2, #1
+fff0261c:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02620:	0afffffb 	beq	fff02614 <main+0x1184>
+	UART0_DATA = (ch & 0x000000FF);
+fff02624:	e20ee0ff 	and	lr, lr, #255	; 0xff
+fff02628:	e502efe7 	str	lr, [r2, #-4071]	; 0xfe7
+					io_uart0_send_byte(word_buffer >>  8);
+fff0262c:	e1a0e421 	lsr	lr, r1, #8
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02630:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff02634:	e3120001 	tst	r2, #1
+fff02638:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff0263c:	0afffffb 	beq	fff02630 <main+0x11a0>
+	UART0_DATA = (ch & 0x000000FF);
+fff02640:	e20ee0ff 	and	lr, lr, #255	; 0xff
+fff02644:	e502efe7 	str	lr, [r2, #-4071]	; 0xfe7
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02648:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff0264c:	e3120001 	tst	r2, #1
+fff02650:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02654:	0afffffb 	beq	fff02648 <main+0x11b8>
+	UART0_DATA = (ch & 0x000000FF);
+fff02658:	e20110ff 	and	r1, r1, #255	; 0xff
+fff0265c:	e5021fe7 	str	r1, [r2, #-4071]	; 0xfe7
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+fff02660:	e5121fe3 	ldr	r1, [r2, #-4067]	; 0xfe3
+fff02664:	e3110002 	tst	r1, #2
+fff02668:	0a000002 	beq	fff02678 <main+0x11e8>
+		temp = UART0_DATA;
+fff0266c:	e5122fe7 	ldr	r2, [r2, #-4071]	; 0xfe7
+					io_uart0_send_byte(word_buffer >>  0);
+					data_pointer++;
+					if(io_uart0_read_byte() != -1){
+fff02670:	e3720001 	cmn	r2, #1
+fff02674:	1a000001 	bne	fff02680 <main+0x11f0>
+				io_uart0_send_byte((char)function_sel);
+				uart0_printf("\r\n\r\nAbort dumping by pressing any key.\r\nPress any key to continue.\r\n\r\n");
+				while(io_uart0_read_byte() == -1);
+				while(io_uart0_read_byte() != -1);
+				data_pointer = 0;
+				while(data_pointer != RAM_SIZE){
+fff02678:	e150000c 	cmp	r0, ip
+fff0267c:	1affffdc 	bne	fff025f4 <main+0x1164>
+fff02680:	e51f0130 	ldr	r0, [pc, #-304]	; fff02558 <main+0x10c8>
+fff02684:	e3a0300d 	mov	r3, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02688:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff0268c:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff02690:	e3120001 	tst	r2, #1
+fff02694:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02698:	0afffffb 	beq	fff0268c <main+0x11fc>
+	UART0_DATA = (ch & 0x000000FF);
+fff0269c:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff026a0:	e5f03001 	ldrb	r3, [r0, #1]!
+fff026a4:	e3530000 	cmp	r3, #0
+fff026a8:	1afffff7 	bne	fff0268c <main+0x11fc>
+fff026ac:	eafffbc9 	b	fff015d8 <main+0x148>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff026b0:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff026b4:	e5132fe3 	ldr	r2, [r3, #-4067]	; 0xfe3
+fff026b8:	e3120001 	tst	r2, #1
+fff026bc:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff026c0:	0afffffb 	beq	fff026b4 <main+0x1224>
+	UART0_DATA = (ch & 0x000000FF);
+fff026c4:	e3a03031 	mov	r3, #49	; 0x31
+fff026c8:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff026cc:	e51f1178 	ldr	r1, [pc, #-376]	; fff0255c <main+0x10cc>
+fff026d0:	e3a0400d 	mov	r4, #13
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff026d4:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff026d8:	e3130001 	tst	r3, #1
+fff026dc:	e3e06a0f 	mvn	r6, #61440	; 0xf000
+fff026e0:	0afffffb 	beq	fff026d4 <main+0x1244>
+	UART0_DATA = (ch & 0x000000FF);
+fff026e4:	e5064fe7 	str	r4, [r6, #-4071]	; 0xfe7
+fff026e8:	e5f14001 	ldrb	r4, [r1, #1]!
+fff026ec:	e3540000 	cmp	r4, #0
+fff026f0:	1afffff7 	bne	fff026d4 <main+0x1244>
+			// load ram via UART0
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '1':
+				io_uart0_send_byte((char)function_sel);
+				uart0_printf("\r\n\r\nApplication will start automatically after download.\r\n-> Waiting for 'storm_program.bin' in byte-stream mode...");
+				uart0_scanf(buffer,4,0); // get storm master boot record code
+fff026f4:	e1a00005 	mov	r0, r5
+fff026f8:	e3a01004 	mov	r1, #4
+fff026fc:	e1a02004 	mov	r2, r4
+fff02700:	ebfff78d 	bl	fff0053c <uart0_scanf>
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+fff02704:	e5dd3008 	ldrb	r3, [sp, #8]
+fff02708:	e3530053 	cmp	r3, #83	; 0x53
+fff0270c:	0a000031 	beq	fff027d8 <main+0x1348>
+fff02710:	e51f01b8 	ldr	r0, [pc, #-440]	; fff02560 <main+0x10d0>
+					uart0_scanf(buffer,4,0); // get image size
+					adr_buffer = qbytes_to_long(buffer);
+					if (adr_buffer > RAM_SIZE-8){
+fff02714:	e3a03020 	mov	r3, #32
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02718:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff0271c:	e5112fe3 	ldr	r2, [r1, #-4067]	; 0xfe3
+fff02720:	e3120001 	tst	r2, #1
+fff02724:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02728:	0afffffb 	beq	fff0271c <main+0x128c>
+	UART0_DATA = (ch & 0x000000FF);
+fff0272c:	e5023fe7 	str	r3, [r2, #-4071]	; 0xfe7
+fff02730:	e5f03001 	ldrb	r3, [r0, #1]!
+fff02734:	e3530000 	cmp	r3, #0
+fff02738:	1afffff7 	bne	fff0271c <main+0x128c>
+fff0273c:	eafffba5 	b	fff015d8 <main+0x148>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02740:	e3e02a0f 	mvn	r2, #61440	; 0xf000
+fff02744:	e5123fe3 	ldr	r3, [r2, #-4067]	; 0xfe3
+fff02748:	e3130001 	tst	r3, #1
+fff0274c:	e3e03a0f 	mvn	r3, #61440	; 0xf000
+fff02750:	0afffffb 	beq	fff02744 <main+0x12b4>
+	UART0_DATA = (ch & 0x000000FF);
+fff02754:	e3a02033 	mov	r2, #51	; 0x33
+fff02758:	e5032fe7 	str	r2, [r3, #-4071]	; 0xfe7
+fff0275c:	e51f2200 	ldr	r2, [pc, #-512]	; fff02564 <main+0x10d4>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02760:	e1a01003 	mov	r1, r3
+fff02764:	e3a0300d 	mov	r3, #13
+fff02768:	e5110fe3 	ldr	r0, [r1, #-4067]	; 0xfe3
+fff0276c:	e3100001 	tst	r0, #1
+fff02770:	e3e06a0f 	mvn	r6, #61440	; 0xf000
+fff02774:	0afffffb 	beq	fff02768 <main+0x12d8>
+	UART0_DATA = (ch & 0x000000FF);
+fff02778:	e5063fe7 	str	r3, [r6, #-4071]	; 0xfe7
+fff0277c:	e5f23001 	ldrb	r3, [r2, #1]!
+fff02780:	e3530000 	cmp	r3, #0
+fff02784:	1afffff7 	bne	fff02768 <main+0x12d8>
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '3':
+				if(start_app == 0){
+					io_uart0_send_byte((char)function_sel);
+					uart0_printf("\r\n\r\nEnter device address (2x hex_chars, set LSB to '0'): ");
+					uart0_scanf(buffer,2,1);
+fff02788:	e1a00005 	mov	r0, r5
+fff0278c:	e3a01002 	mov	r1, #2
+fff02790:	e3a02001 	mov	r2, #1
+fff02794:	ebfff768 	bl	fff0053c <uart0_scanf>
+					device_id = (unsigned char)hex_string_to_long(buffer, 2);
+fff02798:	e1a00005 	mov	r0, r5
+fff0279c:	e3a01002 	mov	r1, #2
+fff027a0:	ebfff7ed 	bl	fff0075c <hex_string_to_long>
+					if(device_id == 0){
+fff027a4:	e21040ff 	ands	r4, r0, #255	; 0xff
+fff027a8:	1afffb95 	bne	fff01604 <main+0x174>
+fff027ac:	e51f224c 	ldr	r2, [pc, #-588]	; fff02568 <main+0x10d8>
+fff027b0:	e3a03020 	mov	r3, #32
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff027b4:	e5161fe3 	ldr	r1, [r6, #-4067]	; 0xfe3
+fff027b8:	e3110001 	tst	r1, #1
+fff027bc:	e3e01a0f 	mvn	r1, #61440	; 0xf000
+fff027c0:	0afffffb 	beq	fff027b4 <main+0x1324>
+	UART0_DATA = (ch & 0x000000FF);
+fff027c4:	e5013fe7 	str	r3, [r1, #-4071]	; 0xfe7
+fff027c8:	e4d23001 	ldrb	r3, [r2], #1
+fff027cc:	e3530000 	cmp	r3, #0
+fff027d0:	1afffff7 	bne	fff027b4 <main+0x1324>
+fff027d4:	eafffb7f 	b	fff015d8 <main+0x148>
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '1':
+				io_uart0_send_byte((char)function_sel);
+				uart0_printf("\r\n\r\nApplication will start automatically after download.\r\n-> Waiting for 'storm_program.bin' in byte-stream mode...");
+				uart0_scanf(buffer,4,0); // get storm master boot record code
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+fff027d8:	e5dd3009 	ldrb	r3, [sp, #9]
+fff027dc:	e353004d 	cmp	r3, #77	; 0x4d
+fff027e0:	1affffca 	bne	fff02710 <main+0x1280>
+fff027e4:	e5dd300a 	ldrb	r3, [sp, #10]
+fff027e8:	e3530042 	cmp	r3, #66	; 0x42
+fff027ec:	1affffc7 	bne	fff02710 <main+0x1280>
+fff027f0:	e5dd300b 	ldrb	r3, [sp, #11]
+fff027f4:	e3530052 	cmp	r3, #82	; 0x52
+fff027f8:	1affffc4 	bne	fff02710 <main+0x1280>
+					uart0_scanf(buffer,4,0); // get image size
+fff027fc:	e3a01004 	mov	r1, #4
+fff02800:	e1a02004 	mov	r2, r4
+fff02804:	e1a00005 	mov	r0, r5
+fff02808:	ebfff74b 	bl	fff0053c <uart0_scanf>
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff0280c:	e5dd2009 	ldrb	r2, [sp, #9]
+fff02810:	e5dd100a 	ldrb	r1, [sp, #10]
+fff02814:	e1a02802 	lsl	r2, r2, #16
+fff02818:	e5dd300b 	ldrb	r3, [sp, #11]
+fff0281c:	e1822401 	orr	r2, r2, r1, lsl #8
+fff02820:	e5dd1008 	ldrb	r1, [sp, #8]
+fff02824:	e1823003 	orr	r3, r2, r3
+				uart0_printf("\r\n\r\nApplication will start automatically after download.\r\n-> Waiting for 'storm_program.bin' in byte-stream mode...");
+				uart0_scanf(buffer,4,0); // get storm master boot record code
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+					uart0_scanf(buffer,4,0); // get image size
+					adr_buffer = qbytes_to_long(buffer);
+					if (adr_buffer > RAM_SIZE-8){
+fff02828:	e51f22c4 	ldr	r2, [pc, #-708]	; fff0256c <main+0x10dc>
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff0282c:	e1833c01 	orr	r3, r3, r1, lsl #24
+				uart0_printf("\r\n\r\nApplication will start automatically after download.\r\n-> Waiting for 'storm_program.bin' in byte-stream mode...");
+				uart0_scanf(buffer,4,0); // get storm master boot record code
+				if((buffer[0] == 'S') && (buffer[1] == 'M') && (buffer[2] == 'B') && (buffer[3] == 'R')){
+					uart0_scanf(buffer,4,0); // get image size
+					adr_buffer = qbytes_to_long(buffer);
+					if (adr_buffer > RAM_SIZE-8){
+fff02830:	e1530002 	cmp	r3, r2
+fff02834:	92836004 	addls	r6, r3, #4
+fff02838:	9a00000d 	bls	fff02874 <main+0x13e4>
+fff0283c:	e51f32d4 	ldr	r3, [pc, #-724]	; fff02570 <main+0x10e0>
+// ******************************************************************************
+{
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	while((UART0_SREG & (1<<CUART_TXB)) == 0); // uart busy?
+fff02840:	e1a01006 	mov	r1, r6
+fff02844:	e5f32001 	ldrb	r2, [r3, #1]!
+fff02848:	e3520000 	cmp	r2, #0
+fff0284c:	0afffb61 	beq	fff015d8 <main+0x148>
+fff02850:	e5160fe3 	ldr	r0, [r6, #-4067]	; 0xfe3
+fff02854:	e3100001 	tst	r0, #1
+fff02858:	0afffffc 	beq	fff02850 <main+0x13c0>
+	UART0_DATA = (ch & 0x000000FF);
+fff0285c:	e5012fe7 	str	r2, [r1, #-4071]	; 0xfe7
+fff02860:	eafffff7 	b	fff02844 <main+0x13b4>
+//	unsigned long _cmsr = get_cmsr();
+//	set_cmsr(_cmsr  | (1<<CMSR_IRQ) | (1<<CMSR_FIQ));
+
+	int temp;
+	if ((UART0_SREG & (1<<CUART_RXD)) != 0) // byte available?
+		temp = UART0_DATA;
+fff02864:	e5132fe7 	ldr	r2, [r3, #-4071]	; 0xfe7
+			// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			case '2':
+				io_uart0_send_byte((char)function_sel);
+				uart0_printf("\r\n\r\nAbort dumping by pressing any key.\r\nPress any key to continue.\r\n\r\n");
+				while(io_uart0_read_byte() == -1);
+				while(io_uart0_read_byte() != -1);
+fff02868:	e3720001 	cmn	r2, #1
+fff0286c:	1affff5a 	bne	fff025dc <main+0x114c>
+fff02870:	eaffff5c 	b	fff025e8 <main+0x1158>
+					if (adr_buffer > RAM_SIZE-8){
+						uart0_printf(" ERROR! Program file too big!\r\n\r\n");
+						break;
+					}
+					data_pointer = 0;
+					while(data_pointer != adr_buffer+4){
+fff02874:	e1540006 	cmp	r4, r6
+fff02878:	0afffb99 	beq	fff016e4 <main+0x254>
+						uart0_scanf(buffer,4,0); // get word
+fff0287c:	e3a01004 	mov	r1, #4
+fff02880:	e3a02000 	mov	r2, #0
+fff02884:	e1a00005 	mov	r0, r5
+fff02888:	ebfff72b 	bl	fff0053c <uart0_scanf>
+	unsigned char b = buffer[2];
+	unsigned char a = buffer[3];
+	unsigned long n;
+
+
+	n = a|(b<<8)|(c<<16)|(d<<24);
+fff0288c:	e5dd2009 	ldrb	r2, [sp, #9]
+fff02890:	e5dd100a 	ldrb	r1, [sp, #10]
+fff02894:	e1a02802 	lsl	r2, r2, #16
+fff02898:	e5dd300b 	ldrb	r3, [sp, #11]
+fff0289c:	e1821401 	orr	r1, r2, r1, lsl #8
+fff028a0:	e5dd2008 	ldrb	r2, [sp, #8]
+fff028a4:	e1813003 	orr	r3, r1, r3
+fff028a8:	e1833c02 	orr	r3, r3, r2, lsl #24
+						break;
+					}
+					data_pointer = 0;
+					while(data_pointer != adr_buffer+4){
+						uart0_scanf(buffer,4,0); // get word
+						*data_pointer = qbytes_to_long(buffer); // store memory entry
+fff028ac:	e4843004 	str	r3, [r4], #4
+fff028b0:	eaffffef 	b	fff02874 <main+0x13e4>

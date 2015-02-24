@@ -1,0 +1,240 @@
+Release 14.7 par P.20131013 (lin64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+
+giroles-xps8300::  Mon Feb 23 20:01:17 2015
+
+par -w -intstyle ise -ol high -mt off STORM_SoC_basic_map.ncd
+STORM_SoC_basic.ncd STORM_SoC_basic.pcf 
+
+
+Constraints file: STORM_SoC_basic.pcf.
+Loading device for application Rf_Device from file '6slx9.nph' in environment /opt/Xilinx/14.7/ISE_DS/ISE/.
+   "STORM_SoC_basic" is an NCD, version 3.2, device xc6slx9, package ftg256, speed -3
+
+Initializing temperature to 85.000 Celsius. (default - Range: 0.000 to 85.000 Celsius)
+Initializing voltage to 1.140 Volts. (default - Range: 1.140 to 1.260 Volts)
+
+
+Device speed data version:  "PRODUCTION 1.23 2013-10-13".
+
+
+
+Device Utilization Summary:
+
+Slice Logic Utilization:
+  Number of Slice Registers:                 3,886 out of  11,440   33%
+    Number used as Flip Flops:               3,885
+    Number used as Latches:                      0
+    Number used as Latch-thrus:                  0
+    Number used as AND/OR logics:                1
+  Number of Slice LUTs:                      5,275 out of   5,720   92%
+    Number used as logic:                    5,157 out of   5,720   90%
+      Number using O6 output only:           4,285
+      Number using O5 output only:             253
+      Number using O5 and O6:                  619
+      Number used as ROM:                        0
+    Number used as Memory:                      70 out of   1,440    4%
+      Number used as Dual Port RAM:             68
+        Number using O6 output only:             4
+        Number using O5 output only:             0
+        Number using O5 and O6:                 64
+      Number used as Single Port RAM:            0
+      Number used as Shift Register:             2
+        Number using O6 output only:             2
+        Number using O5 output only:             0
+        Number using O5 and O6:                  0
+    Number used exclusively as route-thrus:     48
+      Number with same-slice register load:     11
+      Number with same-slice carry load:        37
+      Number with other load:                    0
+
+Slice Logic Distribution:
+  Number of occupied Slices:                 1,426 out of   1,430   99%
+  Number of MUXCYs used:                       824 out of   2,860   28%
+  Number of LUT Flip Flop pairs used:        5,531
+    Number with an unused Flip Flop:         1,822 out of   5,531   32%
+    Number with an unused LUT:                 256 out of   5,531    4%
+    Number of fully used LUT-FF pairs:       3,453 out of   5,531   62%
+    Number of slice register sites lost
+      to control set restrictions:               0 out of  11,440    0%
+
+  A LUT Flip Flop pair for this architecture represents one LUT paired with
+  one Flip Flop within a slice.  A control set is a unique combination of
+  clock, reset, set, and enable signals for a registered element.
+  The Slice Logic Distribution report is not meaningful if the design is
+  over-mapped for a non-slice resource or if Placement fails.
+
+IO Utilization:
+  Number of bonded IOBs:                        74 out of     186   39%
+    Number of LOCed IOBs:                       66 out of      74   89%
+    IOB Flip Flops:                             38
+
+Specific Feature Utilization:
+  Number of RAMB16BWERs:                        20 out of      32   62%
+  Number of RAMB8BWERs:                          8 out of      64   12%
+  Number of BUFIO2/BUFIO2_2CLKs:                 0 out of      32    0%
+  Number of BUFIO2FB/BUFIO2FB_2CLKs:             0 out of      32    0%
+  Number of BUFG/BUFGMUXs:                       1 out of      16    6%
+    Number used as BUFGs:                        1
+    Number used as BUFGMUX:                      0
+  Number of DCM/DCM_CLKGENs:                     0 out of       4    0%
+  Number of ILOGIC2/ISERDES2s:                  16 out of     200    8%
+    Number used as ILOGIC2s:                    16
+    Number used as ISERDES2s:                    0
+  Number of IODELAY2/IODRP2/IODRP2_MCBs:        16 out of     200    8%
+    Number used as IODELAY2s:                   16
+    Number used as IODRP2s:                      0
+    Number used as IODRP2_MCBs:                  0
+  Number of OLOGIC2/OSERDES2s:                  22 out of     200   11%
+    Number used as OLOGIC2s:                    22
+    Number used as OSERDES2s:                    0
+  Number of BSCANs:                              0 out of       4    0%
+  Number of BUFHs:                               0 out of     128    0%
+  Number of BUFPLLs:                             0 out of       8    0%
+  Number of BUFPLL_MCBs:                         0 out of       4    0%
+  Number of DSP48A1s:                            3 out of      16   18%
+  Number of ICAPs:                               0 out of       1    0%
+  Number of MCBs:                                0 out of       2    0%
+  Number of PCILOGICSEs:                         0 out of       2    0%
+  Number of PLL_ADVs:                            0 out of       2    0%
+  Number of PMVs:                                0 out of       1    0%
+  Number of STARTUPs:                            0 out of       1    0%
+  Number of SUSPEND_SYNCs:                       0 out of       1    0%
+
+
+Overall effort level (-ol):   High 
+Router effort level (-rl):    High 
+
+Starting initial Timing Analysis.  REAL time: 6 secs 
+Finished initial Timing Analysis.  REAL time: 7 secs 
+
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE21_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE22_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE6_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE24_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE11_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE13_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE25_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE12_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE15_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE23_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+Starting Router
+
+
+Phase  1  : 34580 unrouted;      REAL time: 7 secs 
+
+Phase  2  : 31808 unrouted;      REAL time: 8 secs 
+
+Phase  3  : 17992 unrouted;      REAL time: 22 secs 
+
+Phase  4  : 17992 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 22 secs 
+
+Updating file: STORM_SoC_basic.ncd with current fully routed design.
+
+Phase  5  : 0 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 52 secs 
+
+Phase  6  : 0 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 52 secs 
+
+Phase  7  : 0 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 52 secs 
+
+Phase  8  : 0 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 52 secs 
+
+Phase  9  : 0 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 52 secs 
+
+Phase 10  : 0 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 54 secs 
+Total REAL time to Router completion: 54 secs 
+Total CPU time to Router completion: 56 secs 
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+Generating "PAR" statistics.
+
+**************************
+Generating Clock Report
+**************************
+
++---------------------+--------------+------+------+------------+-------------+
+|        Clock Net    |   Resource   |Locked|Fanout|Net Skew(ns)|Max Delay(ns)|
++---------------------+--------------+------+------+------------+-------------+
+|    CLK_I_IBUFG_BUFG | BUFGMUX_X2Y11| No   | 1226 |  0.589     |  1.657      |
++---------------------+--------------+------+------+------------+-------------+
+|GP_UART_0/Uart_RxUni |              |      |      |            |             |
+|             t/RRegL |         Local|      |    2 |  0.000     |  2.168      |
++---------------------+--------------+------+------+------------+-------------+
+|     GP_UART_0/LoadA |         Local|      |    1 |  0.000     |  1.081      |
++---------------------+--------------+------+------+------------+-------------+
+
+* Net Skew is the difference between the minimum and maximum routing
+only delays for the net. Note this is different from Clock Skew which
+is reported in TRCE timing report. Clock Skew is the difference between
+the minimum and maximum path delays which includes logic delays.
+
+* The fanout is the number of component pins not the individual BEL loads,
+for example SLICE loads not FF loads.
+
+Timing Score: 0 (Setup: 0, Hold: 0, Component Switching Limit: 0)
+
+Asterisk (*) preceding a constraint indicates it was not met.
+   This may be due to a setup or hold violation.
+
+----------------------------------------------------------------------------------------------------------
+  Constraint                                |    Check    | Worst Case |  Best Case | Timing |   Timing   
+                                            |             |    Slack   | Achievable | Errors |    Score   
+----------------------------------------------------------------------------------------------------------
+  NET "CLK_I_IBUFG" PERIOD = 20 ns HIGH 50% | SETUP       |     5.514ns|    14.486ns|       0|           0
+                                            | HOLD        |     0.340ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+
+
+All constraints were met.
+
+
+Generating Pad Report.
+
+All signals are completely routed.
+
+WARNING:Par:283 - There are 15 loadless signals in this design. This design will cause Bitgen to issue DRC warnings.
+
+Total REAL time to PAR completion: 57 secs 
+Total CPU time to PAR completion: 58 secs 
+
+Peak Memory Usage:  710 MB
+
+Placer: Placement generated during map.
+Routing: Completed - No errors found.
+Timing: Completed - No errors found.
+
+Number of error messages: 0
+Number of warning messages: 17
+Number of info messages: 0
+
+Writing design to file STORM_SoC_basic.ncd
+
+
+
+PAR done!

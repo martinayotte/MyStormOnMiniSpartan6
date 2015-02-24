@@ -1,0 +1,690 @@
+--------------------------------------------------------------------------------
+Release 14.7 Trace  (lin64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+
+/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/unwrapped/trce -intstyle ise -v 3 -s 3 -n
+3 -fastpaths -xml STORM_SoC_basic.twx STORM_SoC_basic.ncd -o
+STORM_SoC_basic.twr STORM_SoC_basic.pcf -ucf STORM_on_MiniSpartan6.ucf
+
+Design file:              STORM_SoC_basic.ncd
+Physical constraint file: STORM_SoC_basic.pcf
+Device,package,speed:     xc6slx9,ftg256,C,-3 (PRODUCTION 1.23 2013-10-13)
+Report level:             verbose report
+
+Environment Variable      Effect 
+--------------------      ------ 
+NONE                      No environment variables were set
+--------------------------------------------------------------------------------
+
+INFO:Timing:3412 - To improve timing, see the Timing Closure User Guide (UG612).
+INFO:Timing:2752 - To get complete path coverage, use the unconstrained paths 
+   option. All paths that are not constrained will be reported in the 
+   unconstrained paths section(s) of the report.
+INFO:Timing:3339 - The clock-to-out numbers in this timing report are based on 
+   a 50 Ohm transmission line loading model.  For the details of this model, 
+   and for more information on accounting for different loading conditions, 
+   please see the device datasheet.
+
+================================================================================
+Timing constraint: NET "CLK_I_IBUFG" PERIOD = 20 ns HIGH 50%;
+For more information, see Period Analysis in the Timing Closure User Guide (UG612).
+
+ 1647215 paths analyzed, 15299 endpoints analyzed, 0 failing endpoints
+ 0 timing errors detected. (0 setup errors, 0 hold errors, 0 component switching limit errors)
+ Minimum period is  14.486ns.
+--------------------------------------------------------------------------------
+
+Paths for end point STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP48_X0Y6.A6), 640 paths
+--------------------------------------------------------------------------------
+Slack (setup path):     5.514ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 (FF)
+  Destination:          STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP)
+  Requirement:          20.000ns
+  Data Path Delay:      14.407ns (Levels of Logic = 7)
+  Clock Path Skew:      -0.044ns (0.546 - 0.590)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 to STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X19Y6.AQ       Tcko                  0.391   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<1>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0
+    SLICE_X5Y13.B2       net (fanout=71)       3.000   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<0>
+    SLICE_X5Y13.B        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_c/ADR_O<4>11
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mmux_MODE_INT11
+    SLICE_X4Y20.C5       net (fanout=14)       1.080   STORM_TOP_INST/PROCESSOR_CORE/Register_File/MODE_INT<0>
+    SLICE_X4Y20.C        Tilo                  0.204   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_5<17>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>11
+    SLICE_X5Y17.B3       net (fanout=1)        0.649   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>1
+    SLICE_X5Y17.B        Tilo                  0.259   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<18>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>14
+    SLICE_X12Y47.C2      net (fanout=17)       4.331   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B<1>
+    SLICE_X12Y47.C       Tilo                  0.204   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMC_D1
+    SLICE_X7Y35.D5       net (fanout=1)        1.569   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+    SLICE_X7Y35.D        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Memory_Access/BP_BUFFER<27>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O161
+    SLICE_X7Y31.B3       net (fanout=1)        0.716   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O16
+    SLICE_X7Y31.B        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<24>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O162
+    SLICE_X7Y31.A5       net (fanout=1)        0.187   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O161
+    SLICE_X7Y31.A        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<24>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O163
+    DSP48_X0Y6.A6        net (fanout=1)        0.632   STORM_TOP_INST/PROCESSOR_CORE/OF_OP_B_OUT<23>
+    DSP48_X0Y6.CLK       Tdspdck_A_A1REG       0.149   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    -------------------------------------------------  ---------------------------
+    Total                                     14.407ns (2.243ns logic, 12.164ns route)
+                                                       (15.6% logic, 84.4% route)
+
+--------------------------------------------------------------------------------
+Slack (setup path):     6.329ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 (FF)
+  Destination:          STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP)
+  Requirement:          20.000ns
+  Data Path Delay:      13.592ns (Levels of Logic = 7)
+  Clock Path Skew:      -0.044ns (0.546 - 0.590)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 to STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X19Y6.AQ       Tcko                  0.391   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<1>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0
+    SLICE_X4Y14.B2       net (fanout=71)       2.207   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<0>
+    SLICE_X4Y14.B        Tilo                  0.203   STORM_TOP_INST/PROCESSOR_CORE/Operation_Flow_Control/INS_BUF_SEL
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<0>21
+    SLICE_X6Y20.D3       net (fanout=2)        0.872   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<0>_bdd5
+    SLICE_X6Y20.DMUX     Tilo                  0.251   STORM_TOP_INST/I_CACHE_INST/ADR_BUF<5>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>13
+    SLICE_X5Y17.B6       net (fanout=1)        0.844   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>12
+    SLICE_X5Y17.B        Tilo                  0.259   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<18>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>14
+    SLICE_X12Y47.C2      net (fanout=17)       4.331   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B<1>
+    SLICE_X12Y47.C       Tilo                  0.204   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMC_D1
+    SLICE_X7Y35.D5       net (fanout=1)        1.569   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+    SLICE_X7Y35.D        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Memory_Access/BP_BUFFER<27>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O161
+    SLICE_X7Y31.B3       net (fanout=1)        0.716   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O16
+    SLICE_X7Y31.B        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<24>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O162
+    SLICE_X7Y31.A5       net (fanout=1)        0.187   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O161
+    SLICE_X7Y31.A        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<24>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O163
+    DSP48_X0Y6.A6        net (fanout=1)        0.632   STORM_TOP_INST/PROCESSOR_CORE/OF_OP_B_OUT<23>
+    DSP48_X0Y6.CLK       Tdspdck_A_A1REG       0.149   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    -------------------------------------------------  ---------------------------
+    Total                                     13.592ns (2.234ns logic, 11.358ns route)
+                                                       (16.4% logic, 83.6% route)
+
+--------------------------------------------------------------------------------
+Slack (setup path):     6.353ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 (FF)
+  Destination:          STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP)
+  Requirement:          20.000ns
+  Data Path Delay:      13.568ns (Levels of Logic = 7)
+  Clock Path Skew:      -0.044ns (0.546 - 0.590)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 to STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X19Y6.AQ       Tcko                  0.391   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<1>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0
+    SLICE_X5Y13.B2       net (fanout=71)       3.000   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<0>
+    SLICE_X5Y13.B        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_c/ADR_O<4>11
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mmux_MODE_INT11
+    SLICE_X2Y18.B3       net (fanout=14)       1.542   STORM_TOP_INST/PROCESSOR_CORE/Register_File/MODE_INT<0>
+    SLICE_X2Y18.B        Tilo                  0.205   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<30>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<4>11
+    SLICE_X2Y18.D1       net (fanout=1)        0.443   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<4>1
+    SLICE_X2Y18.D        Tilo                  0.205   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<30>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<4>13
+    SLICE_X12Y47.C5      net (fanout=17)       3.289   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B<4>
+    SLICE_X12Y47.C       Tilo                  0.204   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMC_D1
+    SLICE_X7Y35.D5       net (fanout=1)        1.569   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+    SLICE_X7Y35.D        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Memory_Access/BP_BUFFER<27>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O161
+    SLICE_X7Y31.B3       net (fanout=1)        0.716   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O16
+    SLICE_X7Y31.B        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<24>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O162
+    SLICE_X7Y31.A5       net (fanout=1)        0.187   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O161
+    SLICE_X7Y31.A        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<24>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O163
+    DSP48_X0Y6.A6        net (fanout=1)        0.632   STORM_TOP_INST/PROCESSOR_CORE/OF_OP_B_OUT<23>
+    DSP48_X0Y6.CLK       Tdspdck_A_A1REG       0.149   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    -------------------------------------------------  ---------------------------
+    Total                                     13.568ns (2.190ns logic, 11.378ns route)
+                                                       (16.1% logic, 83.9% route)
+
+--------------------------------------------------------------------------------
+
+Paths for end point VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2 (SLICE_X21Y44.A4), 4873 paths
+--------------------------------------------------------------------------------
+Slack (setup path):     5.542ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS_5 (FF)
+  Destination:          VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2 (FF)
+  Requirement:          20.000ns
+  Data Path Delay:      14.315ns (Levels of Logic = 11)
+  Clock Path Skew:      -0.108ns (0.522 - 0.630)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS_5 to VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X4Y53.BQ       Tcko                  0.447   VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS<7>
+                                                       VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS_5
+    SLICE_X23Y50.A1      net (fanout=19)       2.401   VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS<5>
+    SLICE_X23Y50.A       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_9<23>
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_91
+    SLICE_X22Y51.D2      net (fanout=1)        0.606   VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_91
+    SLICE_X22Y51.CMUX    Topdc                 0.338   VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_7
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_4
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_2_f7
+    SLICE_X19Y56.B2      net (fanout=5)        1.406   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o
+    SLICE_X19Y56.B       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_2<30>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[2][5]_OR_475_o1_1
+    SLICE_X19Y56.A5      net (fanout=2)        0.191   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[2][5]_OR_475_o1
+    SLICE_X19Y56.A       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_2<30>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[4][5]_OR_477_o1_1
+    SLICE_X17Y56.A5      net (fanout=1)        0.373   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[4][5]_OR_477_o1
+    SLICE_X17Y56.A       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_7<5>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[6][5]_OR_479_o1_1
+    SLICE_X17Y56.B6      net (fanout=1)        0.118   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[6][5]_OR_479_o1
+    SLICE_X17Y56.B       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_7<5>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[7][5]_OR_480_o1
+    SLICE_X17Y53.B2      net (fanout=4)        0.822   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[7][5]_OR_480_o
+    SLICE_X17Y53.B       Tilo                  0.259   N323
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[9][5]_OR_482_o1
+    SLICE_X11Y58.D4      net (fanout=5)        1.532   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[9][5]_OR_482_o
+    SLICE_X11Y58.D       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_7<11>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux35261131
+    SLICE_X21Y45.A5      net (fanout=33)       2.315   VECTOR_INTERRUPT_CONTROLLER/mux3526113
+    SLICE_X21Y45.A       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_5<10>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37463
+    SLICE_X22Y46.C3      net (fanout=1)        0.524   VECTOR_INTERRUPT_CONTROLLER/mux37462
+    SLICE_X22Y46.C       Tilo                  0.205   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_11<3>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37467
+    SLICE_X21Y44.A4      net (fanout=1)        0.643   VECTOR_INTERRUPT_CONTROLLER/mux37466
+    SLICE_X21Y44.CLK     Tas                   0.322   VECTOR_INTERRUPT_CONTROLLER/ISR_ADR<3>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37468
+                                                       VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2
+    -------------------------------------------------  ---------------------------
+    Total                                     14.315ns (3.384ns logic, 10.931ns route)
+                                                       (23.6% logic, 76.4% route)
+
+--------------------------------------------------------------------------------
+Slack (setup path):     5.567ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_2_0 (FF)
+  Destination:          VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2 (FF)
+  Requirement:          20.000ns
+  Data Path Delay:      14.333ns (Levels of Logic = 11)
+  Clock Path Skew:      -0.065ns (0.522 - 0.587)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_2_0 to VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X16Y56.AQ      Tcko                  0.447   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_2<3>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_2_0
+    SLICE_X6Y49.C2       net (fanout=9)        2.131   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_2<0>
+    SLICE_X6Y49.C        Tilo                  0.205   VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS_6_1
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[2][4]_IRQ_STATUS[31]_Mux_15_o_91
+    SLICE_X14Y52.D3      net (fanout=1)        1.428   VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[2][4]_IRQ_STATUS[31]_Mux_15_o_91
+    SLICE_X14Y52.CMUX    Topdc                 0.338   VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[2][4]_IRQ_STATUS[31]_Mux_15_o_9
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[2][4]_IRQ_STATUS[31]_Mux_15_o_4
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[2][4]_IRQ_STATUS[31]_Mux_15_o_2_f7
+    SLICE_X19Y56.B1      net (fanout=3)        0.926   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[2][4]_IRQ_STATUS[31]_Mux_15_o
+    SLICE_X19Y56.B       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_2<30>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[2][5]_OR_475_o1_1
+    SLICE_X19Y56.A5      net (fanout=2)        0.191   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[2][5]_OR_475_o1
+    SLICE_X19Y56.A       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_2<30>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[4][5]_OR_477_o1_1
+    SLICE_X17Y56.A5      net (fanout=1)        0.373   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[4][5]_OR_477_o1
+    SLICE_X17Y56.A       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_7<5>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[6][5]_OR_479_o1_1
+    SLICE_X17Y56.B6      net (fanout=1)        0.118   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[6][5]_OR_479_o1
+    SLICE_X17Y56.B       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_7<5>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[7][5]_OR_480_o1
+    SLICE_X17Y53.B2      net (fanout=4)        0.822   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[7][5]_OR_480_o
+    SLICE_X17Y53.B       Tilo                  0.259   N323
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[9][5]_OR_482_o1
+    SLICE_X11Y58.D4      net (fanout=5)        1.532   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[9][5]_OR_482_o
+    SLICE_X11Y58.D       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_7<11>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux35261131
+    SLICE_X21Y45.A5      net (fanout=33)       2.315   VECTOR_INTERRUPT_CONTROLLER/mux3526113
+    SLICE_X21Y45.A       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_5<10>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37463
+    SLICE_X22Y46.C3      net (fanout=1)        0.524   VECTOR_INTERRUPT_CONTROLLER/mux37462
+    SLICE_X22Y46.C       Tilo                  0.205   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_11<3>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37467
+    SLICE_X21Y44.A4      net (fanout=1)        0.643   VECTOR_INTERRUPT_CONTROLLER/mux37466
+    SLICE_X21Y44.CLK     Tas                   0.322   VECTOR_INTERRUPT_CONTROLLER/ISR_ADR<3>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37468
+                                                       VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2
+    -------------------------------------------------  ---------------------------
+    Total                                     14.333ns (3.330ns logic, 11.003ns route)
+                                                       (23.2% logic, 76.8% route)
+
+--------------------------------------------------------------------------------
+Slack (setup path):     5.647ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS_7 (FF)
+  Destination:          VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2 (FF)
+  Requirement:          20.000ns
+  Data Path Delay:      14.210ns (Levels of Logic = 11)
+  Clock Path Skew:      -0.108ns (0.522 - 0.630)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS_7 to VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X4Y53.DQ       Tcko                  0.447   VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS<7>
+                                                       VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS_7
+    SLICE_X23Y50.A3      net (fanout=19)       2.296   VECTOR_INTERRUPT_CONTROLLER/IRQ_STATUS<7>
+    SLICE_X23Y50.A       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_9<23>
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_91
+    SLICE_X22Y51.D2      net (fanout=1)        0.606   VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_91
+    SLICE_X22Y51.CMUX    Topdc                 0.338   VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_7
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_4
+                                                       VECTOR_INTERRUPT_CONTROLLER/Mmux_SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o_2_f7
+    SLICE_X19Y56.B2      net (fanout=5)        1.406   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][4]_IRQ_STATUS[31]_Mux_11_o
+    SLICE_X19Y56.B       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_2<30>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[2][5]_OR_475_o1_1
+    SLICE_X19Y56.A5      net (fanout=2)        0.191   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[2][5]_OR_475_o1
+    SLICE_X19Y56.A       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_2<30>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[4][5]_OR_477_o1_1
+    SLICE_X17Y56.A5      net (fanout=1)        0.373   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[4][5]_OR_477_o1
+    SLICE_X17Y56.A       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_7<5>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[6][5]_OR_479_o1_1
+    SLICE_X17Y56.B6      net (fanout=1)        0.118   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[6][5]_OR_479_o1
+    SLICE_X17Y56.B       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN_7<5>
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[7][5]_OR_480_o1
+    SLICE_X17Y53.B2      net (fanout=4)        0.822   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[7][5]_OR_480_o
+    SLICE_X17Y53.B       Tilo                  0.259   N323
+                                                       VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[9][5]_OR_482_o1
+    SLICE_X11Y58.D4      net (fanout=5)        1.532   VECTOR_INTERRUPT_CONTROLLER/SCHN_ASN[0][5]_SCHN_ASN[9][5]_OR_482_o
+    SLICE_X11Y58.D       Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_7<11>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux35261131
+    SLICE_X21Y45.A5      net (fanout=33)       2.315   VECTOR_INTERRUPT_CONTROLLER/mux3526113
+    SLICE_X21Y45.A       Tilo                  0.259   STORM_TOP_INST/D_CACHE_INST/PAGE_BASE_ADR_5<10>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37463
+    SLICE_X22Y46.C3      net (fanout=1)        0.524   VECTOR_INTERRUPT_CONTROLLER/mux37462
+    SLICE_X22Y46.C       Tilo                  0.205   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_11<3>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37467
+    SLICE_X21Y44.A4      net (fanout=1)        0.643   VECTOR_INTERRUPT_CONTROLLER/mux37466
+    SLICE_X21Y44.CLK     Tas                   0.322   VECTOR_INTERRUPT_CONTROLLER/ISR_ADR<3>
+                                                       VECTOR_INTERRUPT_CONTROLLER/mux37468
+                                                       VECTOR_INTERRUPT_CONTROLLER/ISR_ADR_2
+    -------------------------------------------------  ---------------------------
+    Total                                     14.210ns (3.384ns logic, 10.826ns route)
+                                                       (23.8% logic, 76.2% route)
+
+--------------------------------------------------------------------------------
+
+Paths for end point STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP48_X0Y6.A2), 603 paths
+--------------------------------------------------------------------------------
+Slack (setup path):     5.564ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 (FF)
+  Destination:          STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP)
+  Requirement:          20.000ns
+  Data Path Delay:      14.357ns (Levels of Logic = 7)
+  Clock Path Skew:      -0.044ns (0.546 - 0.590)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 to STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X19Y6.AQ       Tcko                  0.391   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<1>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0
+    SLICE_X5Y13.B2       net (fanout=71)       3.000   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<0>
+    SLICE_X5Y13.B        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_c/ADR_O<4>11
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mmux_MODE_INT11
+    SLICE_X4Y20.C5       net (fanout=14)       1.080   STORM_TOP_INST/PROCESSOR_CORE/Register_File/MODE_INT<0>
+    SLICE_X4Y20.C        Tilo                  0.204   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_5<17>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>11
+    SLICE_X5Y17.B3       net (fanout=1)        0.649   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>1
+    SLICE_X5Y17.B        Tilo                  0.259   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<18>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>14
+    SLICE_X12Y47.A2      net (fanout=17)       4.031   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B<1>
+    SLICE_X12Y47.A       Tilo                  0.203   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMA_D1
+    SLICE_X7Y37.C4       net (fanout=1)        1.314   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<19>
+    SLICE_X7Y37.C        Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_7<19>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O111
+    SLICE_X11Y26.B4      net (fanout=1)        1.273   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O11
+    SLICE_X11Y26.B       Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<20>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O112
+    SLICE_X11Y26.A5      net (fanout=1)        0.187   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O111
+    SLICE_X11Y26.A       Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<20>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O113
+    DSP48_X0Y6.A2        net (fanout=1)        0.581   STORM_TOP_INST/PROCESSOR_CORE/OF_OP_B_OUT<19>
+    DSP48_X0Y6.CLK       Tdspdck_A_A1REG       0.149   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    -------------------------------------------------  ---------------------------
+    Total                                     14.357ns (2.242ns logic, 12.115ns route)
+                                                       (15.6% logic, 84.4% route)
+
+--------------------------------------------------------------------------------
+Slack (setup path):     6.061ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 (FF)
+  Destination:          STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP)
+  Requirement:          20.000ns
+  Data Path Delay:      13.860ns (Levels of Logic = 7)
+  Clock Path Skew:      -0.044ns (0.546 - 0.590)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 to STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X19Y6.AQ       Tcko                  0.391   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<1>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0
+    SLICE_X5Y13.B2       net (fanout=71)       3.000   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<0>
+    SLICE_X5Y13.B        Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_c/ADR_O<4>11
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mmux_MODE_INT11
+    SLICE_X2Y18.B3       net (fanout=14)       1.542   STORM_TOP_INST/PROCESSOR_CORE/Register_File/MODE_INT<0>
+    SLICE_X2Y18.B        Tilo                  0.205   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<30>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<4>11
+    SLICE_X2Y18.D1       net (fanout=1)        0.443   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<4>1
+    SLICE_X2Y18.D        Tilo                  0.205   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<30>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<4>13
+    SLICE_X12Y47.A5      net (fanout=17)       3.331   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B<4>
+    SLICE_X12Y47.A       Tilo                  0.203   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMA_D1
+    SLICE_X7Y37.C4       net (fanout=1)        1.314   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<19>
+    SLICE_X7Y37.C        Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_7<19>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O111
+    SLICE_X11Y26.B4      net (fanout=1)        1.273   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O11
+    SLICE_X11Y26.B       Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<20>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O112
+    SLICE_X11Y26.A5      net (fanout=1)        0.187   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O111
+    SLICE_X11Y26.A       Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<20>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O113
+    DSP48_X0Y6.A2        net (fanout=1)        0.581   STORM_TOP_INST/PROCESSOR_CORE/OF_OP_B_OUT<19>
+    DSP48_X0Y6.CLK       Tdspdck_A_A1REG       0.149   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    -------------------------------------------------  ---------------------------
+    Total                                     13.860ns (2.189ns logic, 11.671ns route)
+                                                       (15.8% logic, 84.2% route)
+
+--------------------------------------------------------------------------------
+Slack (setup path):     6.379ns (requirement - (data path - clock path skew + uncertainty))
+  Source:               STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 (FF)
+  Destination:          STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1 (DSP)
+  Requirement:          20.000ns
+  Data Path Delay:      13.542ns (Levels of Logic = 7)
+  Clock Path Skew:      -0.044ns (0.546 - 0.590)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 0.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.035ns
+
+  Clock Uncertainty:          0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter (TSJ):  0.070ns
+    Total Input Jitter (TIJ):   0.000ns
+    Discrete Jitter (DJ):       0.000ns
+    Phase Error (PE):           0.000ns
+
+  Maximum Data Path at Slow Process Corner: STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0 to STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X19Y6.AQ       Tcko                  0.391   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<1>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR_0
+    SLICE_X4Y14.B2       net (fanout=71)       2.207   STORM_TOP_INST/PROCESSOR_CORE/Machine_Control_System/MCR_CMSR<0>
+    SLICE_X4Y14.B        Tilo                  0.203   STORM_TOP_INST/PROCESSOR_CORE/Operation_Flow_Control/INS_BUF_SEL
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<0>21
+    SLICE_X6Y20.D3       net (fanout=2)        0.872   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<0>_bdd5
+    SLICE_X6Y20.DMUX     Tilo                  0.251   STORM_TOP_INST/I_CACHE_INST/ADR_BUF<5>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>13
+    SLICE_X5Y17.B6       net (fanout=1)        0.844   STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>12
+    SLICE_X5Y17.B        Tilo                  0.259   STORM_TOP_INST/I_CACHE_INST/PAGE_BASE_ADR_4<18>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/read_access_port_b/ADR_O<1>14
+    SLICE_X12Y47.A2      net (fanout=17)       4.031   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B<1>
+    SLICE_X12Y47.A       Tilo                  0.203   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<23>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMA_D1
+    SLICE_X7Y37.C4       net (fanout=1)        1.314   STORM_TOP_INST/PROCESSOR_CORE/Register_File/R_ADR_PORT_B[4]_read_port_6_OUT<19>
+    SLICE_X7Y37.C        Tilo                  0.259   VECTOR_INTERRUPT_CONTROLLER/SISR_ADR_7<19>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O111
+    SLICE_X11Y26.B4      net (fanout=1)        1.273   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O11
+    SLICE_X11Y26.B       Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<20>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O112
+    SLICE_X11Y26.A5      net (fanout=1)        0.187   STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O111
+    SLICE_X11Y26.A       Tilo                  0.259   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/OP_B_REG<20>
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Operand_Fetch_Unit/Mmux_OP_B_O113
+    DSP48_X0Y6.A2        net (fanout=1)        0.581   STORM_TOP_INST/PROCESSOR_CORE/OF_OP_B_OUT<19>
+    DSP48_X0Y6.CLK       Tdspdck_A_A1REG       0.149   STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+                                                       STORM_TOP_INST/PROCESSOR_CORE/Multishifter/Multiplicator/Mmult_TEMP1
+    -------------------------------------------------  ---------------------------
+    Total                                     13.542ns (2.233ns logic, 11.309ns route)
+                                                       (16.5% logic, 83.5% route)
+
+--------------------------------------------------------------------------------
+
+Hold Paths: NET "CLK_I_IBUFG" PERIOD = 20 ns HIGH 50%;
+--------------------------------------------------------------------------------
+
+Paths for end point INTERNAL_SRAM_MEMORY/Mram_MEM_FILE2 (RAMB16_X1Y16.ADDRA10), 1 path
+--------------------------------------------------------------------------------
+Slack (hold path):      0.340ns (requirement - (clock path skew + uncertainty - data path))
+  Source:               STORM_TOP_INST/BUS_UNIT_INST/WB_ADR_O_11 (FF)
+  Destination:          INTERNAL_SRAM_MEMORY/Mram_MEM_FILE2 (RAM)
+  Requirement:          0.000ns
+  Data Path Delay:      0.342ns (Levels of Logic = 0)
+  Clock Path Skew:      0.002ns (0.077 - 0.075)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 20.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.000ns
+
+  Minimum Data Path at Fast Process Corner: STORM_TOP_INST/BUS_UNIT_INST/WB_ADR_O_11 to INTERNAL_SRAM_MEMORY/Mram_MEM_FILE2
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X16Y33.DQ      Tcko                  0.234   STORM_TOP_INST/BUS_UNIT_INST/WB_ADR_O<11>
+                                                       STORM_TOP_INST/BUS_UNIT_INST/WB_ADR_O_11
+    RAMB16_X1Y16.ADDRA10 net (fanout=30)       0.174   STORM_TOP_INST/BUS_UNIT_INST/WB_ADR_O<11>
+    RAMB16_X1Y16.CLKA    Trckc_ADDRA (-Th)     0.066   INTERNAL_SRAM_MEMORY/Mram_MEM_FILE2
+                                                       INTERNAL_SRAM_MEMORY/Mram_MEM_FILE2
+    -------------------------------------------------  ---------------------------
+    Total                                      0.342ns (0.168ns logic, 0.174ns route)
+                                                       (49.1% logic, 50.9% route)
+
+--------------------------------------------------------------------------------
+
+Paths for end point SDRAM/ctrl/Mshreg_data_ready_delay_0 (SLICE_X12Y30.AI), 1 path
+--------------------------------------------------------------------------------
+Slack (hold path):      0.382ns (requirement - (clock path skew + uncertainty - data path))
+  Source:               SDRAM/ctrl/data_ready_delay_4 (FF)
+  Destination:          SDRAM/ctrl/Mshreg_data_ready_delay_0 (FF)
+  Requirement:          0.000ns
+  Data Path Delay:      0.382ns (Levels of Logic = 0)
+  Clock Path Skew:      0.000ns
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 20.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.000ns
+
+  Minimum Data Path at Fast Process Corner: SDRAM/ctrl/data_ready_delay_4 to SDRAM/ctrl/Mshreg_data_ready_delay_0
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X12Y30.BQ      Tcko                  0.234   SDRAM/ctrl/data_ready_delay<4>
+                                                       SDRAM/ctrl/data_ready_delay_4
+    SLICE_X12Y30.AI      net (fanout=2)        0.118   SDRAM/ctrl/data_ready_delay<4>
+    SLICE_X12Y30.CLK     Tdh         (-Th)    -0.030   SDRAM/ctrl/data_ready_delay<4>
+                                                       SDRAM/ctrl/Mshreg_data_ready_delay_0
+    -------------------------------------------------  ---------------------------
+    Total                                      0.382ns (0.264ns logic, 0.118ns route)
+                                                       (69.1% logic, 30.9% route)
+
+--------------------------------------------------------------------------------
+
+Paths for end point GP_UART_0/Uart_RxUnit/DataO_4 (SLICE_X15Y17.AX), 1 path
+--------------------------------------------------------------------------------
+Slack (hold path):      0.392ns (requirement - (clock path skew + uncertainty - data path))
+  Source:               GP_UART_0/Uart_RxUnit/RReg_4 (FF)
+  Destination:          GP_UART_0/Uart_RxUnit/DataO_4 (FF)
+  Requirement:          0.000ns
+  Data Path Delay:      0.394ns (Levels of Logic = 0)
+  Clock Path Skew:      0.002ns (0.045 - 0.043)
+  Source Clock:         CLK_I_IBUFG_BUFG rising at 20.000ns
+  Destination Clock:    CLK_I_IBUFG_BUFG rising at 20.000ns
+  Clock Uncertainty:    0.000ns
+
+  Minimum Data Path at Fast Process Corner: GP_UART_0/Uart_RxUnit/RReg_4 to GP_UART_0/Uart_RxUnit/DataO_4
+    Location             Delay type         Delay(ns)  Physical Resource
+                                                       Logical Resource(s)
+    -------------------------------------------------  -------------------
+    SLICE_X14Y17.AQ      Tcko                  0.200   GP_UART_0/Uart_RxUnit/RReg<7>
+                                                       GP_UART_0/Uart_RxUnit/RReg_4
+    SLICE_X15Y17.AX      net (fanout=2)        0.135   GP_UART_0/Uart_RxUnit/RReg<4>
+    SLICE_X15Y17.CLK     Tckdi       (-Th)    -0.059   GP_UART_0/Uart_RxUnit/DataO<7>
+                                                       GP_UART_0/Uart_RxUnit/DataO_4
+    -------------------------------------------------  ---------------------------
+    Total                                      0.394ns (0.259ns logic, 0.135ns route)
+                                                       (65.7% logic, 34.3% route)
+
+--------------------------------------------------------------------------------
+
+Component Switching Limit Checks: NET "CLK_I_IBUFG" PERIOD = 20 ns HIGH 50%;
+--------------------------------------------------------------------------------
+Slack: 16.876ns (period - min period limit)
+  Period: 20.000ns
+  Min period limit: 3.124ns (320.102MHz) (Trper_CLKA(Fmax))
+  Physical resource: INTERNAL_SRAM_MEMORY/Mram_MEM_FILE1/CLKA
+  Logical resource: INTERNAL_SRAM_MEMORY/Mram_MEM_FILE1/CLKA
+  Location pin: RAMB16_X0Y2.CLKA
+  Clock network: CLK_I_IBUFG_BUFG
+--------------------------------------------------------------------------------
+Slack: 16.876ns (period - min period limit)
+  Period: 20.000ns
+  Min period limit: 3.124ns (320.102MHz) (Trper_CLKA(Fmax))
+  Physical resource: INTERNAL_SRAM_MEMORY/Mram_MEM_FILE2/CLKA
+  Logical resource: INTERNAL_SRAM_MEMORY/Mram_MEM_FILE2/CLKA
+  Location pin: RAMB16_X1Y16.CLKA
+  Clock network: CLK_I_IBUFG_BUFG
+--------------------------------------------------------------------------------
+Slack: 16.876ns (period - min period limit)
+  Period: 20.000ns
+  Min period limit: 3.124ns (320.102MHz) (Trper_CLKA(Fmax))
+  Physical resource: INTERNAL_SRAM_MEMORY/Mram_MEM_FILE3/CLKA
+  Logical resource: INTERNAL_SRAM_MEMORY/Mram_MEM_FILE3/CLKA
+  Location pin: RAMB16_X0Y4.CLKA
+  Clock network: CLK_I_IBUFG_BUFG
+--------------------------------------------------------------------------------
+
+
+All constraints were met.
+
+
+Data Sheet report:
+-----------------
+All values displayed in nanoseconds (ns)
+
+Clock to Setup on destination clock CLK_I
+---------------+---------+---------+---------+---------+
+               | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
+Source Clock   |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
+---------------+---------+---------+---------+---------+
+CLK_I          |   14.486|         |         |         |
+---------------+---------+---------+---------+---------+
+
+
+Timing summary:
+---------------
+
+Timing errors: 0  Score: 0  (Setup/Max: 0, Hold: 0)
+
+Constraints cover 1647215 paths, 0 nets, and 31970 connections
+
+Design statistics:
+   Minimum period:  14.486ns{1}   (Maximum frequency:  69.032MHz)
+
+
+------------------------------------Footnotes-----------------------------------
+1)  The minimum period statistic assumes all single cycle delays.
+
+Analysis completed Mon Feb 23 20:02:27 2015 
+--------------------------------------------------------------------------------
+
+Trace Settings:
+-------------------------
+Trace Settings 
+
+Peak Memory Usage: 489 MB
+
+
+

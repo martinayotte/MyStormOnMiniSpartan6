@@ -1,0 +1,2644 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.file	"dhry_1.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.align	2
+  18              	_diag_write_char:
+  19              	.LFB2:
+  20              		.file 1 "dhry_1.c"
+   1:dhry_1.c      **** /*
+   2:dhry_1.c      ****  ****************************************************************************
+   3:dhry_1.c      ****  *
+   4:dhry_1.c      ****  *                   "DHRYSTONE" Benchmark Program
+   5:dhry_1.c      ****  *                   -----------------------------
+   6:dhry_1.c      ****  *                                                                            
+   7:dhry_1.c      ****  *  Version:    C, Version 2.1
+   8:dhry_1.c      ****  *                                                                            
+   9:dhry_1.c      ****  *  File:       dhry_1.c (part 2 of 3)
+  10:dhry_1.c      ****  *
+  11:dhry_1.c      ****  *  Date:       May 25, 1988
+  12:dhry_1.c      ****  *
+  13:dhry_1.c      ****  *  Author:     Reinhold P. Weicker
+  14:dhry_1.c      ****  *
+  15:dhry_1.c      ****  ****************************************************************************
+  16:dhry_1.c      ****  */
+  17:dhry_1.c      **** 
+  18:dhry_1.c      **** #include "dhry.h"
+  19:dhry_1.c      **** #include <stdarg.h>
+  20:dhry_1.c      **** 
+  21:dhry_1.c      **** static int
+  22:dhry_1.c      **** _cvt(int val, char *buf, int radix, char *digits)
+  23:dhry_1.c      **** {
+  24:dhry_1.c      ****     char temp[80];
+  25:dhry_1.c      ****     char *cp = temp;
+  26:dhry_1.c      ****     int length = 0;
+  27:dhry_1.c      **** 
+  28:dhry_1.c      ****     if (val == 0) {
+  29:dhry_1.c      ****         /* Special case */
+  30:dhry_1.c      ****         *cp++ = '0';
+  31:dhry_1.c      ****     } else {
+  32:dhry_1.c      ****         while (val) {
+  33:dhry_1.c      ****             *cp++ = digits[val % radix];
+  34:dhry_1.c      ****             val /= radix;
+  35:dhry_1.c      ****         }
+  36:dhry_1.c      ****     }
+  37:dhry_1.c      ****     while (cp != temp) {
+  38:dhry_1.c      ****         *buf++ = *--cp;
+  39:dhry_1.c      ****         length++;
+  40:dhry_1.c      ****     }
+  41:dhry_1.c      ****     *buf = '\0';
+  42:dhry_1.c      ****     return (length);
+  43:dhry_1.c      **** }
+  44:dhry_1.c      **** 
+  45:dhry_1.c      **** #define is_digit(c) ((c >= '0') && (c <= '9'))
+  46:dhry_1.c      **** 
+  47:dhry_1.c      **** 
+  48:dhry_1.c      **** #ifndef TINY
+  49:dhry_1.c      **** static int
+  50:dhry_1.c      **** _vprintf(void (*putc)(char c, void **param), void **param, const char *fmt, va_list ap)
+  51:dhry_1.c      **** {
+  52:dhry_1.c      ****     char buf[sizeof(long long)*8];
+  53:dhry_1.c      ****     char c, sign, *cp=buf;
+  54:dhry_1.c      ****     int left_prec, right_prec, zero_fill, pad, pad_on_right, 
+  55:dhry_1.c      ****         i, islong, islonglong;
+  56:dhry_1.c      ****     long long val = 0;
+  57:dhry_1.c      ****     int res = 0, length = 0;
+  58:dhry_1.c      **** 
+  59:dhry_1.c      ****     while ((c = *fmt++) != '\0') {
+  60:dhry_1.c      ****         if (c == '%') {
+  61:dhry_1.c      ****             c = *fmt++;
+  62:dhry_1.c      ****             left_prec = right_prec = pad_on_right = islong = islonglong = 0;
+  63:dhry_1.c      ****             sign = '\0';
+  64:dhry_1.c      ****             // Fetch value [numeric descriptors only]
+  65:dhry_1.c      ****             switch (c) {
+  66:dhry_1.c      ****             case 'd':
+  67:dhry_1.c      ****                     val = (long long)va_arg(ap, int);
+  68:dhry_1.c      ****                 if ((c == 'd') || (c == 'D')) {
+  69:dhry_1.c      ****                     if (val < 0) {
+  70:dhry_1.c      ****                         sign = '-';
+  71:dhry_1.c      ****                         val = -val;
+  72:dhry_1.c      ****                     }
+  73:dhry_1.c      ****                 } else {
+  74:dhry_1.c      ****                     // Mask to unsigned, sized quantity
+  75:dhry_1.c      ****                     if (islong) {
+  76:dhry_1.c      ****                         val &= ((long long)1 << (sizeof(long) * 8)) - 1;
+  77:dhry_1.c      ****                     } else{
+  78:dhry_1.c      ****                         val &= ((long long)1 << (sizeof(int) * 8)) - 1;
+  79:dhry_1.c      ****                     }
+  80:dhry_1.c      ****                 }
+  81:dhry_1.c      ****                 break;
+  82:dhry_1.c      ****             default:
+  83:dhry_1.c      ****                 break;
+  84:dhry_1.c      ****             }
+  85:dhry_1.c      ****             // Process output
+  86:dhry_1.c      ****             switch (c) {
+  87:dhry_1.c      ****             case 'd':
+  88:dhry_1.c      ****                 switch (c) {
+  89:dhry_1.c      ****                 case 'd':
+  90:dhry_1.c      ****                     length = _cvt(val, buf, 10, "0123456789");
+  91:dhry_1.c      ****                     break;
+  92:dhry_1.c      ****                 }
+  93:dhry_1.c      ****                 cp = buf;
+  94:dhry_1.c      ****                 break;
+  95:dhry_1.c      ****             case 's':
+  96:dhry_1.c      ****                 cp = va_arg(ap, char *);
+  97:dhry_1.c      ****                 length = 0;
+  98:dhry_1.c      ****                 while (cp[length] != '\0') length++;
+  99:dhry_1.c      ****                 break;
+ 100:dhry_1.c      ****             case 'c':
+ 101:dhry_1.c      ****                 c = va_arg(ap, int /*char*/);
+ 102:dhry_1.c      ****                 (*putc)(c, param);
+ 103:dhry_1.c      ****                 res++;
+ 104:dhry_1.c      ****                 continue;
+ 105:dhry_1.c      ****             default:
+ 106:dhry_1.c      ****                 (*putc)('%', param);
+ 107:dhry_1.c      ****                 (*putc)(c, param);
+ 108:dhry_1.c      ****                 res += 2;
+ 109:dhry_1.c      ****                 continue;
+ 110:dhry_1.c      ****             }
+ 111:dhry_1.c      ****             while (length-- > 0) {
+ 112:dhry_1.c      ****                 c = *cp++;
+ 113:dhry_1.c      ****                 (*putc)(c, param);
+ 114:dhry_1.c      ****                 res++;
+ 115:dhry_1.c      ****             }
+ 116:dhry_1.c      ****         } else {
+ 117:dhry_1.c      ****             (*putc)(c, param);
+ 118:dhry_1.c      ****             res++;
+ 119:dhry_1.c      ****         }
+ 120:dhry_1.c      ****     }
+ 121:dhry_1.c      ****     return (res);
+ 122:dhry_1.c      **** }
+ 123:dhry_1.c      **** #endif
+ 124:dhry_1.c      **** 
+ 125:dhry_1.c      **** // Default wrapper function used by diag_printf
+ 126:dhry_1.c      **** static void
+ 127:dhry_1.c      **** _diag_write_char(char c, void **param)
+ 128:dhry_1.c      **** {
+  21              		.loc 1 128 0
+  22              		.cfi_startproc
+  23              		@ Function supports interworking.
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              	.LVL0:
+ 129:dhry_1.c      **** 	if (c=='\n')
+  27              		.loc 1 129 0
+  28 0000 E350000A 		cmp	r0, #10
+ 128:dhry_1.c      **** {
+  29              		.loc 1 128 0
+  30 0004 E92D4010 		stmfd	sp!, {r4, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+ 128:dhry_1.c      **** {
+  35              		.loc 1 128 0
+  36 0008 E1A04000 		mov	r4, r0
+  37              		.loc 1 129 0
+  38 000c 0A000003 		beq	.L4
+ 130:dhry_1.c      **** 	{
+ 131:dhry_1.c      **** 		outbyte('\r');
+ 132:dhry_1.c      **** 	}
+ 133:dhry_1.c      **** 	outbyte(c);
+  39              		.loc 1 133 0
+  40 0010 E1A00004 		mov	r0, r4
+  41              	.LVL1:
+  42 0014 EBFFFFFE 		bl	outbyte
+  43              	.LVL2:
+ 134:dhry_1.c      **** }
+  44              		.loc 1 134 0
+  45 0018 E8BD4010 		ldmfd	sp!, {r4, lr}
+  46 001c E12FFF1E 		bx	lr
+  47              	.LVL3:
+  48              	.L4:
+  49              	.LBB12:
+ 131:dhry_1.c      **** 		outbyte('\r');
+  50              		.loc 1 131 0
+  51 0020 E3A0000D 		mov	r0, #13
+  52              	.LVL4:
+  53 0024 EBFFFFFE 		bl	outbyte
+  54              	.LVL5:
+  55              	.LBE12:
+ 133:dhry_1.c      **** 	outbyte(c);
+  56              		.loc 1 133 0
+  57 0028 E1A00004 		mov	r0, r4
+  58 002c EBFFFFFE 		bl	outbyte
+  59              	.LVL6:
+  60              		.loc 1 134 0
+  61 0030 E8BD4010 		ldmfd	sp!, {r4, lr}
+  62 0034 E12FFF1E 		bx	lr
+  63              		.cfi_endproc
+  64              	.LFE2:
+  66              		.align	2
+  67              		.global	small_printf
+  69              	small_printf:
+  70              	.LFB3:
+ 135:dhry_1.c      **** 
+ 136:dhry_1.c      **** int
+ 137:dhry_1.c      **** small_printf(const char *fmt, ...)
+ 138:dhry_1.c      **** {
+  71              		.loc 1 138 0
+  72              		.cfi_startproc
+  73              		@ Function supports interworking.
+  74              		@ args = 4, pretend = 16, frame = 160
+  75              		@ frame_needed = 0, uses_anonymous_args = 1
+  76              	.LVL7:
+  77 0038 E92D000F 		stmfd	sp!, {r0, r1, r2, r3}
+  78              	.LCFI1:
+  79              		.cfi_def_cfa_offset 16
+  80              		.cfi_offset 0, -16
+  81              		.cfi_offset 1, -12
+  82              		.cfi_offset 2, -8
+  83              		.cfi_offset 3, -4
+  84 003c E92D4FF0 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  85              	.LCFI2:
+  86              		.cfi_def_cfa_offset 52
+  87              		.cfi_offset 4, -52
+  88              		.cfi_offset 5, -48
+  89              		.cfi_offset 6, -44
+  90              		.cfi_offset 7, -40
+  91              		.cfi_offset 8, -36
+  92              		.cfi_offset 9, -32
+  93              		.cfi_offset 10, -28
+  94              		.cfi_offset 11, -24
+  95              		.cfi_offset 14, -20
+  96 0040 E24DD0A4 		sub	sp, sp, #164
+  97              	.LCFI3:
+  98              		.cfi_def_cfa_offset 216
+ 139:dhry_1.c      **** #ifndef TINY
+ 140:dhry_1.c      ****     va_list ap;
+ 141:dhry_1.c      ****     int ret;
+ 142:dhry_1.c      **** 
+ 143:dhry_1.c      ****     va_start(ap, fmt);
+  99              		.loc 1 143 0
+ 100 0044 E28D90CC 		add	r9, sp, #204
+ 101 0048 E28D2051 		add	r2, sp, #81
+ 102              	.LBB20:
+ 103              	.LBB21:
+ 104              	.LBB22:
+ 105              	.LBB23:
+  37:dhry_1.c      ****     while (cp != temp) {
+ 106              		.loc 1 37 0
+ 107 004c E28D3050 		add	r3, sp, #80
+ 108              	.LBE23:
+ 109              	.LBE22:
+ 110              	.LBE21:
+ 111              	.LBE20:
+ 112              		.loc 1 143 0
+ 113 0050 E58D900C 		str	r9, [sp, #12]
+ 138:dhry_1.c      **** {
+ 114              		.loc 1 138 0
+ 115 0054 E59DA0C8 		ldr	r10, [sp, #200]
+ 116              	.LVL8:
+ 117 0058 E58D2004 		str	r2, [sp, #4]
+ 118              	.LBB38:
+ 119              	.LBB36:
+ 120              	.LBB29:
+ 121              	.LBB24:
+  37:dhry_1.c      ****     while (cp != temp) {
+ 122              		.loc 1 37 0
+ 123 005c E58D3000 		str	r3, [sp]
+ 124              	.LBE24:
+ 125              	.LBE29:
+  57:dhry_1.c      ****     int res = 0, length = 0;
+ 126              		.loc 1 57 0
+ 127 0060 E3A08000 		mov	r8, #0
+ 128              	.LVL9:
+ 129              	.L6:
+  59:dhry_1.c      ****     while ((c = *fmt++) != '\0') {
+ 130              		.loc 1 59 0
+ 131 0064 E5DA0000 		ldrb	r0, [r10]	@ zero_extendqisi2
+ 132              	.LVL10:
+ 133 0068 E3500000 		cmp	r0, #0
+ 134 006c 0A000030 		beq	.L35
+ 135              	.LVL11:
+ 136              	.L27:
+  60:dhry_1.c      ****         if (c == '%') {
+ 137              		.loc 1 60 0
+ 138 0070 E3500025 		cmp	r0, #37
+ 139 0074 1A000027 		bne	.L7
+  61:dhry_1.c      ****             c = *fmt++;
+ 140              		.loc 1 61 0
+ 141 0078 E5DA6001 		ldrb	r6, [r10, #1]	@ zero_extendqisi2
+  65:dhry_1.c      ****             switch (c) {
+ 142              		.loc 1 65 0
+ 143 007c E3560064 		cmp	r6, #100
+  61:dhry_1.c      ****             c = *fmt++;
+ 144              		.loc 1 61 0
+ 145 0080 E28AA002 		add	r10, r10, #2
+ 146              	.LVL12:
+  65:dhry_1.c      ****             switch (c) {
+ 147              		.loc 1 65 0
+ 148 0084 1A00002F 		bne	.L32
+  67:dhry_1.c      ****                     val = (long long)va_arg(ap, int);
+ 149              		.loc 1 67 0
+ 150 0088 E5992000 		ldr	r2, [r9]
+ 151 008c E1A03002 		mov	r3, r2
+ 152 0090 E1A02FC2 		mov	r2, r2, asr #31
+ 153 0094 E1A05FC2 		mov	r5, r2, asr #31
+ 154 0098 E1A04005 		mov	r4, r5
+ 155 009c E0233005 		eor	r3, r3, r5
+ 156 00a0 E0222005 		eor	r2, r2, r5
+ 157 00a4 E0533005 		subs	r3, r3, r5
+ 158 00a8 E0C22004 		sbc	r2, r2, r4
+ 159              	.LBB30:
+ 160              	.LBB25:
+  28:dhry_1.c      ****     if (val == 0) {
+ 161              		.loc 1 28 0
+ 162 00ac E3530000 		cmp	r3, #0
+ 163              	.LBE25:
+ 164              	.LBE30:
+  67:dhry_1.c      ****                     val = (long long)va_arg(ap, int);
+ 165              		.loc 1 67 0
+ 166 00b0 E2899004 		add	r9, r9, #4
+ 167              	.LVL13:
+ 168              	.LBB31:
+ 169              	.LBB26:
+  28:dhry_1.c      ****     if (val == 0) {
+ 170              		.loc 1 28 0
+ 171 00b4 1A00004D 		bne	.L14
+ 172              	.LVL14:
+  30:dhry_1.c      ****         *cp++ = '0';
+ 173              		.loc 1 30 0
+ 174 00b8 E3A02030 		mov	r2, #48
+ 175 00bc E5CD2050 		strb	r2, [sp, #80]
+ 176 00c0 E28DC051 		add	ip, sp, #81
+ 177              	.LVL15:
+ 178              	.L16:
+ 179 00c4 E1A0300C 		mov	r3, ip
+ 180 00c8 E28D100F 		add	r1, sp, #15
+ 181 00cc EA000001 		b	.L15
+ 182              	.LVL16:
+ 183              	.L36:
+ 184 00d0 E5532002 		ldrb	r2, [r3, #-2]	@ zero_extendqisi2
+ 185 00d4 E2433001 		sub	r3, r3, #1
+ 186              	.LVL17:
+ 187              	.L15:
+  37:dhry_1.c      ****     while (cp != temp) {
+ 188              		.loc 1 37 0
+ 189 00d8 E59D0004 		ldr	r0, [sp, #4]
+ 190 00dc E1530000 		cmp	r3, r0
+  38:dhry_1.c      ****         *buf++ = *--cp;
+ 191              		.loc 1 38 0
+ 192 00e0 E5E12001 		strb	r2, [r1, #1]!
+ 193              	.LVL18:
+  37:dhry_1.c      ****     while (cp != temp) {
+ 194              		.loc 1 37 0
+ 195 00e4 1AFFFFF9 		bne	.L36
+ 196 00e8 E59D2000 		ldr	r2, [sp]
+ 197 00ec E24CB001 		sub	fp, ip, #1
+ 198 00f0 E062B00B 		rsb	fp, r2, fp
+ 199 00f4 E28D7010 		add	r7, sp, #16
+ 200 00f8 E062200C 		rsb	r2, r2, ip
+ 201 00fc E28B3001 		add	r3, fp, #1
+ 202              	.LVL19:
+ 203 0100 E0872002 		add	r2, r7, r2
+ 204              	.LVL20:
+ 205              	.L17:
+ 206              	.LBE26:
+ 207              	.LBE31:
+ 111:dhry_1.c      ****             while (length-- > 0) {
+ 208              		.loc 1 111 0
+ 209 0104 E3530000 		cmp	r3, #0
+ 210              	.LBB32:
+ 211              	.LBB27:
+  41:dhry_1.c      ****     *buf = '\0';
+ 212              		.loc 1 41 0
+ 213 0108 E3A03000 		mov	r3, #0
+ 214 010c E5C23000 		strb	r3, [r2]
+ 215              	.LVL21:
+ 216              	.LBE27:
+ 217              	.LBE32:
+ 111:dhry_1.c      ****             while (length-- > 0) {
+ 218              		.loc 1 111 0
+ 219 0110 CA000022 		bgt	.L21
+ 220 0114 EAFFFFD2 		b	.L6
+ 221              	.LVL22:
+ 222              	.L7:
+ 117:dhry_1.c      ****             (*putc)(c, param);
+ 223              		.loc 1 117 0
+ 224 0118 E3A01000 		mov	r1, #0
+  59:dhry_1.c      ****     while ((c = *fmt++) != '\0') {
+ 225              		.loc 1 59 0
+ 226 011c E28AA001 		add	r10, r10, #1
+ 117:dhry_1.c      ****             (*putc)(c, param);
+ 227              		.loc 1 117 0
+ 228 0120 EBFFFFB6 		bl	_diag_write_char
+ 229              	.LVL23:
+  59:dhry_1.c      ****     while ((c = *fmt++) != '\0') {
+ 230              		.loc 1 59 0
+ 231 0124 E5DA0000 		ldrb	r0, [r10]	@ zero_extendqisi2
+ 232 0128 E3500000 		cmp	r0, #0
+ 118:dhry_1.c      ****             res++;
+ 233              		.loc 1 118 0
+ 234 012c E2888001 		add	r8, r8, #1
+ 235              	.LVL24:
+  59:dhry_1.c      ****     while ((c = *fmt++) != '\0') {
+ 236              		.loc 1 59 0
+ 237 0130 1AFFFFCE 		bne	.L27
+ 238              	.LVL25:
+ 239              	.L35:
+ 240              	.LBE36:
+ 241              	.LBE38:
+ 144:dhry_1.c      ****     ret = _vprintf(_diag_write_char, (void **)0, fmt, ap);
+ 145:dhry_1.c      ****     va_end(ap);
+ 146:dhry_1.c      ****     return (ret);
+ 147:dhry_1.c      **** #else
+ 148:dhry_1.c      **** 	return 0;
+ 149:dhry_1.c      **** #endif
+ 150:dhry_1.c      **** }
+ 242              		.loc 1 150 0
+ 243 0134 E1A00008 		mov	r0, r8
+ 244 0138 E28DD0A4 		add	sp, sp, #164
+ 245              		@ sp needed
+ 246 013c E8BD4FF0 		ldmfd	sp!, {r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 247              	.LVL26:
+ 248 0140 E28DD010 		add	sp, sp, #16
+ 249 0144 E12FFF1E 		bx	lr
+ 250              	.LVL27:
+ 251              	.L32:
+ 252              	.LBB39:
+ 253              	.LBB37:
+  86:dhry_1.c      ****             switch (c) {
+ 254              		.loc 1 86 0
+ 255 0148 E3560073 		cmp	r6, #115
+ 256 014c 0A000007 		beq	.L12
+ 257 0150 E3560063 		cmp	r6, #99
+ 258 0154 0A00001E 		beq	.L37
+ 259              	.LVL28:
+ 260              	.LBB33:
+ 261              	.LBB34:
+ 133:dhry_1.c      **** 	outbyte(c);
+ 262              		.loc 1 133 0
+ 263 0158 EBFFFFFE 		bl	outbyte
+ 264              	.LVL29:
+ 265              	.LBE34:
+ 266              	.LBE33:
+ 107:dhry_1.c      ****                 (*putc)(c, param);
+ 267              		.loc 1 107 0
+ 268 015c E1A00006 		mov	r0, r6
+ 269 0160 E3A01000 		mov	r1, #0
+ 108:dhry_1.c      ****                 res += 2;
+ 270              		.loc 1 108 0
+ 271 0164 E2888002 		add	r8, r8, #2
+ 272              	.LVL30:
+ 107:dhry_1.c      ****                 (*putc)(c, param);
+ 273              		.loc 1 107 0
+ 274 0168 EBFFFFA4 		bl	_diag_write_char
+ 275              	.LVL31:
+ 276 016c EAFFFFBC 		b	.L6
+ 277              	.LVL32:
+ 278              	.L12:
+  96:dhry_1.c      ****                 cp = va_arg(ap, char *);
+ 279              		.loc 1 96 0
+ 280 0170 E5997000 		ldr	r7, [r9]
+  98:dhry_1.c      ****                 while (cp[length] != '\0') length++;
+ 281              		.loc 1 98 0
+ 282 0174 E5D73000 		ldrb	r3, [r7]	@ zero_extendqisi2
+ 283 0178 E3530000 		cmp	r3, #0
+  96:dhry_1.c      ****                 cp = va_arg(ap, char *);
+ 284              		.loc 1 96 0
+ 285 017c E2899004 		add	r9, r9, #4
+ 286              	.LVL33:
+  98:dhry_1.c      ****                 while (cp[length] != '\0') length++;
+ 287              		.loc 1 98 0
+ 288 0180 0AFFFFB7 		beq	.L6
+ 289 0184 E1A03007 		mov	r3, r7
+  97:dhry_1.c      ****                 length = 0;
+ 290              		.loc 1 97 0
+ 291 0188 E3A0B000 		mov	fp, #0
+ 292              	.LVL34:
+ 293              	.L24:
+  98:dhry_1.c      ****                 while (cp[length] != '\0') length++;
+ 294              		.loc 1 98 0
+ 295 018c E5F32001 		ldrb	r2, [r3, #1]!	@ zero_extendqisi2
+ 296 0190 E3520000 		cmp	r2, #0
+ 297 0194 E28BB001 		add	fp, fp, #1
+ 298              	.LVL35:
+ 299 0198 1AFFFFFB 		bne	.L24
+ 300 019c E24BB001 		sub	fp, fp, #1
+ 301              	.LVL36:
+ 302              	.L21:
+  96:dhry_1.c      ****                 cp = va_arg(ap, char *);
+ 303              		.loc 1 96 0
+ 304 01a0 E1A06007 		mov	r6, r7
+ 305              	.LVL37:
+ 306              	.L26:
+ 113:dhry_1.c      ****                 (*putc)(c, param);
+ 307              		.loc 1 113 0
+ 308 01a4 E4D60001 		ldrb	r0, [r6], #1	@ zero_extendqisi2
+ 309              	.LVL38:
+ 310 01a8 E3A01000 		mov	r1, #0
+ 311 01ac EBFFFF93 		bl	_diag_write_char
+ 312              	.LVL39:
+ 313 01b0 E2663001 		rsb	r3, r6, #1
+ 314 01b4 E083300B 		add	r3, r3, fp
+ 315 01b8 E0873003 		add	r3, r7, r3
+ 111:dhry_1.c      ****             while (length-- > 0) {
+ 316              		.loc 1 111 0
+ 317 01bc E3530000 		cmp	r3, #0
+ 318 01c0 CAFFFFF7 		bgt	.L26
+ 319 01c4 E2888001 		add	r8, r8, #1
+ 320 01c8 E35B0000 		cmp	fp, #0
+ 321 01cc A088800B 		addge	r8, r8, fp
+ 322 01d0 EAFFFFA3 		b	.L6
+ 323              	.LVL40:
+ 324              	.L37:
+ 101:dhry_1.c      ****                 c = va_arg(ap, int /*char*/);
+ 325              		.loc 1 101 0
+ 326 01d4 E2893004 		add	r3, r9, #4
+ 327              	.LVL41:
+ 102:dhry_1.c      ****                 (*putc)(c, param);
+ 328              		.loc 1 102 0
+ 329 01d8 E5D90003 		ldrb	r0, [r9, #3]	@ zero_extendqisi2
+ 330 01dc E3A01000 		mov	r1, #0
+ 103:dhry_1.c      ****                 res++;
+ 331              		.loc 1 103 0
+ 332 01e0 E2888001 		add	r8, r8, #1
+ 333              	.LVL42:
+ 101:dhry_1.c      ****                 c = va_arg(ap, int /*char*/);
+ 334              		.loc 1 101 0
+ 335 01e4 E1A09003 		mov	r9, r3
+ 336              	.LVL43:
+ 102:dhry_1.c      ****                 (*putc)(c, param);
+ 337              		.loc 1 102 0
+ 338 01e8 EBFFFF84 		bl	_diag_write_char
+ 339              	.LVL44:
+ 340 01ec EAFFFF9C 		b	.L6
+ 341              	.LVL45:
+ 342              	.L14:
+ 343 01f0 E28D0051 		add	r0, sp, #81
+ 344              	.LVL46:
+ 345              	.L19:
+ 346              	.LBB35:
+ 347              	.LBB28:
+  33:dhry_1.c      ****             *cp++ = digits[val % radix];
+ 348              		.loc 1 33 0
+ 349 01f4 E59F1048 		ldr	r1, .L38
+ 350 01f8 E0C12193 		smull	r2, r1, r3, r1
+ 351 01fc E1A02FC3 		mov	r2, r3, asr #31
+ 352 0200 E0621141 		rsb	r1, r2, r1, asr #2
+ 353 0204 E0812101 		add	r2, r1, r1, asl #2
+ 354 0208 E59FC038 		ldr	ip, .L38+4
+ 355 020c E0433082 		sub	r3, r3, r2, asl #1
+ 356              	.LVL47:
+ 357 0210 E7DC2003 		ldrb	r2, [ip, r3]	@ zero_extendqisi2
+  32:dhry_1.c      ****         while (val) {
+ 358              		.loc 1 32 0
+ 359 0214 E2513000 		subs	r3, r1, #0
+  33:dhry_1.c      ****             *cp++ = digits[val % radix];
+ 360              		.loc 1 33 0
+ 361 0218 E5402001 		strb	r2, [r0, #-1]
+ 362 021c E1A0C000 		mov	ip, r0
+ 363              	.LVL48:
+ 364 0220 E2800001 		add	r0, r0, #1
+ 365              	.LVL49:
+  32:dhry_1.c      ****         while (val) {
+ 366              		.loc 1 32 0
+ 367 0224 1AFFFFF2 		bne	.L19
+  37:dhry_1.c      ****     while (cp != temp) {
+ 368              		.loc 1 37 0
+ 369 0228 E59D0000 		ldr	r0, [sp]
+ 370 022c E15C0000 		cmp	ip, r0
+ 371 0230 028D7010 		addeq	r7, sp, #16
+ 372 0234 01A02007 		moveq	r2, r7
+ 373 0238 03E0B000 		mvneq	fp, #0
+ 374 023c 1AFFFFA0 		bne	.L16
+ 375 0240 EAFFFFAF 		b	.L17
+ 376              	.L39:
+ 377              		.align	2
+ 378              	.L38:
+ 379 0244 66666667 		.word	1717986919
+ 380 0248 00000000 		.word	.LC0
+ 381              	.LBE28:
+ 382              	.LBE35:
+ 383              	.LBE37:
+ 384              	.LBE39:
+ 385              		.cfi_endproc
+ 386              	.LFE3:
+ 388              		.align	2
+ 389              		.global	Proc_2
+ 391              	Proc_2:
+ 392              	.LFB6:
+ 151:dhry_1.c      **** 
+ 152:dhry_1.c      **** 
+ 153:dhry_1.c      **** 
+ 154:dhry_1.c      **** 
+ 155:dhry_1.c      **** /* Global Variables: */
+ 156:dhry_1.c      **** 
+ 157:dhry_1.c      **** Rec_Pointer     Ptr_Glob,
+ 158:dhry_1.c      ****                 Next_Ptr_Glob;
+ 159:dhry_1.c      **** int             Int_Glob;
+ 160:dhry_1.c      **** Boolean         Bool_Glob;
+ 161:dhry_1.c      **** char            Ch_1_Glob,
+ 162:dhry_1.c      ****                 Ch_2_Glob;
+ 163:dhry_1.c      **** int             Arr_1_Glob [50];
+ 164:dhry_1.c      **** int             Arr_2_Glob [50] [50];
+ 165:dhry_1.c      **** 
+ 166:dhry_1.c      **** Enumeration     Func_1 ();
+ 167:dhry_1.c      ****   /* forward declaration necessary since Enumeration may not simply be int */
+ 168:dhry_1.c      **** 
+ 169:dhry_1.c      **** #ifndef REG
+ 170:dhry_1.c      ****         Boolean Reg = false;
+ 171:dhry_1.c      **** #define REG
+ 172:dhry_1.c      ****         /* REG becomes defined as empty */
+ 173:dhry_1.c      ****         /* i.e. no register variables   */
+ 174:dhry_1.c      **** #else
+ 175:dhry_1.c      ****         Boolean Reg = true;
+ 176:dhry_1.c      **** #endif
+ 177:dhry_1.c      **** 
+ 178:dhry_1.c      **** /* variables for time measurement: */
+ 179:dhry_1.c      **** 
+ 180:dhry_1.c      **** #ifdef TIMES
+ 181:dhry_1.c      **** struct tms      time_info;
+ 182:dhry_1.c      ****                 /* see library function "times" */
+ 183:dhry_1.c      **** #define Too_Small_Time 120
+ 184:dhry_1.c      ****                 /* Measurements should last at least about 2 seconds */
+ 185:dhry_1.c      **** #endif
+ 186:dhry_1.c      **** #ifdef TIME
+ 187:dhry_1.c      **** extern long     time();
+ 188:dhry_1.c      ****                 /* see library function "time"  */
+ 189:dhry_1.c      **** #define Too_Small_Time 2
+ 190:dhry_1.c      ****                 /* Measurements should last at least 2 seconds */
+ 191:dhry_1.c      **** #endif
+ 192:dhry_1.c      **** 
+ 193:dhry_1.c      **** long long           Begin_Time,
+ 194:dhry_1.c      ****                 End_Time,
+ 195:dhry_1.c      ****                 User_Time;
+ 196:dhry_1.c      **** long long            Microseconds,
+ 197:dhry_1.c      ****                 Dhrystones_Per_Second,
+ 198:dhry_1.c      ****                 Vax_Mips;
+ 199:dhry_1.c      ****                 
+ 200:dhry_1.c      **** /* end of variables for time measurement */
+ 201:dhry_1.c      **** 
+ 202:dhry_1.c      **** int             Number_Of_Runs = 50000;
+ 203:dhry_1.c      **** 
+ 204:dhry_1.c      **** extern long long _readMicroseconds();
+ 205:dhry_1.c      **** 
+ 206:dhry_1.c      **** 
+ 207:dhry_1.c      **** int main ()
+ 208:dhry_1.c      **** /*****/
+ 209:dhry_1.c      **** 
+ 210:dhry_1.c      ****   /* main program, corresponds to procedures        */
+ 211:dhry_1.c      ****   /* Main and Proc_0 in the Ada version             */
+ 212:dhry_1.c      **** {
+ 213:dhry_1.c      ****         One_Fifty       Int_1_Loc;
+ 214:dhry_1.c      ****   REG   One_Fifty       Int_2_Loc;
+ 215:dhry_1.c      ****         One_Fifty       Int_3_Loc;
+ 216:dhry_1.c      ****   REG   char            Ch_Index;
+ 217:dhry_1.c      ****         Enumeration     Enum_Loc;
+ 218:dhry_1.c      ****         Str_30          Str_1_Loc;
+ 219:dhry_1.c      ****         Str_30          Str_2_Loc;
+ 220:dhry_1.c      ****   REG   int             Run_Index;
+ 221:dhry_1.c      **** 
+ 222:dhry_1.c      ****   /* Initializations */
+ 223:dhry_1.c      **** 
+ 224:dhry_1.c      ****   Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 225:dhry_1.c      ****   Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 226:dhry_1.c      **** 
+ 227:dhry_1.c      ****   Ptr_Glob->Ptr_Comp                    = Next_Ptr_Glob;
+ 228:dhry_1.c      ****   Ptr_Glob->Discr                       = Ident_1;
+ 229:dhry_1.c      ****   Ptr_Glob->variant.var_1.Enum_Comp     = Ident_3;
+ 230:dhry_1.c      ****   Ptr_Glob->variant.var_1.Int_Comp      = 40;
+ 231:dhry_1.c      ****   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
+ 232:dhry_1.c      ****           "DHRYSTONE PROGRAM, SOME STRING");
+ 233:dhry_1.c      ****   strcpy (Str_1_Loc, "DHRYSTONE PROGRAM, 1'ST STRING");
+ 234:dhry_1.c      **** 
+ 235:dhry_1.c      ****   Arr_2_Glob [8][7] = 10;
+ 236:dhry_1.c      ****         /* Was missing in published program. Without this statement,    */
+ 237:dhry_1.c      ****         /* Arr_2_Glob [8][7] would have an undefined value.             */
+ 238:dhry_1.c      ****         /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
+ 239:dhry_1.c      ****         /* overflow may occur for this array element.                   */
+ 240:dhry_1.c      ****   small_printf ("\n");
+ 241:dhry_1.c      ****   small_printf ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
+ 242:dhry_1.c      ****   small_printf ("\n");
+ 243:dhry_1.c      ****   if (Reg)
+ 244:dhry_1.c      ****   {
+ 245:dhry_1.c      ****     small_printf ("Program compiled with 'register' attribute\n");
+ 246:dhry_1.c      ****     small_printf ("\n");
+ 247:dhry_1.c      ****   }
+ 248:dhry_1.c      ****   else
+ 249:dhry_1.c      ****   {
+ 250:dhry_1.c      ****     small_printf ("Program compiled without 'register' attribute\n");
+ 251:dhry_1.c      ****     small_printf ("\n");
+ 252:dhry_1.c      ****   }
+ 253:dhry_1.c      ****   Number_Of_Runs;
+ 254:dhry_1.c      **** 
+ 255:dhry_1.c      ****   small_printf ("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
+ 256:dhry_1.c      **** 
+ 257:dhry_1.c      ****   /***************/
+ 258:dhry_1.c      ****   /* Start timer */
+ 259:dhry_1.c      ****   /***************/
+ 260:dhry_1.c      **** 
+ 261:dhry_1.c      **** #if 0
+ 262:dhry_1.c      **** #ifdef TIMES
+ 263:dhry_1.c      ****   times (&time_info);
+ 264:dhry_1.c      ****   Begin_Time = (long) time_info.tms_utime;
+ 265:dhry_1.c      **** #endif
+ 266:dhry_1.c      **** #ifdef TIME
+ 267:dhry_1.c      ****   Begin_Time = time ( (long *) 0);
+ 268:dhry_1.c      **** #endif
+ 269:dhry_1.c      **** #else
+ 270:dhry_1.c      ****   Begin_Time = _readMicroseconds();
+ 271:dhry_1.c      **** #endif
+ 272:dhry_1.c      ****   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
+ 273:dhry_1.c      ****   {
+ 274:dhry_1.c      **** 
+ 275:dhry_1.c      ****     Proc_5();
+ 276:dhry_1.c      ****     Proc_4();
+ 277:dhry_1.c      ****       /* Ch_1_Glob == 'A', Ch_2_Glob == 'B', Bool_Glob == true */
+ 278:dhry_1.c      ****     Int_1_Loc = 2;
+ 279:dhry_1.c      ****     Int_2_Loc = 3;
+ 280:dhry_1.c      ****     strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
+ 281:dhry_1.c      ****     Enum_Loc = Ident_2;
+ 282:dhry_1.c      ****     Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
+ 283:dhry_1.c      ****       /* Bool_Glob == 1 */
+ 284:dhry_1.c      ****     while (Int_1_Loc < Int_2_Loc)  /* loop body executed once */
+ 285:dhry_1.c      ****     {
+ 286:dhry_1.c      ****       Int_3_Loc = 5 * Int_1_Loc - Int_2_Loc;
+ 287:dhry_1.c      ****         /* Int_3_Loc == 7 */
+ 288:dhry_1.c      ****       Proc_7 (Int_1_Loc, Int_2_Loc, &Int_3_Loc);
+ 289:dhry_1.c      ****         /* Int_3_Loc == 7 */
+ 290:dhry_1.c      ****       Int_1_Loc += 1;
+ 291:dhry_1.c      ****     } /* while */
+ 292:dhry_1.c      ****       /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
+ 293:dhry_1.c      ****     Proc_8 (Arr_1_Glob, Arr_2_Glob, Int_1_Loc, Int_3_Loc);
+ 294:dhry_1.c      ****       /* Int_Glob == 5 */
+ 295:dhry_1.c      ****     Proc_1 (Ptr_Glob);
+ 296:dhry_1.c      ****     for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
+ 297:dhry_1.c      ****                              /* loop body executed twice */
+ 298:dhry_1.c      ****     {
+ 299:dhry_1.c      ****       if (Enum_Loc == Func_1 (Ch_Index, 'C'))
+ 300:dhry_1.c      ****           /* then, not executed */
+ 301:dhry_1.c      ****         {
+ 302:dhry_1.c      ****         Proc_6 (Ident_1, &Enum_Loc);
+ 303:dhry_1.c      ****         strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 3'RD STRING");
+ 304:dhry_1.c      ****         Int_2_Loc = Run_Index;
+ 305:dhry_1.c      ****         Int_Glob = Run_Index;
+ 306:dhry_1.c      ****         }
+ 307:dhry_1.c      ****     }
+ 308:dhry_1.c      ****       /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
+ 309:dhry_1.c      ****     Int_2_Loc = Int_2_Loc * Int_1_Loc;
+ 310:dhry_1.c      ****     Int_1_Loc = Int_2_Loc / Int_3_Loc;
+ 311:dhry_1.c      ****     Int_2_Loc = 7 * (Int_2_Loc - Int_3_Loc) - Int_1_Loc;
+ 312:dhry_1.c      ****       /* Int_1_Loc == 1, Int_2_Loc == 13, Int_3_Loc == 7 */
+ 313:dhry_1.c      ****     Proc_2 (&Int_1_Loc);
+ 314:dhry_1.c      ****       /* Int_1_Loc == 5 */
+ 315:dhry_1.c      **** 
+ 316:dhry_1.c      ****   } /* loop "for Run_Index" */
+ 317:dhry_1.c      **** 
+ 318:dhry_1.c      ****   /**************/
+ 319:dhry_1.c      ****   /* Stop timer */
+ 320:dhry_1.c      ****   /**************/
+ 321:dhry_1.c      ****   
+ 322:dhry_1.c      **** #if 0
+ 323:dhry_1.c      **** #ifdef TIMES
+ 324:dhry_1.c      ****   times (&time_info);
+ 325:dhry_1.c      ****   End_Time = (long) time_info.tms_utime;
+ 326:dhry_1.c      **** #endif
+ 327:dhry_1.c      **** #ifdef TIME
+ 328:dhry_1.c      ****   End_Time = time ( (long *) 0);
+ 329:dhry_1.c      **** #endif
+ 330:dhry_1.c      **** #else
+ 331:dhry_1.c      ****   End_Time = _readMicroseconds();
+ 332:dhry_1.c      **** #endif
+ 333:dhry_1.c      ****   
+ 334:dhry_1.c      ****   small_printf ("Execution ends\n");
+ 335:dhry_1.c      ****   small_printf ("\n");
+ 336:dhry_1.c      ****   small_printf ("Final values of the variables used in the benchmark:\n");
+ 337:dhry_1.c      ****   small_printf ("\n");
+ 338:dhry_1.c      ****   small_printf ("Int_Glob:            %d\n", Int_Glob);
+ 339:dhry_1.c      ****   small_printf ("        should be:   %d\n", 5);
+ 340:dhry_1.c      ****   small_printf ("Bool_Glob:           %d\n", Bool_Glob);
+ 341:dhry_1.c      ****   small_printf ("        should be:   %d\n", 1);
+ 342:dhry_1.c      ****   small_printf ("Ch_1_Glob:           %c\n", Ch_1_Glob);
+ 343:dhry_1.c      ****   small_printf ("        should be:   %c\n", 'A');
+ 344:dhry_1.c      ****   small_printf ("Ch_2_Glob:           %c\n", Ch_2_Glob);
+ 345:dhry_1.c      ****   small_printf ("        should be:   %c\n", 'B');
+ 346:dhry_1.c      ****   small_printf ("Arr_1_Glob[8]:       %d\n", Arr_1_Glob[8]);
+ 347:dhry_1.c      ****   small_printf ("        should be:   %d\n", 7);
+ 348:dhry_1.c      ****   small_printf ("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);
+ 349:dhry_1.c      ****   small_printf ("        should be:   Number_Of_Runs + 10\n");
+ 350:dhry_1.c      ****   small_printf ("Ptr_Glob->\n");
+ 351:dhry_1.c      ****   small_printf ("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);
+ 352:dhry_1.c      ****   small_printf ("        should be:   (implementation-dependent)\n");
+ 353:dhry_1.c      ****   small_printf ("  Discr:             %d\n", Ptr_Glob->Discr);
+ 354:dhry_1.c      ****   small_printf ("        should be:   %d\n", 0);
+ 355:dhry_1.c      ****   small_printf ("  Enum_Comp:         %d\n", Ptr_Glob->variant.var_1.Enum_Comp);
+ 356:dhry_1.c      ****   small_printf ("        should be:   %d\n", 2);
+ 357:dhry_1.c      ****   small_printf ("  Int_Comp:          %d\n", Ptr_Glob->variant.var_1.Int_Comp);
+ 358:dhry_1.c      ****   small_printf ("        should be:   %d\n", 17);
+ 359:dhry_1.c      ****   small_printf ("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);
+ 360:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+ 361:dhry_1.c      ****   small_printf ("Next_Ptr_Glob->\n");
+ 362:dhry_1.c      ****   small_printf ("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);
+ 363:dhry_1.c      ****   small_printf ("        should be:   (implementation-dependent), same as above\n");
+ 364:dhry_1.c      ****   small_printf ("  Discr:             %d\n", Next_Ptr_Glob->Discr);
+ 365:dhry_1.c      ****   small_printf ("        should be:   %d\n", 0);
+ 366:dhry_1.c      ****   small_printf ("  Enum_Comp:         %d\n", Next_Ptr_Glob->variant.var_1.Enum_Comp);
+ 367:dhry_1.c      ****   small_printf ("        should be:   %d\n", 1);
+ 368:dhry_1.c      ****   small_printf ("  Int_Comp:          %d\n", Next_Ptr_Glob->variant.var_1.Int_Comp);
+ 369:dhry_1.c      ****   small_printf ("        should be:   %d\n", 18);
+ 370:dhry_1.c      ****   small_printf ("  Str_Comp:          %s\n",
+ 371:dhry_1.c      ****                                 Next_Ptr_Glob->variant.var_1.Str_Comp);
+ 372:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+ 373:dhry_1.c      ****   small_printf ("Int_1_Loc:           %d\n", Int_1_Loc);
+ 374:dhry_1.c      ****   small_printf ("        should be:   %d\n", 5);
+ 375:dhry_1.c      ****   small_printf ("Int_2_Loc:           %d\n", Int_2_Loc);
+ 376:dhry_1.c      ****   small_printf ("        should be:   %d\n", 13);
+ 377:dhry_1.c      ****   small_printf ("Int_3_Loc:           %d\n", Int_3_Loc);
+ 378:dhry_1.c      ****   small_printf ("        should be:   %d\n", 7);
+ 379:dhry_1.c      ****   small_printf ("Enum_Loc:            %d\n", Enum_Loc);
+ 380:dhry_1.c      ****   small_printf ("        should be:   %d\n", 1);
+ 381:dhry_1.c      ****   small_printf ("Str_1_Loc:           %s\n", Str_1_Loc);
+ 382:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
+ 383:dhry_1.c      ****   small_printf ("Str_2_Loc:           %s\n", Str_2_Loc);
+ 384:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
+ 385:dhry_1.c      ****   small_printf ("\n");
+ 386:dhry_1.c      **** 
+ 387:dhry_1.c      ****   User_Time = End_Time - Begin_Time;
+ 388:dhry_1.c      ****   small_printf ("User time: %d\n", (int)User_Time);
+ 389:dhry_1.c      ****   
+ 390:dhry_1.c      ****   if (User_Time < Too_Small_Time)
+ 391:dhry_1.c      ****   {
+ 392:dhry_1.c      ****     small_printf ("Measured time too small to obtain meaningful results\n");
+ 393:dhry_1.c      ****     small_printf ("Please increase number of runs\n");
+ 394:dhry_1.c      ****     small_printf ("\n");
+ 395:dhry_1.c      ****   }
+ 396:dhry_1.c      **** /*   else */
+ 397:dhry_1.c      ****   {
+ 398:dhry_1.c      **** #if 0
+ 399:dhry_1.c      **** #ifdef TIME
+ 400:dhry_1.c      ****     Microseconds = (User_Time * Mic_secs_Per_Second )
+ 401:dhry_1.c      ****                         /  Number_Of_Runs;
+ 402:dhry_1.c      ****     Dhrystones_Per_Second =  Number_Of_Runs / User_Time;
+ 403:dhry_1.c      ****     Vax_Mips = (Number_Of_Runs*1000) / (1757*User_Time);
+ 404:dhry_1.c      **** #else
+ 405:dhry_1.c      ****     Microseconds = (float) User_Time * Mic_secs_Per_Second 
+ 406:dhry_1.c      ****                         / ((float) HZ * ((float) Number_Of_Runs));
+ 407:dhry_1.c      ****     Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
+ 408:dhry_1.c      ****                         / (float) User_Time;
+ 409:dhry_1.c      ****     Vax_Mips = Dhrystones_Per_Second / 1757.0;
+ 410:dhry_1.c      **** #endif
+ 411:dhry_1.c      **** #else
+ 412:dhry_1.c      ****     Microseconds = User_Time  / Number_Of_Runs;
+ 413:dhry_1.c      ****     Dhrystones_Per_Second =  ((long long)Number_Of_Runs*1000000) / User_Time;
+ 414:dhry_1.c      ****     Vax_Mips = (((long long)Number_Of_Runs)*1000000000) / (1757*User_Time);
+ 415:dhry_1.c      **** #endif 
+ 416:dhry_1.c      ****     small_printf ("Microseconds for one run through Dhrystone: ");
+ 417:dhry_1.c      ****     small_printf ("%d \n", (int)Microseconds);
+ 418:dhry_1.c      ****     small_printf ("Dhrystones per Second:                      ");
+ 419:dhry_1.c      ****     small_printf ("%d \n", (int)Dhrystones_Per_Second);
+ 420:dhry_1.c      ****     small_printf ("VAX MIPS rating * 1000 = %d \n",(int)Vax_Mips);
+ 421:dhry_1.c      ****     small_printf ("\n");
+ 422:dhry_1.c      ****   }
+ 423:dhry_1.c      ****   
+ 424:dhry_1.c      ****   return 0;
+ 425:dhry_1.c      **** }
+ 426:dhry_1.c      **** 
+ 427:dhry_1.c      **** 
+ 428:dhry_1.c      **** Proc_1 (Ptr_Val_Par)
+ 429:dhry_1.c      **** /******************/
+ 430:dhry_1.c      **** 
+ 431:dhry_1.c      **** REG Rec_Pointer Ptr_Val_Par;
+ 432:dhry_1.c      ****     /* executed once */
+ 433:dhry_1.c      **** {
+ 434:dhry_1.c      ****   REG Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;  
+ 435:dhry_1.c      ****                                         /* == Ptr_Glob_Next */
+ 436:dhry_1.c      ****   /* Local variable, initialized with Ptr_Val_Par->Ptr_Comp,    */
+ 437:dhry_1.c      ****   /* corresponds to "rename" in Ada, "with" in Pascal           */
+ 438:dhry_1.c      ****   
+ 439:dhry_1.c      ****   structassign (*Ptr_Val_Par->Ptr_Comp, *Ptr_Glob); 
+ 440:dhry_1.c      ****   Ptr_Val_Par->variant.var_1.Int_Comp = 5;
+ 441:dhry_1.c      ****   Next_Record->variant.var_1.Int_Comp 
+ 442:dhry_1.c      ****         = Ptr_Val_Par->variant.var_1.Int_Comp;
+ 443:dhry_1.c      ****   Next_Record->Ptr_Comp = Ptr_Val_Par->Ptr_Comp;
+ 444:dhry_1.c      ****   Proc_3 (&Next_Record->Ptr_Comp);
+ 445:dhry_1.c      ****     /* Ptr_Val_Par->Ptr_Comp->Ptr_Comp 
+ 446:dhry_1.c      ****                         == Ptr_Glob->Ptr_Comp */
+ 447:dhry_1.c      ****   if (Next_Record->Discr == Ident_1)
+ 448:dhry_1.c      ****     /* then, executed */
+ 449:dhry_1.c      ****   {
+ 450:dhry_1.c      ****     Next_Record->variant.var_1.Int_Comp = 6;
+ 451:dhry_1.c      ****     Proc_6 (Ptr_Val_Par->variant.var_1.Enum_Comp, 
+ 452:dhry_1.c      ****            &Next_Record->variant.var_1.Enum_Comp);
+ 453:dhry_1.c      ****     Next_Record->Ptr_Comp = Ptr_Glob->Ptr_Comp;
+ 454:dhry_1.c      ****     Proc_7 (Next_Record->variant.var_1.Int_Comp, 10, 
+ 455:dhry_1.c      ****            &Next_Record->variant.var_1.Int_Comp);
+ 456:dhry_1.c      ****   }
+ 457:dhry_1.c      ****   else /* not executed */
+ 458:dhry_1.c      ****     structassign (*Ptr_Val_Par, *Ptr_Val_Par->Ptr_Comp);
+ 459:dhry_1.c      **** } /* Proc_1 */
+ 460:dhry_1.c      **** 
+ 461:dhry_1.c      **** 
+ 462:dhry_1.c      **** Proc_2 (Int_Par_Ref)
+ 463:dhry_1.c      **** /******************/
+ 464:dhry_1.c      ****     /* executed once */
+ 465:dhry_1.c      ****     /* *Int_Par_Ref == 1, becomes 4 */
+ 466:dhry_1.c      **** 
+ 467:dhry_1.c      **** One_Fifty   *Int_Par_Ref;
+ 468:dhry_1.c      **** {
+ 393              		.loc 1 468 0
+ 394              		.cfi_startproc
+ 395              		@ Function supports interworking.
+ 396              		@ args = 0, pretend = 0, frame = 0
+ 397              		@ frame_needed = 0, uses_anonymous_args = 0
+ 398              		@ link register save eliminated.
+ 399              	.LVL50:
+ 469:dhry_1.c      ****   One_Fifty  Int_Loc;  
+ 470:dhry_1.c      ****   Enumeration   Enum_Loc;
+ 471:dhry_1.c      **** 
+ 472:dhry_1.c      ****   Int_Loc = *Int_Par_Ref + 10;
+ 473:dhry_1.c      ****   do /* executed once */
+ 474:dhry_1.c      ****     if (Ch_1_Glob == 'A')
+ 400              		.loc 1 474 0
+ 401 024c E59F3024 		ldr	r3, .L43
+ 402 0250 E5D33000 		ldrb	r3, [r3]	@ zero_extendqisi2
+ 403 0254 E3530041 		cmp	r3, #65
+ 472:dhry_1.c      ****   Int_Loc = *Int_Par_Ref + 10;
+ 404              		.loc 1 472 0
+ 405 0258 E5903000 		ldr	r3, [r0]
+ 406              	.LVL51:
+ 407              		.loc 1 474 0
+ 408 025c 112FFF1E 		bxne	lr
+ 409              	.LVL52:
+ 475:dhry_1.c      ****       /* then, executed */
+ 476:dhry_1.c      ****     {
+ 477:dhry_1.c      ****       Int_Loc -= 1;
+ 478:dhry_1.c      ****       *Int_Par_Ref = Int_Loc - Int_Glob;
+ 410              		.loc 1 478 0
+ 411 0260 E59F2014 		ldr	r2, .L43+4
+ 412 0264 E5922000 		ldr	r2, [r2]
+ 477:dhry_1.c      ****       Int_Loc -= 1;
+ 413              		.loc 1 477 0
+ 414 0268 E2833009 		add	r3, r3, #9
+ 415              	.LVL53:
+ 416              		.loc 1 478 0
+ 417 026c E0623003 		rsb	r3, r2, r3
+ 418              	.LVL54:
+ 419 0270 E5803000 		str	r3, [r0]
+ 420              	.LVL55:
+ 421              	.LVL56:
+ 479:dhry_1.c      ****       Enum_Loc = Ident_1;
+ 480:dhry_1.c      ****     } /* if */
+ 481:dhry_1.c      ****   while (Enum_Loc != Ident_1); /* true */
+ 482:dhry_1.c      **** } /* Proc_2 */
+ 422              		.loc 1 482 0
+ 423 0274 E12FFF1E 		bx	lr
+ 424              	.L44:
+ 425              		.align	2
+ 426              	.L43:
+ 427 0278 00000000 		.word	Ch_1_Glob
+ 428 027c 00000000 		.word	Int_Glob
+ 429              		.cfi_endproc
+ 430              	.LFE6:
+ 432              		.align	2
+ 433              		.global	Proc_3
+ 435              	Proc_3:
+ 436              	.LFB7:
+ 483:dhry_1.c      **** 
+ 484:dhry_1.c      **** 
+ 485:dhry_1.c      **** Proc_3 (Ptr_Ref_Par)
+ 486:dhry_1.c      **** /******************/
+ 487:dhry_1.c      ****     /* executed once */
+ 488:dhry_1.c      ****     /* Ptr_Ref_Par becomes Ptr_Glob */
+ 489:dhry_1.c      **** 
+ 490:dhry_1.c      **** Rec_Pointer *Ptr_Ref_Par;
+ 491:dhry_1.c      **** 
+ 492:dhry_1.c      **** {
+ 437              		.loc 1 492 0
+ 438              		.cfi_startproc
+ 439              		@ Function supports interworking.
+ 440              		@ args = 0, pretend = 0, frame = 0
+ 441              		@ frame_needed = 0, uses_anonymous_args = 0
+ 442              	.LVL57:
+ 443 0280 E92D4008 		stmfd	sp!, {r3, lr}
+ 444              	.LCFI4:
+ 445              		.cfi_def_cfa_offset 8
+ 446              		.cfi_offset 3, -8
+ 447              		.cfi_offset 14, -4
+ 493:dhry_1.c      ****   if (Ptr_Glob != Null)
+ 448              		.loc 1 493 0
+ 449 0284 E59F302C 		ldr	r3, .L48
+ 450 0288 E5932000 		ldr	r2, [r3]
+ 451 028c E3520000 		cmp	r2, #0
+ 494:dhry_1.c      ****     /* then, executed */
+ 495:dhry_1.c      ****     *Ptr_Ref_Par = Ptr_Glob->Ptr_Comp;
+ 452              		.loc 1 495 0
+ 453 0290 15922000 		ldrne	r2, [r2]
+ 454 0294 15802000 		strne	r2, [r0]
+ 455 0298 15932000 		ldrne	r2, [r3]
+ 496:dhry_1.c      ****   Proc_7 (10, Int_Glob, &Ptr_Glob->variant.var_1.Int_Comp);
+ 456              		.loc 1 496 0
+ 457 029c E59F3018 		ldr	r3, .L48+4
+ 458 02a0 E282200C 		add	r2, r2, #12
+ 459 02a4 E5931000 		ldr	r1, [r3]
+ 460 02a8 E3A0000A 		mov	r0, #10
+ 461              	.LVL58:
+ 462 02ac EBFFFFFE 		bl	Proc_7
+ 463              	.LVL59:
+ 497:dhry_1.c      **** } /* Proc_3 */
+ 464              		.loc 1 497 0
+ 465 02b0 E8BD4008 		ldmfd	sp!, {r3, lr}
+ 466 02b4 E12FFF1E 		bx	lr
+ 467              	.L49:
+ 468              		.align	2
+ 469              	.L48:
+ 470 02b8 00000000 		.word	Ptr_Glob
+ 471 02bc 00000000 		.word	Int_Glob
+ 472              		.cfi_endproc
+ 473              	.LFE7:
+ 475              		.align	2
+ 476              		.global	Proc_1
+ 478              	Proc_1:
+ 479              	.LFB5:
+ 433:dhry_1.c      **** {
+ 480              		.loc 1 433 0
+ 481              		.cfi_startproc
+ 482              		@ Function supports interworking.
+ 483              		@ args = 0, pretend = 0, frame = 0
+ 484              		@ frame_needed = 0, uses_anonymous_args = 0
+ 485              	.LVL60:
+ 486 02c0 E92D40F8 		stmfd	sp!, {r3, r4, r5, r6, r7, lr}
+ 487              	.LCFI5:
+ 488              		.cfi_def_cfa_offset 24
+ 489              		.cfi_offset 3, -24
+ 490              		.cfi_offset 4, -20
+ 491              		.cfi_offset 5, -16
+ 492              		.cfi_offset 6, -12
+ 493              		.cfi_offset 7, -8
+ 494              		.cfi_offset 14, -4
+ 439:dhry_1.c      ****   structassign (*Ptr_Val_Par->Ptr_Comp, *Ptr_Glob); 
+ 495              		.loc 1 439 0
+ 496 02c4 E59F60AC 		ldr	r6, .L55
+ 497 02c8 E596E000 		ldr	lr, [r6]
+ 434:dhry_1.c      ****   REG Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;  
+ 498              		.loc 1 434 0
+ 499 02cc E5904000 		ldr	r4, [r0]
+ 500              	.LVL61:
+ 433:dhry_1.c      **** {
+ 501              		.loc 1 433 0
+ 502 02d0 E1A05000 		mov	r5, r0
+ 439:dhry_1.c      ****   structassign (*Ptr_Val_Par->Ptr_Comp, *Ptr_Glob); 
+ 503              		.loc 1 439 0
+ 504 02d4 E8BE000F 		ldmia	lr!, {r0, r1, r2, r3}
+ 505              	.LVL62:
+ 506 02d8 E1A0C004 		mov	ip, r4
+ 507 02dc E8AC000F 		stmia	ip!, {r0, r1, r2, r3}
+ 508 02e0 E8BE000F 		ldmia	lr!, {r0, r1, r2, r3}
+ 509 02e4 E8AC000F 		stmia	ip!, {r0, r1, r2, r3}
+ 443:dhry_1.c      ****   Next_Record->Ptr_Comp = Ptr_Val_Par->Ptr_Comp;
+ 510              		.loc 1 443 0
+ 511 02e8 E5957000 		ldr	r7, [r5]
+ 439:dhry_1.c      ****   structassign (*Ptr_Val_Par->Ptr_Comp, *Ptr_Glob); 
+ 512              		.loc 1 439 0
+ 513 02ec E89E000F 		ldmia	lr, {r0, r1, r2, r3}
+ 440:dhry_1.c      ****   Ptr_Val_Par->variant.var_1.Int_Comp = 5;
+ 514              		.loc 1 440 0
+ 515 02f0 E3A0E005 		mov	lr, #5
+ 439:dhry_1.c      ****   structassign (*Ptr_Val_Par->Ptr_Comp, *Ptr_Glob); 
+ 516              		.loc 1 439 0
+ 517 02f4 E88C000F 		stmia	ip, {r0, r1, r2, r3}
+ 440:dhry_1.c      ****   Ptr_Val_Par->variant.var_1.Int_Comp = 5;
+ 518              		.loc 1 440 0
+ 519 02f8 E585E00C 		str	lr, [r5, #12]
+ 444:dhry_1.c      ****   Proc_3 (&Next_Record->Ptr_Comp);
+ 520              		.loc 1 444 0
+ 521 02fc E1A00004 		mov	r0, r4
+ 443:dhry_1.c      ****   Next_Record->Ptr_Comp = Ptr_Val_Par->Ptr_Comp;
+ 522              		.loc 1 443 0
+ 523 0300 E5847000 		str	r7, [r4]
+ 442:dhry_1.c      ****         = Ptr_Val_Par->variant.var_1.Int_Comp;
+ 524              		.loc 1 442 0
+ 525 0304 E584E00C 		str	lr, [r4, #12]
+ 444:dhry_1.c      ****   Proc_3 (&Next_Record->Ptr_Comp);
+ 526              		.loc 1 444 0
+ 527 0308 EBFFFFFE 		bl	Proc_3
+ 528              	.LVL63:
+ 447:dhry_1.c      ****   if (Next_Record->Discr == Ident_1)
+ 529              		.loc 1 447 0
+ 530 030c E5D43004 		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 531 0310 E3530000 		cmp	r3, #0
+ 532 0314 0A000009 		beq	.L54
+ 458:dhry_1.c      ****     structassign (*Ptr_Val_Par, *Ptr_Val_Par->Ptr_Comp);
+ 533              		.loc 1 458 0
+ 534 0318 E5954000 		ldr	r4, [r5]
+ 535              	.LVL64:
+ 536 031c E8B4000F 		ldmia	r4!, {r0, r1, r2, r3}
+ 537 0320 E1A0C005 		mov	ip, r5
+ 538 0324 E8AC000F 		stmia	ip!, {r0, r1, r2, r3}
+ 539 0328 E8B4000F 		ldmia	r4!, {r0, r1, r2, r3}
+ 540 032c E8AC000F 		stmia	ip!, {r0, r1, r2, r3}
+ 541 0330 E894000F 		ldmia	r4, {r0, r1, r2, r3}
+ 542 0334 E88C000F 		stmia	ip, {r0, r1, r2, r3}
+ 459:dhry_1.c      **** } /* Proc_1 */
+ 543              		.loc 1 459 0
+ 544 0338 E8BD40F8 		ldmfd	sp!, {r3, r4, r5, r6, r7, lr}
+ 545              	.LVL65:
+ 546 033c E12FFF1E 		bx	lr
+ 547              	.LVL66:
+ 548              	.L54:
+ 549              	.LBB40:
+ 450:dhry_1.c      ****     Next_Record->variant.var_1.Int_Comp = 6;
+ 550              		.loc 1 450 0
+ 551 0340 E3A03006 		mov	r3, #6
+ 451:dhry_1.c      ****     Proc_6 (Ptr_Val_Par->variant.var_1.Enum_Comp, 
+ 552              		.loc 1 451 0
+ 553 0344 E5D50008 		ldrb	r0, [r5, #8]	@ zero_extendqisi2
+ 554 0348 E2841008 		add	r1, r4, #8
+ 450:dhry_1.c      ****     Next_Record->variant.var_1.Int_Comp = 6;
+ 555              		.loc 1 450 0
+ 556 034c E584300C 		str	r3, [r4, #12]
+ 451:dhry_1.c      ****     Proc_6 (Ptr_Val_Par->variant.var_1.Enum_Comp, 
+ 557              		.loc 1 451 0
+ 558 0350 EBFFFFFE 		bl	Proc_6
+ 559              	.LVL67:
+ 453:dhry_1.c      ****     Next_Record->Ptr_Comp = Ptr_Glob->Ptr_Comp;
+ 560              		.loc 1 453 0
+ 561 0354 E5963000 		ldr	r3, [r6]
+ 562 0358 E5933000 		ldr	r3, [r3]
+ 454:dhry_1.c      ****     Proc_7 (Next_Record->variant.var_1.Int_Comp, 10, 
+ 563              		.loc 1 454 0
+ 564 035c E1A02004 		mov	r2, r4
+ 565 0360 E5B2000C 		ldr	r0, [r2, #12]!
+ 566 0364 E3A0100A 		mov	r1, #10
+ 453:dhry_1.c      ****     Next_Record->Ptr_Comp = Ptr_Glob->Ptr_Comp;
+ 567              		.loc 1 453 0
+ 568 0368 E5843000 		str	r3, [r4]
+ 454:dhry_1.c      ****     Proc_7 (Next_Record->variant.var_1.Int_Comp, 10, 
+ 569              		.loc 1 454 0
+ 570 036c EBFFFFFE 		bl	Proc_7
+ 571              	.LVL68:
+ 572              	.LBE40:
+ 459:dhry_1.c      **** } /* Proc_1 */
+ 573              		.loc 1 459 0
+ 574 0370 E8BD40F8 		ldmfd	sp!, {r3, r4, r5, r6, r7, lr}
+ 575              	.LVL69:
+ 576 0374 E12FFF1E 		bx	lr
+ 577              	.L56:
+ 578              		.align	2
+ 579              	.L55:
+ 580 0378 00000000 		.word	Ptr_Glob
+ 581              		.cfi_endproc
+ 582              	.LFE5:
+ 584              		.global	__aeabi_idiv
+ 585              		.global	__aeabi_ldivmod
+ 586              		.section	.text.startup,"ax",%progbits
+ 587              		.align	2
+ 588              		.global	main
+ 590              	main:
+ 591              	.LFB4:
+ 212:dhry_1.c      **** {
+ 592              		.loc 1 212 0
+ 593              		.cfi_startproc
+ 594              		@ Function supports interworking.
+ 595              		@ args = 0, pretend = 0, frame = 80
+ 596              		@ frame_needed = 0, uses_anonymous_args = 0
+ 597 0000 E92D4FF0 		stmfd	sp!, {r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 598              	.LCFI6:
+ 599              		.cfi_def_cfa_offset 36
+ 600              		.cfi_offset 4, -36
+ 601              		.cfi_offset 5, -32
+ 602              		.cfi_offset 6, -28
+ 603              		.cfi_offset 7, -24
+ 604              		.cfi_offset 8, -20
+ 605              		.cfi_offset 9, -16
+ 606              		.cfi_offset 10, -12
+ 607              		.cfi_offset 11, -8
+ 608              		.cfi_offset 14, -4
+ 224:dhry_1.c      ****   Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 609              		.loc 1 224 0
+ 610 0004 E3A00030 		mov	r0, #48
+ 212:dhry_1.c      **** {
+ 611              		.loc 1 212 0
+ 612 0008 E24DD054 		sub	sp, sp, #84
+ 613              	.LCFI7:
+ 614              		.cfi_def_cfa_offset 120
+ 224:dhry_1.c      ****   Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 615              		.loc 1 224 0
+ 616 000c EBFFFFFE 		bl	malloc
+ 617              	.LVL70:
+ 618 0010 E59F1650 		ldr	r1, .L75
+ 619 0014 E1A04000 		mov	r4, r0
+ 225:dhry_1.c      ****   Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 620              		.loc 1 225 0
+ 621 0018 E3A00030 		mov	r0, #48
+ 224:dhry_1.c      ****   Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 622              		.loc 1 224 0
+ 623 001c E5814000 		str	r4, [r1]
+ 225:dhry_1.c      ****   Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 624              		.loc 1 225 0
+ 625 0020 EBFFFFFE 		bl	malloc
+ 626              	.LVL71:
+ 231:dhry_1.c      ****   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
+ 627              		.loc 1 231 0
+ 628 0024 E59FC640 		ldr	ip, .L75+4
+ 225:dhry_1.c      ****   Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 629              		.loc 1 225 0
+ 630 0028 E1A07000 		mov	r7, r0
+ 231:dhry_1.c      ****   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
+ 631              		.loc 1 231 0
+ 632 002c E8BC000F 		ldmia	ip!, {r0, r1, r2, r3}
+ 228:dhry_1.c      ****   Ptr_Glob->Discr                       = Ident_1;
+ 633              		.loc 1 228 0
+ 634 0030 E3A0A000 		mov	r10, #0
+ 229:dhry_1.c      ****   Ptr_Glob->variant.var_1.Enum_Comp     = Ident_3;
+ 635              		.loc 1 229 0
+ 636 0034 E3A09002 		mov	r9, #2
+ 230:dhry_1.c      ****   Ptr_Glob->variant.var_1.Int_Comp      = 40;
+ 637              		.loc 1 230 0
+ 638 0038 E3A08028 		mov	r8, #40
+ 231:dhry_1.c      ****   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
+ 639              		.loc 1 231 0
+ 640 003c E287E010 		add	lr, r7, #16
+ 227:dhry_1.c      ****   Ptr_Glob->Ptr_Comp                    = Next_Ptr_Glob;
+ 641              		.loc 1 227 0
+ 642 0040 E5874000 		str	r4, [r7]
+ 228:dhry_1.c      ****   Ptr_Glob->Discr                       = Ident_1;
+ 643              		.loc 1 228 0
+ 644 0044 E5C7A004 		strb	r10, [r7, #4]
+ 229:dhry_1.c      ****   Ptr_Glob->variant.var_1.Enum_Comp     = Ident_3;
+ 645              		.loc 1 229 0
+ 646 0048 E5C79008 		strb	r9, [r7, #8]
+ 230:dhry_1.c      ****   Ptr_Glob->variant.var_1.Int_Comp      = 40;
+ 647              		.loc 1 230 0
+ 648 004c E587800C 		str	r8, [r7, #12]
+ 231:dhry_1.c      ****   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
+ 649              		.loc 1 231 0
+ 650 0050 E8AE000F 		stmia	lr!, {r0, r1, r2, r3}
+ 233:dhry_1.c      ****   strcpy (Str_1_Loc, "DHRYSTONE PROGRAM, 1'ST STRING");
+ 651              		.loc 1 233 0
+ 652 0054 E59F4614 		ldr	r4, .L75+8
+ 231:dhry_1.c      ****   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
+ 653              		.loc 1 231 0
+ 654 0058 E89C000F 		ldmia	ip, {r0, r1, r2, r3}
+ 655 005c E8AE0007 		stmia	lr!, {r0, r1, r2}
+ 656 0060 E1A08423 		mov	r8, r3, lsr #8
+ 233:dhry_1.c      ****   strcpy (Str_1_Loc, "DHRYSTONE PROGRAM, 1'ST STRING");
+ 657              		.loc 1 233 0
+ 658 0064 E8B4000F 		ldmia	r4!, {r0, r1, r2, r3}
+ 659 0068 E28DC010 		add	ip, sp, #16
+ 660 006c E8AC000F 		stmia	ip!, {r0, r1, r2, r3}
+ 661 0070 E894000F 		ldmia	r4, {r0, r1, r2, r3}
+ 231:dhry_1.c      ****   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
+ 662              		.loc 1 231 0
+ 663 0074 E1A09428 		mov	r9, r8, lsr #8
+ 664 0078 E1A04828 		mov	r4, r8, lsr #16
+ 665 007c E5CE8002 		strb	r8, [lr, #2]
+ 666 0080 E5CE9001 		strb	r9, [lr, #1]
+ 667 0084 E5CE4000 		strb	r4, [lr]
+ 233:dhry_1.c      ****   strcpy (Str_1_Loc, "DHRYSTONE PROGRAM, 1'ST STRING");
+ 668              		.loc 1 233 0
+ 669 0088 E8AC0007 		stmia	ip!, {r0, r1, r2}
+ 670 008c E1A03423 		mov	r3, r3, lsr #8
+ 671 0090 E1A0E423 		mov	lr, r3, lsr #8
+ 672 0094 E1A01823 		mov	r1, r3, lsr #16
+ 673 0098 E5CCE001 		strb	lr, [ip, #1]
+ 674 009c E5CC1000 		strb	r1, [ip]
+ 675 00a0 E5CC3002 		strb	r3, [ip, #2]
+ 225:dhry_1.c      ****   Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 676              		.loc 1 225 0
+ 677 00a4 E59FA5C8 		ldr	r10, .L75+12
+ 235:dhry_1.c      ****   Arr_2_Glob [8][7] = 10;
+ 678              		.loc 1 235 0
+ 679 00a8 E59FC5C8 		ldr	ip, .L75+16
+ 680 00ac E3A0200A 		mov	r2, #10
+ 240:dhry_1.c      ****   small_printf ("\n");
+ 681              		.loc 1 240 0
+ 682 00b0 E59F05C4 		ldr	r0, .L75+20
+ 235:dhry_1.c      ****   Arr_2_Glob [8][7] = 10;
+ 683              		.loc 1 235 0
+ 684 00b4 E58C265C 		str	r2, [ip, #1628]
+ 225:dhry_1.c      ****   Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+ 685              		.loc 1 225 0
+ 686 00b8 E58A7000 		str	r7, [r10]
+ 240:dhry_1.c      ****   small_printf ("\n");
+ 687              		.loc 1 240 0
+ 688 00bc EBFFFFFE 		bl	small_printf
+ 689              	.LVL72:
+ 241:dhry_1.c      ****   small_printf ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
+ 690              		.loc 1 241 0
+ 691 00c0 E59F05B8 		ldr	r0, .L75+24
+ 692 00c4 EBFFFFFE 		bl	small_printf
+ 693              	.LVL73:
+ 242:dhry_1.c      ****   small_printf ("\n");
+ 694              		.loc 1 242 0
+ 695 00c8 E59F05AC 		ldr	r0, .L75+20
+ 696 00cc EBFFFFFE 		bl	small_printf
+ 697              	.LVL74:
+ 243:dhry_1.c      ****   if (Reg)
+ 698              		.loc 1 243 0
+ 699 00d0 E59F35AC 		ldr	r3, .L75+28
+ 700 00d4 E5933000 		ldr	r3, [r3]
+ 701 00d8 E3530000 		cmp	r3, #0
+ 245:dhry_1.c      ****     small_printf ("Program compiled with 'register' attribute\n");
+ 702              		.loc 1 245 0
+ 703 00dc 159F05A4 		ldrne	r0, .L75+32
+ 250:dhry_1.c      ****     small_printf ("Program compiled without 'register' attribute\n");
+ 704              		.loc 1 250 0
+ 705 00e0 059F05A4 		ldreq	r0, .L75+36
+ 255:dhry_1.c      ****   small_printf ("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
+ 706              		.loc 1 255 0
+ 707 00e4 E59FB5A4 		ldr	fp, .L75+40
+ 250:dhry_1.c      ****     small_printf ("Program compiled without 'register' attribute\n");
+ 708              		.loc 1 250 0
+ 709 00e8 EBFFFFFE 		bl	small_printf
+ 710              	.LVL75:
+ 251:dhry_1.c      ****     small_printf ("\n");
+ 711              		.loc 1 251 0
+ 712 00ec E59F0588 		ldr	r0, .L75+20
+ 713 00f0 EBFFFFFE 		bl	small_printf
+ 714              	.LVL76:
+ 255:dhry_1.c      ****   small_printf ("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
+ 715              		.loc 1 255 0
+ 716 00f4 E59B1000 		ldr	r1, [fp]
+ 717 00f8 E59F0594 		ldr	r0, .L75+44
+ 718 00fc EBFFFFFE 		bl	small_printf
+ 719              	.LVL77:
+ 270:dhry_1.c      ****   Begin_Time = _readMicroseconds();
+ 720              		.loc 1 270 0
+ 721 0100 EBFFFFFE 		bl	_readMicroseconds
+ 722              	.LVL78:
+ 272:dhry_1.c      ****   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
+ 723              		.loc 1 272 0
+ 724 0104 E59B3000 		ldr	r3, [fp]
+ 270:dhry_1.c      ****   Begin_Time = _readMicroseconds();
+ 725              		.loc 1 270 0
+ 726 0108 E59FE588 		ldr	lr, .L75+48
+ 272:dhry_1.c      ****   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
+ 727              		.loc 1 272 0
+ 728 010c E3530000 		cmp	r3, #0
+ 270:dhry_1.c      ****   Begin_Time = _readMicroseconds();
+ 729              		.loc 1 270 0
+ 730 0110 E88E0003 		stmia	lr, {r0-r1}
+ 731              	.LVL79:
+ 272:dhry_1.c      ****   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
+ 732              		.loc 1 272 0
+ 733 0114 DA00014C 		ble	.L73
+ 734 0118 E59FC57C 		ldr	ip, .L75+52
+ 735 011c E59F857C 		ldr	r8, .L75+56
+ 736 0120 E59F957C 		ldr	r9, .L75+60
+ 737 0124 E59F457C 		ldr	r4, .L75+64
+ 738 0128 E58DC000 		str	ip, [sp]
+ 739 012c E3A05001 		mov	r5, #1
+ 740 0130 E28D7030 		add	r7, sp, #48
+ 741              	.LVL80:
+ 742              	.L67:
+ 743              	.LBB41:
+ 280:dhry_1.c      ****     strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
+ 744              		.loc 1 280 0
+ 745 0134 E59FE570 		ldr	lr, .L75+68
+ 746 0138 E8BE000F 		ldmia	lr!, {r0, r1, r2, r3}
+ 747 013c E1A0C007 		mov	ip, r7
+ 748 0140 E8AC000F 		stmia	ip!, {r0, r1, r2, r3}
+ 749 0144 E89E000F 		ldmia	lr, {r0, r1, r2, r3}
+ 750 0148 E8AC0007 		stmia	ip!, {r0, r1, r2}
+ 751 014c E1A03423 		mov	r3, r3, lsr #8
+ 752 0150 E1A0E823 		mov	lr, r3, lsr #16
+ 753 0154 E1A06423 		mov	r6, r3, lsr #8
+ 754              	.LBB42:
+ 755              	.LBB43:
+ 498:dhry_1.c      **** 
+ 499:dhry_1.c      **** 
+ 500:dhry_1.c      **** Proc_4 () /* without parameters */
+ 501:dhry_1.c      **** /*******/
+ 502:dhry_1.c      ****     /* executed once */
+ 503:dhry_1.c      **** {
+ 504:dhry_1.c      ****   Boolean Bool_Loc;
+ 505:dhry_1.c      **** 
+ 506:dhry_1.c      ****   Bool_Loc = Ch_1_Glob == 'A';
+ 507:dhry_1.c      ****   Bool_Glob = Bool_Loc | Bool_Glob;
+ 508:dhry_1.c      ****   Ch_2_Glob = 'B';
+ 509:dhry_1.c      **** } /* Proc_4 */
+ 510:dhry_1.c      **** 
+ 511:dhry_1.c      **** 
+ 512:dhry_1.c      **** Proc_5 () /* without parameters */
+ 513:dhry_1.c      **** /*******/
+ 514:dhry_1.c      ****     /* executed once */
+ 515:dhry_1.c      **** {
+ 516:dhry_1.c      ****   Ch_1_Glob = 'A';
+ 756              		.loc 1 516 0
+ 757 0158 E3A0A041 		mov	r10, #65
+ 758              	.LBE43:
+ 759              	.LBE42:
+ 280:dhry_1.c      ****     strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
+ 760              		.loc 1 280 0
+ 761 015c E5CCE000 		strb	lr, [ip]
+ 762              	.LBB45:
+ 763              	.LBB46:
+ 508:dhry_1.c      ****   Ch_2_Glob = 'B';
+ 764              		.loc 1 508 0
+ 765 0160 E3A02042 		mov	r2, #66
+ 766              	.LBE46:
+ 767              	.LBE45:
+ 280:dhry_1.c      ****     strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
+ 768              		.loc 1 280 0
+ 769 0164 E5CC3002 		strb	r3, [ip, #2]
+ 282:dhry_1.c      ****     Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
+ 770              		.loc 1 282 0
+ 771 0168 E1A01007 		mov	r1, r7
+ 772              	.LBB49:
+ 773              	.LBB44:
+ 774              		.loc 1 516 0
+ 775 016c E5C8A000 		strb	r10, [r8]
+ 776              	.LVL81:
+ 777              	.LBE44:
+ 778              	.LBE49:
+ 280:dhry_1.c      ****     strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
+ 779              		.loc 1 280 0
+ 780 0170 E5CC6001 		strb	r6, [ip, #1]
+ 781              	.LBB50:
+ 782              	.LBB47:
+ 507:dhry_1.c      ****   Bool_Glob = Bool_Loc | Bool_Glob;
+ 783              		.loc 1 507 0
+ 784 0174 E3A0A001 		mov	r10, #1
+ 785              	.LBE47:
+ 786              	.LBE50:
+ 282:dhry_1.c      ****     Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
+ 787              		.loc 1 282 0
+ 788 0178 E28D0010 		add	r0, sp, #16
+ 789              	.LBB51:
+ 790              	.LBB48:
+ 508:dhry_1.c      ****   Ch_2_Glob = 'B';
+ 791              		.loc 1 508 0
+ 792 017c E5C42000 		strb	r2, [r4]
+ 793              	.LVL82:
+ 507:dhry_1.c      ****   Bool_Glob = Bool_Loc | Bool_Glob;
+ 794              		.loc 1 507 0
+ 795 0180 E589A000 		str	r10, [r9]
+ 796              	.LBE48:
+ 797              	.LBE51:
+ 281:dhry_1.c      ****     Enum_Loc = Ident_2;
+ 798              		.loc 1 281 0
+ 799 0184 E5CDA00B 		strb	r10, [sp, #11]
+ 282:dhry_1.c      ****     Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
+ 800              		.loc 1 282 0
+ 801 0188 EBFFFFFE 		bl	Func_2
+ 802              	.LVL83:
+ 803 018c E270C001 		rsbs	ip, r0, #1
+ 804 0190 33A0C000 		movcc	ip, #0
+ 805              	.LBB52:
+ 286:dhry_1.c      ****       Int_3_Loc = 5 * Int_1_Loc - Int_2_Loc;
+ 806              		.loc 1 286 0
+ 807 0194 E3A03007 		mov	r3, #7
+ 288:dhry_1.c      ****       Proc_7 (Int_1_Loc, Int_2_Loc, &Int_3_Loc);
+ 808              		.loc 1 288 0
+ 809 0198 E3A01003 		mov	r1, #3
+ 810 019c E28D200C 		add	r2, sp, #12
+ 811 01a0 E3A00002 		mov	r0, #2
+ 812              	.LBE52:
+ 282:dhry_1.c      ****     Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
+ 813              		.loc 1 282 0
+ 814 01a4 E589C000 		str	ip, [r9]
+ 815              	.LBB53:
+ 286:dhry_1.c      ****       Int_3_Loc = 5 * Int_1_Loc - Int_2_Loc;
+ 816              		.loc 1 286 0
+ 817 01a8 E58D300C 		str	r3, [sp, #12]
+ 288:dhry_1.c      ****       Proc_7 (Int_1_Loc, Int_2_Loc, &Int_3_Loc);
+ 818              		.loc 1 288 0
+ 819 01ac EBFFFFFE 		bl	Proc_7
+ 820              	.LVL84:
+ 821              	.LBE53:
+ 293:dhry_1.c      ****     Proc_8 (Arr_1_Glob, Arr_2_Glob, Int_1_Loc, Int_3_Loc);
+ 822              		.loc 1 293 0
+ 823 01b0 E59D300C 		ldr	r3, [sp, #12]
+ 824 01b4 E59F14BC 		ldr	r1, .L75+16
+ 825 01b8 E3A02003 		mov	r2, #3
+ 826 01bc E59F04EC 		ldr	r0, .L75+72
+ 827 01c0 EBFFFFFE 		bl	Proc_8
+ 828              	.LVL85:
+ 295:dhry_1.c      ****     Proc_1 (Ptr_Glob);
+ 829              		.loc 1 295 0
+ 830 01c4 E59FC4A8 		ldr	ip, .L75+12
+ 831 01c8 E59C0000 		ldr	r0, [ip]
+ 832 01cc EBFFFFFE 		bl	Proc_1
+ 833              	.LVL86:
+ 296:dhry_1.c      ****     for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
+ 834              		.loc 1 296 0
+ 835 01d0 E5D43000 		ldrb	r3, [r4]	@ zero_extendqisi2
+ 836 01d4 E3530040 		cmp	r3, #64
+ 837 01d8 9A000119 		bls	.L69
+ 838 01dc E3A0A041 		mov	r10, #65
+ 279:dhry_1.c      ****     Int_2_Loc = 3;
+ 839              		.loc 1 279 0
+ 840 01e0 E3A06003 		mov	r6, #3
+ 841 01e4 EA000004 		b	.L64
+ 842              	.LVL87:
+ 843              	.L62:
+ 296:dhry_1.c      ****     for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
+ 844              		.loc 1 296 0
+ 845 01e8 E28AA001 		add	r10, r10, #1
+ 846              	.LVL88:
+ 847 01ec E5D43000 		ldrb	r3, [r4]	@ zero_extendqisi2
+ 848 01f0 E20AA0FF 		and	r10, r10, #255
+ 849              	.LVL89:
+ 850 01f4 E153000A 		cmp	r3, r10
+ 851 01f8 3A000018 		bcc	.L74
+ 852              	.LVL90:
+ 853              	.L64:
+ 299:dhry_1.c      ****       if (Enum_Loc == Func_1 (Ch_Index, 'C'))
+ 854              		.loc 1 299 0
+ 855 01fc E1A0000A 		mov	r0, r10
+ 856 0200 E3A01043 		mov	r1, #67
+ 857 0204 EBFFFFFE 		bl	Func_1
+ 858              	.LVL91:
+ 859 0208 E5DD300B 		ldrb	r3, [sp, #11]	@ zero_extendqisi2
+ 860 020c E1530000 		cmp	r3, r0
+ 861 0210 1AFFFFF4 		bne	.L62
+ 862              	.LBB54:
+ 302:dhry_1.c      ****         Proc_6 (Ident_1, &Enum_Loc);
+ 863              		.loc 1 302 0
+ 864 0214 E28D100B 		add	r1, sp, #11
+ 865 0218 E3A00000 		mov	r0, #0
+ 866 021c EBFFFFFE 		bl	Proc_6
+ 867              	.LVL92:
+ 303:dhry_1.c      ****         strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 3'RD STRING");
+ 868              		.loc 1 303 0
+ 869 0220 E59FE48C 		ldr	lr, .L75+76
+ 870 0224 E8BE000F 		ldmia	lr!, {r0, r1, r2, r3}
+ 871 0228 E1A0C007 		mov	ip, r7
+ 872 022c E8AC000F 		stmia	ip!, {r0, r1, r2, r3}
+ 873 0230 E89E000F 		ldmia	lr, {r0, r1, r2, r3}
+ 874 0234 E8AC0007 		stmia	ip!, {r0, r1, r2}
+ 875 0238 E1A03423 		mov	r3, r3, lsr #8
+ 305:dhry_1.c      ****         Int_Glob = Run_Index;
+ 876              		.loc 1 305 0
+ 877 023c E59DE000 		ldr	lr, [sp]
+ 303:dhry_1.c      ****         strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 3'RD STRING");
+ 878              		.loc 1 303 0
+ 879 0240 E1A01423 		mov	r1, r3, lsr #8
+ 880 0244 E1A02823 		mov	r2, r3, lsr #16
+ 305:dhry_1.c      ****         Int_Glob = Run_Index;
+ 881              		.loc 1 305 0
+ 882 0248 E58E5000 		str	r5, [lr]
+ 303:dhry_1.c      ****         strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 3'RD STRING");
+ 883              		.loc 1 303 0
+ 884 024c E5CC3002 		strb	r3, [ip, #2]
+ 885 0250 E5CC1001 		strb	r1, [ip, #1]
+ 886 0254 E5CC2000 		strb	r2, [ip]
+ 887              	.LVL93:
+ 305:dhry_1.c      ****         Int_Glob = Run_Index;
+ 888              		.loc 1 305 0
+ 889 0258 E1A06005 		mov	r6, r5
+ 890 025c EAFFFFE1 		b	.L62
+ 891              	.LVL94:
+ 892              	.L74:
+ 893 0260 E086A086 		add	r10, r6, r6, asl #1
+ 894              	.LVL95:
+ 895              	.L61:
+ 896              	.LBE54:
+ 310:dhry_1.c      ****     Int_1_Loc = Int_2_Loc / Int_3_Loc;
+ 897              		.loc 1 310 0
+ 898 0264 E59D600C 		ldr	r6, [sp, #12]
+ 899 0268 E1A0000A 		mov	r0, r10
+ 900 026c E1A01006 		mov	r1, r6
+ 901 0270 EBFFFFFE 		bl	__aeabi_idiv
+ 902              	.LVL96:
+ 903              	.LBB55:
+ 904              	.LBB56:
+ 474:dhry_1.c      ****     if (Ch_1_Glob == 'A')
+ 905              		.loc 1 474 0
+ 906 0274 E5D83000 		ldrb	r3, [r8]	@ zero_extendqisi2
+ 907 0278 E3530041 		cmp	r3, #65
+ 478:dhry_1.c      ****       *Int_Par_Ref = Int_Loc - Int_Glob;
+ 908              		.loc 1 478 0
+ 909 027c 059DC000 		ldreq	ip, [sp]
+ 910 0280 059C3000 		ldreq	r3, [ip]
+ 477:dhry_1.c      ****       Int_Loc -= 1;
+ 911              		.loc 1 477 0
+ 912 0284 02801009 		addeq	r1, r0, #9
+ 913              	.LVL97:
+ 478:dhry_1.c      ****       *Int_Par_Ref = Int_Loc - Int_Glob;
+ 914              		.loc 1 478 0
+ 915 0288 00631001 		rsbeq	r1, r3, r1
+ 916              	.LVL98:
+ 917              	.LBE56:
+ 918              	.LBE55:
+ 919              	.LBE41:
+ 272:dhry_1.c      ****   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
+ 920              		.loc 1 272 0
+ 921 028c E59B3000 		ldr	r3, [fp]
+ 922 0290 E2855001 		add	r5, r5, #1
+ 923              	.LVL99:
+ 924              	.LBB57:
+ 310:dhry_1.c      ****     Int_1_Loc = Int_2_Loc / Int_3_Loc;
+ 925              		.loc 1 310 0
+ 926 0294 11A01000 		movne	r1, r0
+ 927              	.LVL100:
+ 928              	.LBE57:
+ 272:dhry_1.c      ****   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
+ 929              		.loc 1 272 0
+ 930 0298 E1530005 		cmp	r3, r5
+ 931 029c AAFFFFA4 		bge	.L67
+ 932              	.LBB58:
+ 311:dhry_1.c      ****     Int_2_Loc = 7 * (Int_2_Loc - Int_3_Loc) - Int_1_Loc;
+ 933              		.loc 1 311 0
+ 934 02a0 E066300A 		rsb	r3, r6, r10
+ 935 02a4 E0633183 		rsb	r3, r3, r3, asl #3
+ 936 02a8 E58D1004 		str	r1, [sp, #4]
+ 937 02ac E0605003 		rsb	r5, r0, r3
+ 938              	.LVL101:
+ 939              	.L60:
+ 940              	.LBE58:
+ 331:dhry_1.c      ****   End_Time = _readMicroseconds();
+ 941              		.loc 1 331 0
+ 942 02b0 EBFFFFFE 		bl	_readMicroseconds
+ 943              	.LVL102:
+ 944 02b4 E59FA3FC 		ldr	r10, .L75+80
+ 945 02b8 E88A0003 		stmia	r10, {r0-r1}
+ 334:dhry_1.c      ****   small_printf ("Execution ends\n");
+ 946              		.loc 1 334 0
+ 947 02bc E59F03F8 		ldr	r0, .L75+84
+ 948 02c0 EBFFFFFE 		bl	small_printf
+ 949              	.LVL103:
+ 335:dhry_1.c      ****   small_printf ("\n");
+ 950              		.loc 1 335 0
+ 951 02c4 E59F03B0 		ldr	r0, .L75+20
+ 952 02c8 EBFFFFFE 		bl	small_printf
+ 953              	.LVL104:
+ 336:dhry_1.c      ****   small_printf ("Final values of the variables used in the benchmark:\n");
+ 954              		.loc 1 336 0
+ 955 02cc E59F03EC 		ldr	r0, .L75+88
+ 956 02d0 EBFFFFFE 		bl	small_printf
+ 957              	.LVL105:
+ 337:dhry_1.c      ****   small_printf ("\n");
+ 958              		.loc 1 337 0
+ 959 02d4 E59F03A0 		ldr	r0, .L75+20
+ 960 02d8 EBFFFFFE 		bl	small_printf
+ 961              	.LVL106:
+ 338:dhry_1.c      ****   small_printf ("Int_Glob:            %d\n", Int_Glob);
+ 962              		.loc 1 338 0
+ 963 02dc E59DC000 		ldr	ip, [sp]
+ 964 02e0 E59F03DC 		ldr	r0, .L75+92
+ 965 02e4 E59C1000 		ldr	r1, [ip]
+ 966 02e8 EBFFFFFE 		bl	small_printf
+ 967              	.LVL107:
+ 339:dhry_1.c      ****   small_printf ("        should be:   %d\n", 5);
+ 968              		.loc 1 339 0
+ 969 02ec E3A01005 		mov	r1, #5
+ 970 02f0 E59F03D0 		ldr	r0, .L75+96
+ 971 02f4 EBFFFFFE 		bl	small_printf
+ 972              	.LVL108:
+ 340:dhry_1.c      ****   small_printf ("Bool_Glob:           %d\n", Bool_Glob);
+ 973              		.loc 1 340 0
+ 974 02f8 E5991000 		ldr	r1, [r9]
+ 975 02fc E59F03C8 		ldr	r0, .L75+100
+ 976 0300 EBFFFFFE 		bl	small_printf
+ 977              	.LVL109:
+ 341:dhry_1.c      ****   small_printf ("        should be:   %d\n", 1);
+ 978              		.loc 1 341 0
+ 979 0304 E3A01001 		mov	r1, #1
+ 980 0308 E59F03B8 		ldr	r0, .L75+96
+ 981 030c EBFFFFFE 		bl	small_printf
+ 982              	.LVL110:
+ 342:dhry_1.c      ****   small_printf ("Ch_1_Glob:           %c\n", Ch_1_Glob);
+ 983              		.loc 1 342 0
+ 984 0310 E5D81000 		ldrb	r1, [r8]	@ zero_extendqisi2
+ 985 0314 E59F03B4 		ldr	r0, .L75+104
+ 986 0318 EBFFFFFE 		bl	small_printf
+ 987              	.LVL111:
+ 343:dhry_1.c      ****   small_printf ("        should be:   %c\n", 'A');
+ 988              		.loc 1 343 0
+ 989 031c E3A01041 		mov	r1, #65
+ 990 0320 E59F03AC 		ldr	r0, .L75+108
+ 991 0324 EBFFFFFE 		bl	small_printf
+ 992              	.LVL112:
+ 344:dhry_1.c      ****   small_printf ("Ch_2_Glob:           %c\n", Ch_2_Glob);
+ 993              		.loc 1 344 0
+ 994 0328 E5D41000 		ldrb	r1, [r4]	@ zero_extendqisi2
+ 995 032c E59F03A4 		ldr	r0, .L75+112
+ 996 0330 EBFFFFFE 		bl	small_printf
+ 997              	.LVL113:
+ 345:dhry_1.c      ****   small_printf ("        should be:   %c\n", 'B');
+ 998              		.loc 1 345 0
+ 999 0334 E3A01042 		mov	r1, #66
+ 1000 0338 E59F0394 		ldr	r0, .L75+108
+ 1001 033c EBFFFFFE 		bl	small_printf
+ 1002              	.LVL114:
+ 346:dhry_1.c      ****   small_printf ("Arr_1_Glob[8]:       %d\n", Arr_1_Glob[8]);
+ 1003              		.loc 1 346 0
+ 1004 0340 E59F3368 		ldr	r3, .L75+72
+ 1005 0344 E59F0390 		ldr	r0, .L75+116
+ 1006 0348 E5931020 		ldr	r1, [r3, #32]
+ 1007 034c EBFFFFFE 		bl	small_printf
+ 1008              	.LVL115:
+ 347:dhry_1.c      ****   small_printf ("        should be:   %d\n", 7);
+ 1009              		.loc 1 347 0
+ 1010 0350 E3A01007 		mov	r1, #7
+ 1011 0354 E59F036C 		ldr	r0, .L75+96
+ 1012 0358 EBFFFFFE 		bl	small_printf
+ 1013              	.LVL116:
+ 348:dhry_1.c      ****   small_printf ("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);
+ 1014              		.loc 1 348 0
+ 1015 035c E59FE314 		ldr	lr, .L75+16
+ 1016 0360 E59F0378 		ldr	r0, .L75+120
+ 1017 0364 E59E165C 		ldr	r1, [lr, #1628]
+ 1018 0368 EBFFFFFE 		bl	small_printf
+ 1019              	.LVL117:
+ 349:dhry_1.c      ****   small_printf ("        should be:   Number_Of_Runs + 10\n");
+ 1020              		.loc 1 349 0
+ 1021 036c E59F0370 		ldr	r0, .L75+124
+ 1022 0370 EBFFFFFE 		bl	small_printf
+ 1023              	.LVL118:
+ 350:dhry_1.c      ****   small_printf ("Ptr_Glob->\n");
+ 1024              		.loc 1 350 0
+ 1025 0374 E59F036C 		ldr	r0, .L75+128
+ 1026 0378 EBFFFFFE 		bl	small_printf
+ 1027              	.LVL119:
+ 351:dhry_1.c      ****   small_printf ("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);
+ 1028              		.loc 1 351 0
+ 1029 037c E59F02F0 		ldr	r0, .L75+12
+ 1030 0380 E5903000 		ldr	r3, [r0]
+ 1031 0384 E59F0360 		ldr	r0, .L75+132
+ 1032 0388 E5931000 		ldr	r1, [r3]
+ 1033 038c EBFFFFFE 		bl	small_printf
+ 1034              	.LVL120:
+ 352:dhry_1.c      ****   small_printf ("        should be:   (implementation-dependent)\n");
+ 1035              		.loc 1 352 0
+ 1036 0390 E59F0358 		ldr	r0, .L75+136
+ 1037 0394 EBFFFFFE 		bl	small_printf
+ 1038              	.LVL121:
+ 353:dhry_1.c      ****   small_printf ("  Discr:             %d\n", Ptr_Glob->Discr);
+ 1039              		.loc 1 353 0
+ 1040 0398 E59F12D4 		ldr	r1, .L75+12
+ 1041 039c E5913000 		ldr	r3, [r1]
+ 1042 03a0 E59F034C 		ldr	r0, .L75+140
+ 1043 03a4 E5D31004 		ldrb	r1, [r3, #4]	@ zero_extendqisi2
+ 1044 03a8 EBFFFFFE 		bl	small_printf
+ 1045              	.LVL122:
+ 354:dhry_1.c      ****   small_printf ("        should be:   %d\n", 0);
+ 1046              		.loc 1 354 0
+ 1047 03ac E3A01000 		mov	r1, #0
+ 1048 03b0 E59F0310 		ldr	r0, .L75+96
+ 1049 03b4 EBFFFFFE 		bl	small_printf
+ 1050              	.LVL123:
+ 355:dhry_1.c      ****   small_printf ("  Enum_Comp:         %d\n", Ptr_Glob->variant.var_1.Enum_Comp);
+ 1051              		.loc 1 355 0
+ 1052 03b8 E59F22B4 		ldr	r2, .L75+12
+ 1053 03bc E5923000 		ldr	r3, [r2]
+ 1054 03c0 E59F0330 		ldr	r0, .L75+144
+ 1055 03c4 E5D31008 		ldrb	r1, [r3, #8]	@ zero_extendqisi2
+ 1056 03c8 EBFFFFFE 		bl	small_printf
+ 1057              	.LVL124:
+ 356:dhry_1.c      ****   small_printf ("        should be:   %d\n", 2);
+ 1058              		.loc 1 356 0
+ 1059 03cc E3A01002 		mov	r1, #2
+ 1060 03d0 E59F02F0 		ldr	r0, .L75+96
+ 1061 03d4 EBFFFFFE 		bl	small_printf
+ 1062              	.LVL125:
+ 357:dhry_1.c      ****   small_printf ("  Int_Comp:          %d\n", Ptr_Glob->variant.var_1.Int_Comp);
+ 1063              		.loc 1 357 0
+ 1064 03d8 E59FC294 		ldr	ip, .L75+12
+ 1065 03dc E59C3000 		ldr	r3, [ip]
+ 1066 03e0 E59F0314 		ldr	r0, .L75+148
+ 1067 03e4 E593100C 		ldr	r1, [r3, #12]
+ 1068 03e8 EBFFFFFE 		bl	small_printf
+ 1069              	.LVL126:
+ 358:dhry_1.c      ****   small_printf ("        should be:   %d\n", 17);
+ 1070              		.loc 1 358 0
+ 1071 03ec E3A01011 		mov	r1, #17
+ 1072 03f0 E59F02D0 		ldr	r0, .L75+96
+ 1073 03f4 EBFFFFFE 		bl	small_printf
+ 1074              	.LVL127:
+ 359:dhry_1.c      ****   small_printf ("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);
+ 1075              		.loc 1 359 0
+ 1076 03f8 E59FE274 		ldr	lr, .L75+12
+ 1077 03fc E59E1000 		ldr	r1, [lr]
+ 1078 0400 E59F02F8 		ldr	r0, .L75+152
+ 1079 0404 E2811010 		add	r1, r1, #16
+ 1080 0408 EBFFFFFE 		bl	small_printf
+ 1081              	.LVL128:
+ 360:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+ 1082              		.loc 1 360 0
+ 1083 040c E59F02F0 		ldr	r0, .L75+156
+ 1084 0410 EBFFFFFE 		bl	small_printf
+ 1085              	.LVL129:
+ 361:dhry_1.c      ****   small_printf ("Next_Ptr_Glob->\n");
+ 1086              		.loc 1 361 0
+ 1087 0414 E59F02EC 		ldr	r0, .L75+160
+ 1088 0418 EBFFFFFE 		bl	small_printf
+ 1089              	.LVL130:
+ 362:dhry_1.c      ****   small_printf ("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);
+ 1090              		.loc 1 362 0
+ 1091 041c E59F0244 		ldr	r0, .L75
+ 1092 0420 E5903000 		ldr	r3, [r0]
+ 1093 0424 E59F02C0 		ldr	r0, .L75+132
+ 1094 0428 E5931000 		ldr	r1, [r3]
+ 1095 042c EBFFFFFE 		bl	small_printf
+ 1096              	.LVL131:
+ 363:dhry_1.c      ****   small_printf ("        should be:   (implementation-dependent), same as above\n");
+ 1097              		.loc 1 363 0
+ 1098 0430 E59F02D4 		ldr	r0, .L75+164
+ 1099 0434 EBFFFFFE 		bl	small_printf
+ 1100              	.LVL132:
+ 364:dhry_1.c      ****   small_printf ("  Discr:             %d\n", Next_Ptr_Glob->Discr);
+ 1101              		.loc 1 364 0
+ 1102 0438 E59F1228 		ldr	r1, .L75
+ 1103 043c E5913000 		ldr	r3, [r1]
+ 1104 0440 E59F02AC 		ldr	r0, .L75+140
+ 1105 0444 E5D31004 		ldrb	r1, [r3, #4]	@ zero_extendqisi2
+ 1106 0448 EBFFFFFE 		bl	small_printf
+ 1107              	.LVL133:
+ 365:dhry_1.c      ****   small_printf ("        should be:   %d\n", 0);
+ 1108              		.loc 1 365 0
+ 1109 044c E3A01000 		mov	r1, #0
+ 1110 0450 E59F0270 		ldr	r0, .L75+96
+ 1111 0454 EBFFFFFE 		bl	small_printf
+ 1112              	.LVL134:
+ 366:dhry_1.c      ****   small_printf ("  Enum_Comp:         %d\n", Next_Ptr_Glob->variant.var_1.Enum_Comp);
+ 1113              		.loc 1 366 0
+ 1114 0458 E59F2208 		ldr	r2, .L75
+ 1115 045c E5923000 		ldr	r3, [r2]
+ 1116 0460 E59F0290 		ldr	r0, .L75+144
+ 1117 0464 E5D31008 		ldrb	r1, [r3, #8]	@ zero_extendqisi2
+ 1118 0468 EBFFFFFE 		bl	small_printf
+ 1119              	.LVL135:
+ 367:dhry_1.c      ****   small_printf ("        should be:   %d\n", 1);
+ 1120              		.loc 1 367 0
+ 1121 046c E3A01001 		mov	r1, #1
+ 1122 0470 E59F0250 		ldr	r0, .L75+96
+ 1123 0474 EBFFFFFE 		bl	small_printf
+ 1124              	.LVL136:
+ 368:dhry_1.c      ****   small_printf ("  Int_Comp:          %d\n", Next_Ptr_Glob->variant.var_1.Int_Comp);
+ 1125              		.loc 1 368 0
+ 1126 0478 E59FC1E8 		ldr	ip, .L75
+ 1127 047c E59C3000 		ldr	r3, [ip]
+ 1128 0480 E59F0274 		ldr	r0, .L75+148
+ 1129 0484 E593100C 		ldr	r1, [r3, #12]
+ 1130 0488 EBFFFFFE 		bl	small_printf
+ 1131              	.LVL137:
+ 369:dhry_1.c      ****   small_printf ("        should be:   %d\n", 18);
+ 1132              		.loc 1 369 0
+ 1133 048c E3A01012 		mov	r1, #18
+ 1134 0490 E59F0230 		ldr	r0, .L75+96
+ 1135 0494 EBFFFFFE 		bl	small_printf
+ 1136              	.LVL138:
+ 371:dhry_1.c      ****                                 Next_Ptr_Glob->variant.var_1.Str_Comp);
+ 1137              		.loc 1 371 0
+ 1138 0498 E59FE1C8 		ldr	lr, .L75
+ 1139 049c E59E1000 		ldr	r1, [lr]
+ 370:dhry_1.c      ****   small_printf ("  Str_Comp:          %s\n",
+ 1140              		.loc 1 370 0
+ 1141 04a0 E59F0258 		ldr	r0, .L75+152
+ 1142 04a4 E2811010 		add	r1, r1, #16
+ 1143 04a8 EBFFFFFE 		bl	small_printf
+ 1144              	.LVL139:
+ 372:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
+ 1145              		.loc 1 372 0
+ 1146 04ac E59F0250 		ldr	r0, .L75+156
+ 1147 04b0 EBFFFFFE 		bl	small_printf
+ 1148              	.LVL140:
+ 373:dhry_1.c      ****   small_printf ("Int_1_Loc:           %d\n", Int_1_Loc);
+ 1149              		.loc 1 373 0
+ 1150 04b4 E59D1004 		ldr	r1, [sp, #4]
+ 1151 04b8 E59F0250 		ldr	r0, .L75+168
+ 1152 04bc EBFFFFFE 		bl	small_printf
+ 1153              	.LVL141:
+ 374:dhry_1.c      ****   small_printf ("        should be:   %d\n", 5);
+ 1154              		.loc 1 374 0
+ 1155 04c0 E3A01005 		mov	r1, #5
+ 1156 04c4 E59F01FC 		ldr	r0, .L75+96
+ 1157 04c8 EBFFFFFE 		bl	small_printf
+ 1158              	.LVL142:
+ 375:dhry_1.c      ****   small_printf ("Int_2_Loc:           %d\n", Int_2_Loc);
+ 1159              		.loc 1 375 0
+ 1160 04cc E1A01005 		mov	r1, r5
+ 1161 04d0 E59F023C 		ldr	r0, .L75+172
+ 1162 04d4 EBFFFFFE 		bl	small_printf
+ 1163              	.LVL143:
+ 376:dhry_1.c      ****   small_printf ("        should be:   %d\n", 13);
+ 1164              		.loc 1 376 0
+ 1165 04d8 E3A0100D 		mov	r1, #13
+ 1166 04dc E59F01E4 		ldr	r0, .L75+96
+ 1167 04e0 EBFFFFFE 		bl	small_printf
+ 1168              	.LVL144:
+ 377:dhry_1.c      ****   small_printf ("Int_3_Loc:           %d\n", Int_3_Loc);
+ 1169              		.loc 1 377 0
+ 1170 04e4 E59D100C 		ldr	r1, [sp, #12]
+ 1171 04e8 E59F0228 		ldr	r0, .L75+176
+ 1172 04ec EBFFFFFE 		bl	small_printf
+ 1173              	.LVL145:
+ 378:dhry_1.c      ****   small_printf ("        should be:   %d\n", 7);
+ 1174              		.loc 1 378 0
+ 1175 04f0 E3A01007 		mov	r1, #7
+ 1176 04f4 E59F01CC 		ldr	r0, .L75+96
+ 1177 04f8 EBFFFFFE 		bl	small_printf
+ 1178              	.LVL146:
+ 379:dhry_1.c      ****   small_printf ("Enum_Loc:            %d\n", Enum_Loc);
+ 1179              		.loc 1 379 0
+ 1180 04fc E5DD100B 		ldrb	r1, [sp, #11]	@ zero_extendqisi2
+ 1181 0500 E59F0214 		ldr	r0, .L75+180
+ 1182 0504 EBFFFFFE 		bl	small_printf
+ 1183              	.LVL147:
+ 380:dhry_1.c      ****   small_printf ("        should be:   %d\n", 1);
+ 1184              		.loc 1 380 0
+ 1185 0508 E3A01001 		mov	r1, #1
+ 1186 050c E59F01B4 		ldr	r0, .L75+96
+ 1187 0510 EBFFFFFE 		bl	small_printf
+ 1188              	.LVL148:
+ 381:dhry_1.c      ****   small_printf ("Str_1_Loc:           %s\n", Str_1_Loc);
+ 1189              		.loc 1 381 0
+ 1190 0514 E28D1010 		add	r1, sp, #16
+ 1191 0518 E59F0200 		ldr	r0, .L75+184
+ 1192 051c EBFFFFFE 		bl	small_printf
+ 1193              	.LVL149:
+ 382:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
+ 1194              		.loc 1 382 0
+ 1195 0520 E59F01FC 		ldr	r0, .L75+188
+ 1196 0524 EBFFFFFE 		bl	small_printf
+ 1197              	.LVL150:
+ 383:dhry_1.c      ****   small_printf ("Str_2_Loc:           %s\n", Str_2_Loc);
+ 1198              		.loc 1 383 0
+ 1199 0528 E1A01007 		mov	r1, r7
+ 1200 052c E59F01F4 		ldr	r0, .L75+192
+ 1201 0530 EBFFFFFE 		bl	small_printf
+ 1202              	.LVL151:
+ 384:dhry_1.c      ****   small_printf ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
+ 1203              		.loc 1 384 0
+ 1204 0534 E59F01F0 		ldr	r0, .L75+196
+ 1205 0538 EBFFFFFE 		bl	small_printf
+ 1206              	.LVL152:
+ 385:dhry_1.c      ****   small_printf ("\n");
+ 1207              		.loc 1 385 0
+ 1208 053c E59F0138 		ldr	r0, .L75+20
+ 1209 0540 EBFFFFFE 		bl	small_printf
+ 1210              	.LVL153:
+ 387:dhry_1.c      ****   User_Time = End_Time - Begin_Time;
+ 1211              		.loc 1 387 0
+ 1212 0544 E89A000C 		ldmia	r10, {r2-r3}
+ 1213 0548 E59FA148 		ldr	r10, .L75+48
+ 1214 054c E89A0003 		ldmia	r10, {r0-r1}
+ 1215 0550 E59F41D8 		ldr	r4, .L75+200
+ 1216 0554 E0533001 		subs	r3, r3, r1
+ 1217 0558 E0C22000 		sbc	r2, r2, r0
+ 388:dhry_1.c      ****   small_printf ("User time: %d\n", (int)User_Time);
+ 1218              		.loc 1 388 0
+ 1219 055c E1A01003 		mov	r1, r3
+ 1220 0560 E59F01CC 		ldr	r0, .L75+204
+ 387:dhry_1.c      ****   User_Time = End_Time - Begin_Time;
+ 1221              		.loc 1 387 0
+ 1222 0564 E884000C 		stmia	r4, {r2-r3}
+ 388:dhry_1.c      ****   small_printf ("User time: %d\n", (int)User_Time);
+ 1223              		.loc 1 388 0
+ 1224 0568 EBFFFFFE 		bl	small_printf
+ 1225              	.LVL154:
+ 390:dhry_1.c      ****   if (User_Time < Too_Small_Time)
+ 1226              		.loc 1 390 0
+ 1227 056c E894000C 		ldmia	r4, {r2-r3}
+ 1228 0570 E3530078 		cmp	r3, #120
+ 1229 0574 E2D2C000 		sbcs	ip, r2, #0
+ 1230 0578 AA000005 		bge	.L68
+ 392:dhry_1.c      ****     small_printf ("Measured time too small to obtain meaningful results\n");
+ 1231              		.loc 1 392 0
+ 1232 057c E59F01B4 		ldr	r0, .L75+208
+ 1233 0580 EBFFFFFE 		bl	small_printf
+ 1234              	.LVL155:
+ 393:dhry_1.c      ****     small_printf ("Please increase number of runs\n");
+ 1235              		.loc 1 393 0
+ 1236 0584 E59F01B0 		ldr	r0, .L75+212
+ 1237 0588 EBFFFFFE 		bl	small_printf
+ 1238              	.LVL156:
+ 394:dhry_1.c      ****     small_printf ("\n");
+ 1239              		.loc 1 394 0
+ 1240 058c E59F00E8 		ldr	r0, .L75+20
+ 1241 0590 EBFFFFFE 		bl	small_printf
+ 1242              	.LVL157:
+ 1243              	.L68:
+ 412:dhry_1.c      ****     Microseconds = User_Time  / Number_Of_Runs;
+ 1244              		.loc 1 412 0
+ 1245 0594 E59B5000 		ldr	r5, [fp]
+ 1246 0598 E5946000 		ldr	r6, [r4]
+ 1247 059c E5944004 		ldr	r4, [r4, #4]
+ 1248 05a0 E1A03005 		mov	r3, r5
+ 1249 05a4 E1A02FC5 		mov	r2, r5, asr #31
+ 1250 05a8 E1A00006 		mov	r0, r6
+ 1251 05ac E1A01004 		mov	r1, r4
+ 1252 05b0 EBFFFFFE 		bl	__aeabi_ldivmod
+ 1253              	.LVL158:
+ 1254 05b4 E59F7184 		ldr	r7, .L75+216
+ 413:dhry_1.c      ****     Dhrystones_Per_Second =  ((long long)Number_Of_Runs*1000000) / User_Time;
+ 1255              		.loc 1 413 0
+ 1256 05b8 E59F3184 		ldr	r3, .L75+220
+ 412:dhry_1.c      ****     Microseconds = User_Time  / Number_Of_Runs;
+ 1257              		.loc 1 412 0
+ 1258 05bc E8870003 		stmia	r7, {r0-r1}
+ 413:dhry_1.c      ****     Dhrystones_Per_Second =  ((long long)Number_Of_Runs*1000000) / User_Time;
+ 1259              		.loc 1 413 0
+ 1260 05c0 E1A02006 		mov	r2, r6
+ 1261 05c4 E0C01395 		smull	r1, r0, r5, r3
+ 1262 05c8 E1A03004 		mov	r3, r4
+ 1263 05cc EBFFFFFE 		bl	__aeabi_ldivmod
+ 1264              	.LVL159:
+ 414:dhry_1.c      ****     Vax_Mips = (((long long)Number_Of_Runs)*1000000000) / (1757*User_Time);
+ 1265              		.loc 1 414 0
+ 1266 05d0 E59FC170 		ldr	ip, .L75+224
+ 1267 05d4 E0823C94 		umull	r3, r2, r4, ip
+ 413:dhry_1.c      ****     Dhrystones_Per_Second =  ((long long)Number_Of_Runs*1000000) / User_Time;
+ 1268              		.loc 1 413 0
+ 1269 05d8 E59F416C 		ldr	r4, .L75+228
+ 414:dhry_1.c      ****     Vax_Mips = (((long long)Number_Of_Runs)*1000000000) / (1757*User_Time);
+ 1270              		.loc 1 414 0
+ 1271 05dc E022269C 		mla	r2, ip, r6, r2
+ 1272 05e0 E59FC168 		ldr	ip, .L75+232
+ 413:dhry_1.c      ****     Dhrystones_Per_Second =  ((long long)Number_Of_Runs*1000000) / User_Time;
+ 1273              		.loc 1 413 0
+ 1274 05e4 E8840003 		stmia	r4, {r0-r1}
+ 414:dhry_1.c      ****     Vax_Mips = (((long long)Number_Of_Runs)*1000000000) / (1757*User_Time);
+ 1275              		.loc 1 414 0
+ 1276 05e8 E0C01C95 		smull	r1, r0, r5, ip
+ 1277 05ec EBFFFFFE 		bl	__aeabi_ldivmod
+ 1278              	.LVL160:
+ 1279 05f0 E59F515C 		ldr	r5, .L75+236
+ 1280 05f4 E8850003 		stmia	r5, {r0-r1}
+ 416:dhry_1.c      ****     small_printf ("Microseconds for one run through Dhrystone: ");
+ 1281              		.loc 1 416 0
+ 1282 05f8 E59F0158 		ldr	r0, .L75+240
+ 1283 05fc EBFFFFFE 		bl	small_printf
+ 1284              	.LVL161:
+ 417:dhry_1.c      ****     small_printf ("%d \n", (int)Microseconds);
+ 1285              		.loc 1 417 0
+ 1286 0600 E5971004 		ldr	r1, [r7, #4]
+ 1287 0604 E59F0150 		ldr	r0, .L75+244
+ 1288 0608 EBFFFFFE 		bl	small_printf
+ 1289              	.LVL162:
+ 418:dhry_1.c      ****     small_printf ("Dhrystones per Second:                      ");
+ 1290              		.loc 1 418 0
+ 1291 060c E59F014C 		ldr	r0, .L75+248
+ 1292 0610 EBFFFFFE 		bl	small_printf
+ 1293              	.LVL163:
+ 419:dhry_1.c      ****     small_printf ("%d \n", (int)Dhrystones_Per_Second);
+ 1294              		.loc 1 419 0
+ 1295 0614 E5941004 		ldr	r1, [r4, #4]
+ 1296 0618 E59F013C 		ldr	r0, .L75+244
+ 1297 061c EBFFFFFE 		bl	small_printf
+ 1298              	.LVL164:
+ 420:dhry_1.c      ****     small_printf ("VAX MIPS rating * 1000 = %d \n",(int)Vax_Mips);
+ 1299              		.loc 1 420 0
+ 1300 0620 E5951004 		ldr	r1, [r5, #4]
+ 1301 0624 E59F0138 		ldr	r0, .L75+252
+ 1302 0628 EBFFFFFE 		bl	small_printf
+ 1303              	.LVL165:
+ 421:dhry_1.c      ****     small_printf ("\n");
+ 1304              		.loc 1 421 0
+ 1305 062c E59F0048 		ldr	r0, .L75+20
+ 1306 0630 EBFFFFFE 		bl	small_printf
+ 1307              	.LVL166:
+ 425:dhry_1.c      **** }
+ 1308              		.loc 1 425 0
+ 1309 0634 E3A00000 		mov	r0, #0
+ 1310 0638 E28DD054 		add	sp, sp, #84
+ 1311              		@ sp needed
+ 1312 063c E8BD4FF0 		ldmfd	sp!, {r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1313 0640 E12FFF1E 		bx	lr
+ 1314              	.LVL167:
+ 1315              	.L69:
+ 1316              	.LBB59:
+ 296:dhry_1.c      ****     for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
+ 1317              		.loc 1 296 0
+ 1318 0644 E3A0A009 		mov	r10, #9
+ 1319 0648 EAFFFF05 		b	.L61
+ 1320              	.LVL168:
+ 1321              	.L73:
+ 1322 064c E59FA048 		ldr	r10, .L75+52
+ 1323 0650 E59F8048 		ldr	r8, .L75+56
+ 1324 0654 E59F9048 		ldr	r9, .L75+60
+ 1325 0658 E59F4048 		ldr	r4, .L75+64
+ 1326 065c E28D7030 		add	r7, sp, #48
+ 1327 0660 E58DA000 		str	r10, [sp]
+ 1328 0664 EAFFFF11 		b	.L60
+ 1329              	.L76:
+ 1330              		.align	2
+ 1331              	.L75:
+ 1332 0668 00000000 		.word	Next_Ptr_Glob
+ 1333 066c 0000000C 		.word	.LC1
+ 1334 0670 000005A0 		.word	.LC2
+ 1335 0674 00000000 		.word	Ptr_Glob
+ 1336 0678 00000000 		.word	Arr_2_Glob
+ 1337 067c 0000002C 		.word	.LC3
+ 1338 0680 00000030 		.word	.LC4
+ 1339 0684 00000000 		.word	.LANCHOR0
+ 1340 0688 00000060 		.word	.LC5
+ 1341 068c 0000008C 		.word	.LC6
+ 1342 0690 00000000 		.word	.LANCHOR1
+ 1343 0694 000000BC 		.word	.LC7
+ 1344 0698 00000000 		.word	Begin_Time
+ 1345 069c 00000000 		.word	Int_Glob
+ 1346 06a0 00000000 		.word	Ch_1_Glob
+ 1347 06a4 00000000 		.word	Bool_Glob
+ 1348 06a8 00000000 		.word	Ch_2_Glob
+ 1349 06ac 000005C0 		.word	.LC8
+ 1350 06b0 00000000 		.word	Arr_1_Glob
+ 1351 06b4 000005E0 		.word	.LC9
+ 1352 06b8 00000000 		.word	End_Time
+ 1353 06bc 000000EC 		.word	.LC10
+ 1354 06c0 000000FC 		.word	.LC11
+ 1355 06c4 00000134 		.word	.LC12
+ 1356 06c8 00000150 		.word	.LC13
+ 1357 06cc 0000016C 		.word	.LC14
+ 1358 06d0 00000188 		.word	.LC15
+ 1359 06d4 000001A4 		.word	.LC16
+ 1360 06d8 000001C0 		.word	.LC17
+ 1361 06dc 000001DC 		.word	.LC18
+ 1362 06e0 000001F8 		.word	.LC19
+ 1363 06e4 00000214 		.word	.LC20
+ 1364 06e8 00000240 		.word	.LC21
+ 1365 06ec 0000024C 		.word	.LC22
+ 1366 06f0 00000268 		.word	.LC23
+ 1367 06f4 0000029C 		.word	.LC24
+ 1368 06f8 000002B8 		.word	.LC25
+ 1369 06fc 000002D4 		.word	.LC26
+ 1370 0700 000002F0 		.word	.LC27
+ 1371 0704 0000030C 		.word	.LC28
+ 1372 0708 00000344 		.word	.LC29
+ 1373 070c 00000358 		.word	.LC30
+ 1374 0710 00000398 		.word	.LC31
+ 1375 0714 000003B4 		.word	.LC32
+ 1376 0718 000003D0 		.word	.LC33
+ 1377 071c 000003EC 		.word	.LC34
+ 1378 0720 00000408 		.word	.LC35
+ 1379 0724 00000424 		.word	.LC36
+ 1380 0728 0000045C 		.word	.LC37
+ 1381 072c 00000478 		.word	.LC38
+ 1382 0730 00000000 		.word	User_Time
+ 1383 0734 000004B0 		.word	.LC39
+ 1384 0738 000004C0 		.word	.LC40
+ 1385 073c 000004F8 		.word	.LC41
+ 1386 0740 00000000 		.word	Microseconds
+ 1387 0744 000F4240 		.word	1000000
+ 1388 0748 000006DD 		.word	1757
+ 1389 074c 00000000 		.word	Dhrystones_Per_Second
+ 1390 0750 3B9ACA00 		.word	1000000000
+ 1391 0754 00000000 		.word	Vax_Mips
+ 1392 0758 00000518 		.word	.LC42
+ 1393 075c 00000548 		.word	.LC43
+ 1394 0760 00000550 		.word	.LC44
+ 1395 0764 00000580 		.word	.LC45
+ 1396              	.LBE59:
+ 1397              		.cfi_endproc
+ 1398              	.LFE4:
+ 1400              		.text
+ 1401              		.align	2
+ 1402              		.global	Proc_4
+ 1404              	Proc_4:
+ 1405              	.LFB8:
+ 503:dhry_1.c      **** {
+ 1406              		.loc 1 503 0
+ 1407              		.cfi_startproc
+ 1408              		@ Function supports interworking.
+ 1409              		@ args = 0, pretend = 0, frame = 0
+ 1410              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1411              		@ link register save eliminated.
+ 1412              	.LVL169:
+ 507:dhry_1.c      ****   Bool_Glob = Bool_Loc | Bool_Glob;
+ 1413              		.loc 1 507 0
+ 1414 037c E59F3028 		ldr	r3, .L78
+ 506:dhry_1.c      ****   Bool_Loc = Ch_1_Glob == 'A';
+ 1415              		.loc 1 506 0
+ 1416 0380 E59F2028 		ldr	r2, .L78+4
+ 1417              	.LVL170:
+ 507:dhry_1.c      ****   Bool_Glob = Bool_Loc | Bool_Glob;
+ 1418              		.loc 1 507 0
+ 1419 0384 E5931000 		ldr	r1, [r3]
+ 506:dhry_1.c      ****   Bool_Loc = Ch_1_Glob == 'A';
+ 1420              		.loc 1 506 0
+ 1421 0388 E5D2C000 		ldrb	ip, [r2]	@ zero_extendqisi2
+ 508:dhry_1.c      ****   Ch_2_Glob = 'B';
+ 1422              		.loc 1 508 0
+ 1423 038c E59F2020 		ldr	r2, .L78+8
+ 1424              	.LVL171:
+ 507:dhry_1.c      ****   Bool_Glob = Bool_Loc | Bool_Glob;
+ 1425              		.loc 1 507 0
+ 1426 0390 E35C0041 		cmp	ip, #65
+ 1427 0394 11A0C001 		movne	ip, r1
+ 1428 0398 0381C001 		orreq	ip, r1, #1
+ 508:dhry_1.c      ****   Ch_2_Glob = 'B';
+ 1429              		.loc 1 508 0
+ 1430 039c E3A01042 		mov	r1, #66
+ 507:dhry_1.c      ****   Bool_Glob = Bool_Loc | Bool_Glob;
+ 1431              		.loc 1 507 0
+ 1432 03a0 E583C000 		str	ip, [r3]
+ 508:dhry_1.c      ****   Ch_2_Glob = 'B';
+ 1433              		.loc 1 508 0
+ 1434 03a4 E5C21000 		strb	r1, [r2]
+ 509:dhry_1.c      **** } /* Proc_4 */
+ 1435              		.loc 1 509 0
+ 1436 03a8 E12FFF1E 		bx	lr
+ 1437              	.L79:
+ 1438              		.align	2
+ 1439              	.L78:
+ 1440 03ac 00000000 		.word	Bool_Glob
+ 1441 03b0 00000000 		.word	Ch_1_Glob
+ 1442 03b4 00000000 		.word	Ch_2_Glob
+ 1443              		.cfi_endproc
+ 1444              	.LFE8:
+ 1446              		.align	2
+ 1447              		.global	Proc_5
+ 1449              	Proc_5:
+ 1450              	.LFB9:
+ 515:dhry_1.c      **** {
+ 1451              		.loc 1 515 0
+ 1452              		.cfi_startproc
+ 1453              		@ Function supports interworking.
+ 1454              		@ args = 0, pretend = 0, frame = 0
+ 1455              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1456              		@ link register save eliminated.
+ 1457              		.loc 1 516 0
+ 1458 03b8 E59F1014 		ldr	r1, .L81
+ 517:dhry_1.c      ****   Bool_Glob = false;
+ 1459              		.loc 1 517 0
+ 1460 03bc E59F3014 		ldr	r3, .L81+4
+ 516:dhry_1.c      ****   Ch_1_Glob = 'A';
+ 1461              		.loc 1 516 0
+ 1462 03c0 E3A0C041 		mov	ip, #65
+ 1463              		.loc 1 517 0
+ 1464 03c4 E3A02000 		mov	r2, #0
+ 516:dhry_1.c      ****   Ch_1_Glob = 'A';
+ 1465              		.loc 1 516 0
+ 1466 03c8 E5C1C000 		strb	ip, [r1]
+ 1467              		.loc 1 517 0
+ 1468 03cc E5832000 		str	r2, [r3]
+ 518:dhry_1.c      **** } /* Proc_5 */
+ 1469              		.loc 1 518 0
+ 1470 03d0 E12FFF1E 		bx	lr
+ 1471              	.L82:
+ 1472              		.align	2
+ 1473              	.L81:
+ 1474 03d4 00000000 		.word	Ch_1_Glob
+ 1475 03d8 00000000 		.word	Bool_Glob
+ 1476              		.cfi_endproc
+ 1477              	.LFE9:
+ 1479              		.global	Number_Of_Runs
+ 1480              		.comm	Vax_Mips,8,8
+ 1481              		.comm	Dhrystones_Per_Second,8,8
+ 1482              		.comm	Microseconds,8,8
+ 1483              		.comm	User_Time,8,8
+ 1484              		.comm	End_Time,8,8
+ 1485              		.comm	Begin_Time,8,8
+ 1486              		.comm	time_info,16,4
+ 1487              		.global	Reg
+ 1488              		.comm	Arr_2_Glob,10000,4
+ 1489              		.comm	Arr_1_Glob,200,4
+ 1490              		.comm	Ch_2_Glob,1,1
+ 1491              		.comm	Ch_1_Glob,1,1
+ 1492              		.comm	Bool_Glob,4,4
+ 1493              		.comm	Int_Glob,4,4
+ 1494              		.comm	Next_Ptr_Glob,4,4
+ 1495              		.comm	Ptr_Glob,4,4
+ 1496              		.data
+ 1497              		.align	2
+ 1498              		.set	.LANCHOR1,. + 0
+ 1501              	Number_Of_Runs:
+ 1502 0000 0000C350 		.word	50000
+ 1503              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 1504              		.align	2
+ 1505              	.LC0:
+ 1506 0000 30313233 		.ascii	"0123456789\000"
+ 1506      34353637 
+ 1506      383900
+ 1507 000b 00       		.space	1
+ 1508              	.LC1:
+ 1509 000c 44485259 		.ascii	"DHRYSTONE PROGRAM, SOME STRING\000"
+ 1509      53544F4E 
+ 1509      45205052 
+ 1509      4F475241 
+ 1509      4D2C2053 
+ 1510 002b 00       		.space	1
+ 1511              	.LC3:
+ 1512 002c 0A00     		.ascii	"\012\000"
+ 1513 002e 0000     		.space	2
+ 1514              	.LC4:
+ 1515 0030 44687279 		.ascii	"Dhrystone Benchmark, Version 2.1 (Language: C)\012\000"
+ 1515      73746F6E 
+ 1515      65204265 
+ 1515      6E63686D 
+ 1515      61726B2C 
+ 1516              	.LC5:
+ 1517 0060 50726F67 		.ascii	"Program compiled with 'register' attribute\012\000"
+ 1517      72616D20 
+ 1517      636F6D70 
+ 1517      696C6564 
+ 1517      20776974 
+ 1518              	.LC6:
+ 1519 008c 50726F67 		.ascii	"Program compiled without 'register' attribute\012\000"
+ 1519      72616D20 
+ 1519      636F6D70 
+ 1519      696C6564 
+ 1519      20776974 
+ 1520 00bb 00       		.space	1
+ 1521              	.LC7:
+ 1522 00bc 45786563 		.ascii	"Execution starts, %d runs through Dhrystone\012\000"
+ 1522      7574696F 
+ 1522      6E207374 
+ 1522      61727473 
+ 1522      2C202564 
+ 1523 00e9 000000   		.space	3
+ 1524              	.LC10:
+ 1525 00ec 45786563 		.ascii	"Execution ends\012\000"
+ 1525      7574696F 
+ 1525      6E20656E 
+ 1525      64730A00 
+ 1526              	.LC11:
+ 1527 00fc 46696E61 		.ascii	"Final values of the variables used in the benchmark"
+ 1527      6C207661 
+ 1527      6C756573 
+ 1527      206F6620 
+ 1527      74686520 
+ 1528 012f 3A0A00   		.ascii	":\012\000"
+ 1529 0132 0000     		.space	2
+ 1530              	.LC12:
+ 1531 0134 496E745F 		.ascii	"Int_Glob:            %d\012\000"
+ 1531      476C6F62 
+ 1531      3A202020 
+ 1531      20202020 
+ 1531      20202020 
+ 1532 014d 000000   		.space	3
+ 1533              	.LC13:
+ 1534 0150 20202020 		.ascii	"        should be:   %d\012\000"
+ 1534      20202020 
+ 1534      73686F75 
+ 1534      6C642062 
+ 1534      653A2020 
+ 1535 0169 000000   		.space	3
+ 1536              	.LC14:
+ 1537 016c 426F6F6C 		.ascii	"Bool_Glob:           %d\012\000"
+ 1537      5F476C6F 
+ 1537      623A2020 
+ 1537      20202020 
+ 1537      20202020 
+ 1538 0185 000000   		.space	3
+ 1539              	.LC15:
+ 1540 0188 43685F31 		.ascii	"Ch_1_Glob:           %c\012\000"
+ 1540      5F476C6F 
+ 1540      623A2020 
+ 1540      20202020 
+ 1540      20202020 
+ 1541 01a1 000000   		.space	3
+ 1542              	.LC16:
+ 1543 01a4 20202020 		.ascii	"        should be:   %c\012\000"
+ 1543      20202020 
+ 1543      73686F75 
+ 1543      6C642062 
+ 1543      653A2020 
+ 1544 01bd 000000   		.space	3
+ 1545              	.LC17:
+ 1546 01c0 43685F32 		.ascii	"Ch_2_Glob:           %c\012\000"
+ 1546      5F476C6F 
+ 1546      623A2020 
+ 1546      20202020 
+ 1546      20202020 
+ 1547 01d9 000000   		.space	3
+ 1548              	.LC18:
+ 1549 01dc 4172725F 		.ascii	"Arr_1_Glob[8]:       %d\012\000"
+ 1549      315F476C 
+ 1549      6F625B38 
+ 1549      5D3A2020 
+ 1549      20202020 
+ 1550 01f5 000000   		.space	3
+ 1551              	.LC19:
+ 1552 01f8 4172725F 		.ascii	"Arr_2_Glob[8][7]:    %d\012\000"
+ 1552      325F476C 
+ 1552      6F625B38 
+ 1552      5D5B375D 
+ 1552      3A202020 
+ 1553 0211 000000   		.space	3
+ 1554              	.LC20:
+ 1555 0214 20202020 		.ascii	"        should be:   Number_Of_Runs + 10\012\000"
+ 1555      20202020 
+ 1555      73686F75 
+ 1555      6C642062 
+ 1555      653A2020 
+ 1556 023e 0000     		.space	2
+ 1557              	.LC21:
+ 1558 0240 5074725F 		.ascii	"Ptr_Glob->\012\000"
+ 1558      476C6F62 
+ 1558      2D3E0A00 
+ 1559              	.LC22:
+ 1560 024c 20205074 		.ascii	"  Ptr_Comp:          %d\012\000"
+ 1560      725F436F 
+ 1560      6D703A20 
+ 1560      20202020 
+ 1560      20202020 
+ 1561 0265 000000   		.space	3
+ 1562              	.LC23:
+ 1563 0268 20202020 		.ascii	"        should be:   (implementation-dependent)\012"
+ 1563      20202020 
+ 1563      73686F75 
+ 1563      6C642062 
+ 1563      653A2020 
+ 1564 0298 00       		.ascii	"\000"
+ 1565 0299 000000   		.space	3
+ 1566              	.LC24:
+ 1567 029c 20204469 		.ascii	"  Discr:             %d\012\000"
+ 1567      7363723A 
+ 1567      20202020 
+ 1567      20202020 
+ 1567      20202020 
+ 1568 02b5 000000   		.space	3
+ 1569              	.LC25:
+ 1570 02b8 2020456E 		.ascii	"  Enum_Comp:         %d\012\000"
+ 1570      756D5F43 
+ 1570      6F6D703A 
+ 1570      20202020 
+ 1570      20202020 
+ 1571 02d1 000000   		.space	3
+ 1572              	.LC26:
+ 1573 02d4 2020496E 		.ascii	"  Int_Comp:          %d\012\000"
+ 1573      745F436F 
+ 1573      6D703A20 
+ 1573      20202020 
+ 1573      20202020 
+ 1574 02ed 000000   		.space	3
+ 1575              	.LC27:
+ 1576 02f0 20205374 		.ascii	"  Str_Comp:          %s\012\000"
+ 1576      725F436F 
+ 1576      6D703A20 
+ 1576      20202020 
+ 1576      20202020 
+ 1577 0309 000000   		.space	3
+ 1578              	.LC28:
+ 1579 030c 20202020 		.ascii	"        should be:   DHRYSTONE PROGRAM, SOME STRING"
+ 1579      20202020 
+ 1579      73686F75 
+ 1579      6C642062 
+ 1579      653A2020 
+ 1580 033f 0A00     		.ascii	"\012\000"
+ 1581 0341 000000   		.space	3
+ 1582              	.LC29:
+ 1583 0344 4E657874 		.ascii	"Next_Ptr_Glob->\012\000"
+ 1583      5F507472 
+ 1583      5F476C6F 
+ 1583      622D3E0A 
+ 1583      00
+ 1584 0355 000000   		.space	3
+ 1585              	.LC30:
+ 1586 0358 20202020 		.ascii	"        should be:   (implementation-dependent), sa"
+ 1586      20202020 
+ 1586      73686F75 
+ 1586      6C642062 
+ 1586      653A2020 
+ 1587 038b 6D652061 		.ascii	"me as above\012\000"
+ 1587      73206162 
+ 1587      6F76650A 
+ 1587      00
+ 1588              	.LC31:
+ 1589 0398 496E745F 		.ascii	"Int_1_Loc:           %d\012\000"
+ 1589      315F4C6F 
+ 1589      633A2020 
+ 1589      20202020 
+ 1589      20202020 
+ 1590 03b1 000000   		.space	3
+ 1591              	.LC32:
+ 1592 03b4 496E745F 		.ascii	"Int_2_Loc:           %d\012\000"
+ 1592      325F4C6F 
+ 1592      633A2020 
+ 1592      20202020 
+ 1592      20202020 
+ 1593 03cd 000000   		.space	3
+ 1594              	.LC33:
+ 1595 03d0 496E745F 		.ascii	"Int_3_Loc:           %d\012\000"
+ 1595      335F4C6F 
+ 1595      633A2020 
+ 1595      20202020 
+ 1595      20202020 
+ 1596 03e9 000000   		.space	3
+ 1597              	.LC34:
+ 1598 03ec 456E756D 		.ascii	"Enum_Loc:            %d\012\000"
+ 1598      5F4C6F63 
+ 1598      3A202020 
+ 1598      20202020 
+ 1598      20202020 
+ 1599 0405 000000   		.space	3
+ 1600              	.LC35:
+ 1601 0408 5374725F 		.ascii	"Str_1_Loc:           %s\012\000"
+ 1601      315F4C6F 
+ 1601      633A2020 
+ 1601      20202020 
+ 1601      20202020 
+ 1602 0421 000000   		.space	3
+ 1603              	.LC36:
+ 1604 0424 20202020 		.ascii	"        should be:   DHRYSTONE PROGRAM, 1'ST STRING"
+ 1604      20202020 
+ 1604      73686F75 
+ 1604      6C642062 
+ 1604      653A2020 
+ 1605 0457 0A00     		.ascii	"\012\000"
+ 1606 0459 000000   		.space	3
+ 1607              	.LC37:
+ 1608 045c 5374725F 		.ascii	"Str_2_Loc:           %s\012\000"
+ 1608      325F4C6F 
+ 1608      633A2020 
+ 1608      20202020 
+ 1608      20202020 
+ 1609 0475 000000   		.space	3
+ 1610              	.LC38:
+ 1611 0478 20202020 		.ascii	"        should be:   DHRYSTONE PROGRAM, 2'ND STRING"
+ 1611      20202020 
+ 1611      73686F75 
+ 1611      6C642062 
+ 1611      653A2020 
+ 1612 04ab 0A00     		.ascii	"\012\000"
+ 1613 04ad 000000   		.space	3
+ 1614              	.LC39:
+ 1615 04b0 55736572 		.ascii	"User time: %d\012\000"
+ 1615      2074696D 
+ 1615      653A2025 
+ 1615      640A00
+ 1616 04bf 00       		.space	1
+ 1617              	.LC40:
+ 1618 04c0 4D656173 		.ascii	"Measured time too small to obtain meaningful result"
+ 1618      75726564 
+ 1618      2074696D 
+ 1618      6520746F 
+ 1618      6F20736D 
+ 1619 04f3 730A00   		.ascii	"s\012\000"
+ 1620 04f6 0000     		.space	2
+ 1621              	.LC41:
+ 1622 04f8 506C6561 		.ascii	"Please increase number of runs\012\000"
+ 1622      73652069 
+ 1622      6E637265 
+ 1622      61736520 
+ 1622      6E756D62 
+ 1623              	.LC42:
+ 1624 0518 4D696372 		.ascii	"Microseconds for one run through Dhrystone: \000"
+ 1624      6F736563 
+ 1624      6F6E6473 
+ 1624      20666F72 
+ 1624      206F6E65 
+ 1625 0545 000000   		.space	3
+ 1626              	.LC43:
+ 1627 0548 2564200A 		.ascii	"%d \012\000"
+ 1627      00
+ 1628 054d 000000   		.space	3
+ 1629              	.LC44:
+ 1630 0550 44687279 		.ascii	"Dhrystones per Second:                      \000"
+ 1630      73746F6E 
+ 1630      65732070 
+ 1630      65722053 
+ 1630      65636F6E 
+ 1631 057d 000000   		.space	3
+ 1632              	.LC45:
+ 1633 0580 56415820 		.ascii	"VAX MIPS rating * 1000 = %d \012\000"
+ 1633      4D495053 
+ 1633      20726174 
+ 1633      696E6720 
+ 1633      2A203130 
+ 1634 059e 0000     		.space	2
+ 1635              	.LC2:
+ 1636 05a0 44485259 		.ascii	"DHRYSTONE PROGRAM, 1'ST STRING\000"
+ 1636      53544F4E 
+ 1636      45205052 
+ 1636      4F475241 
+ 1636      4D2C2031 
+ 1637 05bf 00       		.space	1
+ 1638              	.LC8:
+ 1639 05c0 44485259 		.ascii	"DHRYSTONE PROGRAM, 2'ND STRING\000"
+ 1639      53544F4E 
+ 1639      45205052 
+ 1639      4F475241 
+ 1639      4D2C2032 
+ 1640 05df 00       		.space	1
+ 1641              	.LC9:
+ 1642 05e0 44485259 		.ascii	"DHRYSTONE PROGRAM, 3'RD STRING\000"
+ 1642      53544F4E 
+ 1642      45205052 
+ 1642      4F475241 
+ 1642      4D2C2033 
+ 1643 05ff 00       		.bss
+ 1644              		.align	2
+ 1645              		.set	.LANCHOR0,. + 0
+ 1648              	Reg:
+ 1649 0000 00000000 		.space	4
+ 1650              		.text
+ 1651              	.Letext0:
+ 1652              		.file 2 "/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/arm-none-eabi/include/sys/times.h"
+ 1653              		.file 3 "/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/arm-none-eabi/include/sys/types.h"
+ 1654              		.file 4 "dhry.h"
+ 1655              		.file 5 "/usr/local/arm/gcc-arm-none-eabi-4_8-2014q3/lib/gcc/arm-none-eabi/4.8.4/include/stdarg.h"
+ 1656              		.file 6 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 dhry_1.c
+     /tmp/ccXzulNg.s:16     .text:00000000 $a
+     /tmp/ccXzulNg.s:18     .text:00000000 _diag_write_char
+     /tmp/ccXzulNg.s:69     .text:00000038 small_printf
+     /tmp/ccXzulNg.s:379    .text:00000244 $d
+     /tmp/ccXzulNg.s:388    .text:0000024c $a
+     /tmp/ccXzulNg.s:391    .text:0000024c Proc_2
+     /tmp/ccXzulNg.s:427    .text:00000278 $d
+                            *COM*:00000001 Ch_1_Glob
+                            *COM*:00000004 Int_Glob
+     /tmp/ccXzulNg.s:432    .text:00000280 $a
+     /tmp/ccXzulNg.s:435    .text:00000280 Proc_3
+     /tmp/ccXzulNg.s:470    .text:000002b8 $d
+                            *COM*:00000004 Ptr_Glob
+     /tmp/ccXzulNg.s:475    .text:000002c0 $a
+     /tmp/ccXzulNg.s:478    .text:000002c0 Proc_1
+     /tmp/ccXzulNg.s:580    .text:00000378 $d
+     /tmp/ccXzulNg.s:587    .text.startup:00000000 $a
+     /tmp/ccXzulNg.s:590    .text.startup:00000000 main
+     /tmp/ccXzulNg.s:1332   .text.startup:00000668 $d
+                            *COM*:00000004 Next_Ptr_Glob
+                            *COM*:00002710 Arr_2_Glob
+                            *COM*:00000008 Begin_Time
+                            *COM*:00000004 Bool_Glob
+                            *COM*:00000001 Ch_2_Glob
+                            *COM*:000000c8 Arr_1_Glob
+                            *COM*:00000008 End_Time
+                            *COM*:00000008 User_Time
+                            *COM*:00000008 Microseconds
+                            *COM*:00000008 Dhrystones_Per_Second
+                            *COM*:00000008 Vax_Mips
+     /tmp/ccXzulNg.s:1401   .text:0000037c $a
+     /tmp/ccXzulNg.s:1404   .text:0000037c Proc_4
+     /tmp/ccXzulNg.s:1440   .text:000003ac $d
+     /tmp/ccXzulNg.s:1446   .text:000003b8 $a
+     /tmp/ccXzulNg.s:1449   .text:000003b8 Proc_5
+     /tmp/ccXzulNg.s:1474   .text:000003d4 $d
+     /tmp/ccXzulNg.s:1501   .data:00000000 Number_Of_Runs
+                            *COM*:00000010 time_info
+     /tmp/ccXzulNg.s:1648   .bss:00000000 Reg
+     /tmp/ccXzulNg.s:1497   .data:00000000 $d
+     /tmp/ccXzulNg.s:1504   .rodata.str1.4:00000000 $d
+     /tmp/ccXzulNg.s:1644   .bss:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+outbyte
+Proc_7
+Proc_6
+__aeabi_idiv
+__aeabi_ldivmod
+malloc
+_readMicroseconds
+Func_2
+Proc_8
+Func_1

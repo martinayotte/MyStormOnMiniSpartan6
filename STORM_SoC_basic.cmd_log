@@ -1,0 +1,6 @@
+xst -intstyle ise -ifn "/home/martin/git-work/MyStormOnMiniSpartan6/STORM_SoC_basic.xst" -ofn "/home/martin/git-work/MyStormOnMiniSpartan6/STORM_SoC_basic.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc STORM_on_MiniSpartan6.ucf -p xc6slx9-ftg256-3 STORM_SoC_basic.ngc STORM_SoC_basic.ngd  
+map -intstyle ise -p xc6slx9-ftg256-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o STORM_SoC_basic_map.ncd STORM_SoC_basic.ngd STORM_SoC_basic.pcf 
+par -w -intstyle ise -ol high -mt off STORM_SoC_basic_map.ncd STORM_SoC_basic.ncd STORM_SoC_basic.pcf 
+trce -intstyle ise -v 3 -s 3 -n 3 -fastpaths -xml STORM_SoC_basic.twx STORM_SoC_basic.ncd -o STORM_SoC_basic.twr STORM_SoC_basic.pcf -ucf STORM_on_MiniSpartan6.ucf 
+bitgen -intstyle ise -f STORM_SoC_basic.ut STORM_SoC_basic.ncd 

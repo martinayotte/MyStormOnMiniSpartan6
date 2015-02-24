@@ -1,0 +1,563 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.file	"dhry_2.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.align	2
+  17              		.global	Proc_6
+  19              	Proc_6:
+  20              	.LFB0:
+  21              		.file 1 "dhry_2.c"
+   1:dhry_2.c      **** /*
+   2:dhry_2.c      ****  ****************************************************************************
+   3:dhry_2.c      ****  *
+   4:dhry_2.c      ****  *                   "DHRYSTONE" Benchmark Program
+   5:dhry_2.c      ****  *                   -----------------------------
+   6:dhry_2.c      ****  *                                                                            
+   7:dhry_2.c      ****  *  Version:    C, Version 2.1
+   8:dhry_2.c      ****  *                                                                            
+   9:dhry_2.c      ****  *  File:       dhry_2.c (part 3 of 3)
+  10:dhry_2.c      ****  *
+  11:dhry_2.c      ****  *  Date:       May 25, 1988
+  12:dhry_2.c      ****  *
+  13:dhry_2.c      ****  *  Author:     Reinhold P. Weicker
+  14:dhry_2.c      ****  *
+  15:dhry_2.c      ****  ****************************************************************************
+  16:dhry_2.c      ****  */
+  17:dhry_2.c      **** 
+  18:dhry_2.c      **** #include "dhry.h"
+  19:dhry_2.c      **** 
+  20:dhry_2.c      **** #ifndef REG
+  21:dhry_2.c      **** #define REG
+  22:dhry_2.c      ****         /* REG becomes defined as empty */
+  23:dhry_2.c      ****         /* i.e. no register variables   */
+  24:dhry_2.c      **** #endif
+  25:dhry_2.c      **** 
+  26:dhry_2.c      **** extern  int     Int_Glob;
+  27:dhry_2.c      **** extern  char    Ch_1_Glob;
+  28:dhry_2.c      **** 
+  29:dhry_2.c      **** 
+  30:dhry_2.c      **** Proc_6 (Enum_Val_Par, Enum_Ref_Par)
+  31:dhry_2.c      **** /*********************************/
+  32:dhry_2.c      ****     /* executed once */
+  33:dhry_2.c      ****     /* Enum_Val_Par == Ident_3, Enum_Ref_Par becomes Ident_2 */
+  34:dhry_2.c      **** 
+  35:dhry_2.c      **** Enumeration  Enum_Val_Par;
+  36:dhry_2.c      **** Enumeration *Enum_Ref_Par;
+  37:dhry_2.c      **** {
+  22              		.loc 1 37 0
+  23              		.cfi_startproc
+  24              		@ Function supports interworking.
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28              	.LVL0:
+  29              		.loc 1 37 0
+  30 0000 E20000FF 		and	r0, r0, #255
+  31              	.LVL1:
+  32              	.LBB8:
+  33              	.LBB9:
+  34              	.LBB10:
+  38:dhry_2.c      ****   *Enum_Ref_Par = Enum_Val_Par;
+  39:dhry_2.c      ****   if (! Func_3 (Enum_Val_Par))
+  40:dhry_2.c      ****     /* then, not executed */
+  41:dhry_2.c      ****     *Enum_Ref_Par = Ident_4;
+  42:dhry_2.c      ****   switch (Enum_Val_Par)
+  43:dhry_2.c      ****   {
+  44:dhry_2.c      ****     case Ident_1: 
+  45:dhry_2.c      ****       *Enum_Ref_Par = Ident_1;
+  46:dhry_2.c      ****       break;
+  47:dhry_2.c      ****     case Ident_2: 
+  48:dhry_2.c      ****       if (Int_Glob > 100)
+  49:dhry_2.c      ****         /* then */
+  50:dhry_2.c      ****       *Enum_Ref_Par = Ident_1;
+  51:dhry_2.c      ****       else *Enum_Ref_Par = Ident_4;
+  52:dhry_2.c      ****       break;
+  53:dhry_2.c      ****     case Ident_3: /* executed */
+  54:dhry_2.c      ****       *Enum_Ref_Par = Ident_2;
+  55:dhry_2.c      ****       break;
+  56:dhry_2.c      ****     case Ident_4: break;
+  57:dhry_2.c      ****     case Ident_5: 
+  58:dhry_2.c      ****       *Enum_Ref_Par = Ident_3;
+  59:dhry_2.c      ****       break;
+  60:dhry_2.c      ****   } /* switch */
+  61:dhry_2.c      **** } /* Proc_6 */
+  62:dhry_2.c      **** 
+  63:dhry_2.c      **** 
+  64:dhry_2.c      **** Proc_7 (Int_1_Par_Val, Int_2_Par_Val, Int_Par_Ref)
+  65:dhry_2.c      **** /**********************************************/
+  66:dhry_2.c      ****     /* executed three times                                      */ 
+  67:dhry_2.c      ****     /* first call:      Int_1_Par_Val == 2, Int_2_Par_Val == 3,  */
+  68:dhry_2.c      ****     /*                  Int_Par_Ref becomes 7                    */
+  69:dhry_2.c      ****     /* second call:     Int_1_Par_Val == 10, Int_2_Par_Val == 5, */
+  70:dhry_2.c      ****     /*                  Int_Par_Ref becomes 17                   */
+  71:dhry_2.c      ****     /* third call:      Int_1_Par_Val == 6, Int_2_Par_Val == 10, */
+  72:dhry_2.c      ****     /*                  Int_Par_Ref becomes 18                   */
+  73:dhry_2.c      **** One_Fifty       Int_1_Par_Val;
+  74:dhry_2.c      **** One_Fifty       Int_2_Par_Val;
+  75:dhry_2.c      **** One_Fifty      *Int_Par_Ref;
+  76:dhry_2.c      **** {
+  77:dhry_2.c      ****   One_Fifty Int_Loc;
+  78:dhry_2.c      **** 
+  79:dhry_2.c      ****   Int_Loc = Int_1_Par_Val + 2;
+  80:dhry_2.c      ****   *Int_Par_Ref = Int_2_Par_Val + Int_Loc;
+  81:dhry_2.c      **** } /* Proc_7 */
+  82:dhry_2.c      **** 
+  83:dhry_2.c      **** 
+  84:dhry_2.c      **** Proc_8 (Arr_1_Par_Ref, Arr_2_Par_Ref, Int_1_Par_Val, Int_2_Par_Val)
+  85:dhry_2.c      **** /*********************************************************************/
+  86:dhry_2.c      ****     /* executed once      */
+  87:dhry_2.c      ****     /* Int_Par_Val_1 == 3 */
+  88:dhry_2.c      ****     /* Int_Par_Val_2 == 7 */
+  89:dhry_2.c      **** Arr_1_Dim       Arr_1_Par_Ref;
+  90:dhry_2.c      **** Arr_2_Dim       Arr_2_Par_Ref;
+  91:dhry_2.c      **** int             Int_1_Par_Val;
+  92:dhry_2.c      **** int             Int_2_Par_Val;
+  93:dhry_2.c      **** {
+  94:dhry_2.c      ****   REG One_Fifty Int_Index;
+  95:dhry_2.c      ****   REG One_Fifty Int_Loc;
+  96:dhry_2.c      **** 
+  97:dhry_2.c      ****   Int_Loc = Int_1_Par_Val + 5;
+  98:dhry_2.c      ****   Arr_1_Par_Ref [Int_Loc] = Int_2_Par_Val;
+  99:dhry_2.c      ****   Arr_1_Par_Ref [Int_Loc+1] = Arr_1_Par_Ref [Int_Loc];
+ 100:dhry_2.c      ****   Arr_1_Par_Ref [Int_Loc+30] = Int_Loc;
+ 101:dhry_2.c      ****   for (Int_Index = Int_Loc; Int_Index <= Int_Loc+1; ++Int_Index)
+ 102:dhry_2.c      ****     Arr_2_Par_Ref [Int_Loc] [Int_Index] = Int_Loc;
+ 103:dhry_2.c      ****   Arr_2_Par_Ref [Int_Loc] [Int_Loc-1] += 1;
+ 104:dhry_2.c      ****   Arr_2_Par_Ref [Int_Loc+20] [Int_Loc] = Arr_1_Par_Ref [Int_Loc];
+ 105:dhry_2.c      ****   Int_Glob = 5;
+ 106:dhry_2.c      **** } /* Proc_8 */
+ 107:dhry_2.c      **** 
+ 108:dhry_2.c      **** 
+ 109:dhry_2.c      **** Enumeration Func_1 (Ch_1_Par_Val, Ch_2_Par_Val)
+ 110:dhry_2.c      **** /*************************************************/
+ 111:dhry_2.c      ****     /* executed three times                                         */
+ 112:dhry_2.c      ****     /* first call:      Ch_1_Par_Val == 'H', Ch_2_Par_Val == 'R'    */
+ 113:dhry_2.c      ****     /* second call:     Ch_1_Par_Val == 'A', Ch_2_Par_Val == 'C'    */
+ 114:dhry_2.c      ****     /* third call:      Ch_1_Par_Val == 'B', Ch_2_Par_Val == 'C'    */
+ 115:dhry_2.c      **** 
+ 116:dhry_2.c      **** Capital_Letter   Ch_1_Par_Val;
+ 117:dhry_2.c      **** Capital_Letter   Ch_2_Par_Val;
+ 118:dhry_2.c      **** {
+ 119:dhry_2.c      ****   Capital_Letter        Ch_1_Loc;
+ 120:dhry_2.c      ****   Capital_Letter        Ch_2_Loc;
+ 121:dhry_2.c      **** 
+ 122:dhry_2.c      ****   Ch_1_Loc = Ch_1_Par_Val;
+ 123:dhry_2.c      ****   Ch_2_Loc = Ch_1_Loc;
+ 124:dhry_2.c      ****   if (Ch_2_Loc != Ch_2_Par_Val)
+ 125:dhry_2.c      ****     /* then, executed */
+ 126:dhry_2.c      ****     return (Ident_1);
+ 127:dhry_2.c      ****   else  /* not executed */
+ 128:dhry_2.c      ****   {
+ 129:dhry_2.c      ****     Ch_1_Glob = Ch_1_Loc;
+ 130:dhry_2.c      ****     return (Ident_2);
+ 131:dhry_2.c      ****    }
+ 132:dhry_2.c      **** } /* Func_1 */
+ 133:dhry_2.c      **** 
+ 134:dhry_2.c      **** 
+ 135:dhry_2.c      **** Boolean Func_2 (Str_1_Par_Ref, Str_2_Par_Ref)
+ 136:dhry_2.c      **** /*************************************************/
+ 137:dhry_2.c      ****     /* executed once */
+ 138:dhry_2.c      ****     /* Str_1_Par_Ref == "DHRYSTONE PROGRAM, 1'ST STRING" */
+ 139:dhry_2.c      ****     /* Str_2_Par_Ref == "DHRYSTONE PROGRAM, 2'ND STRING" */
+ 140:dhry_2.c      **** 
+ 141:dhry_2.c      **** Str_30  Str_1_Par_Ref;
+ 142:dhry_2.c      **** Str_30  Str_2_Par_Ref;
+ 143:dhry_2.c      **** {
+ 144:dhry_2.c      ****   REG One_Thirty        Int_Loc;
+ 145:dhry_2.c      ****       Capital_Letter    Ch_Loc;
+ 146:dhry_2.c      **** 
+ 147:dhry_2.c      ****   Int_Loc = 2;
+ 148:dhry_2.c      ****   while (Int_Loc <= 2) /* loop body executed once */
+ 149:dhry_2.c      ****     if (Func_1 (Str_1_Par_Ref[Int_Loc],
+ 150:dhry_2.c      ****                 Str_2_Par_Ref[Int_Loc+1]) == Ident_1)
+ 151:dhry_2.c      ****       /* then, executed */
+ 152:dhry_2.c      ****     {
+ 153:dhry_2.c      ****       Ch_Loc = 'A';
+ 154:dhry_2.c      ****       Int_Loc += 1;
+ 155:dhry_2.c      ****     } /* if, while */
+ 156:dhry_2.c      ****   if (Ch_Loc >= 'W' && Ch_Loc < 'Z')
+ 157:dhry_2.c      ****     /* then, not executed */
+ 158:dhry_2.c      ****     Int_Loc = 7;
+ 159:dhry_2.c      ****   if (Ch_Loc == 'R')
+ 160:dhry_2.c      ****     /* then, not executed */
+ 161:dhry_2.c      ****     return (true);
+ 162:dhry_2.c      ****   else /* executed */
+ 163:dhry_2.c      ****   {
+ 164:dhry_2.c      ****     if (strcmp (Str_1_Par_Ref, Str_2_Par_Ref) > 0)
+ 165:dhry_2.c      ****       /* then, not executed */
+ 166:dhry_2.c      ****     {
+ 167:dhry_2.c      ****       Int_Loc += 7;
+ 168:dhry_2.c      ****       Int_Glob = Int_Loc;
+ 169:dhry_2.c      ****       return (true);
+ 170:dhry_2.c      ****     }
+ 171:dhry_2.c      ****     else /* executed */
+ 172:dhry_2.c      ****       return (false);
+ 173:dhry_2.c      ****   } /* if Ch_Loc */
+ 174:dhry_2.c      **** } /* Func_2 */
+ 175:dhry_2.c      **** 
+ 176:dhry_2.c      **** 
+ 177:dhry_2.c      **** Boolean Func_3 (Enum_Par_Val)
+ 178:dhry_2.c      **** /***************************/
+ 179:dhry_2.c      ****     /* executed once        */
+ 180:dhry_2.c      ****     /* Enum_Par_Val == Ident_3 */
+ 181:dhry_2.c      **** Enumeration Enum_Par_Val;
+ 182:dhry_2.c      **** {
+ 183:dhry_2.c      ****   Enumeration Enum_Loc;
+ 184:dhry_2.c      **** 
+ 185:dhry_2.c      ****   Enum_Loc = Enum_Par_Val;
+ 186:dhry_2.c      ****   if (Enum_Loc == Ident_3)
+  35              		.loc 1 186 0
+  36 0004 E3500002 		cmp	r0, #2
+  37 0008 0A000010 		beq	.L2
+  38 000c E3A03003 		mov	r3, #3
+  39              	.LBE10:
+  40              	.LBE9:
+  41              	.LBE8:
+  42:dhry_2.c      ****   switch (Enum_Val_Par)
+  42              		.loc 1 42 0
+  43 0010 E3500001 		cmp	r0, #1
+  44 0014 E5C13000 		strb	r3, [r1]
+  45 0018 0A000005 		beq	.L4
+  46 001c 3A000008 		bcc	.L8
+  47 0020 E3500004 		cmp	r0, #4
+  48 0024 1A00000C 		bne	.L10
+  58:dhry_2.c      ****       *Enum_Ref_Par = Ident_3;
+  49              		.loc 1 58 0
+  50 0028 E3A03002 		mov	r3, #2
+  51 002c E5C13000 		strb	r3, [r1]
+  52              	.LVL2:
+  61:dhry_2.c      **** } /* Proc_6 */
+  53              		.loc 1 61 0
+  54 0030 E12FFF1E 		bx	lr
+  55              	.LVL3:
+  56              	.L4:
+  48:dhry_2.c      ****       if (Int_Glob > 100)
+  57              		.loc 1 48 0
+  58 0034 E59F3024 		ldr	r3, .L11
+  59 0038 E5933000 		ldr	r3, [r3]
+  60 003c E3530064 		cmp	r3, #100
+  61 0040 D12FFF1E 		bxle	lr
+  62              	.L8:
+  50:dhry_2.c      ****       *Enum_Ref_Par = Ident_1;
+  63              		.loc 1 50 0
+  64 0044 E3A03000 		mov	r3, #0
+  65 0048 E5C13000 		strb	r3, [r1]
+  66 004c E12FFF1E 		bx	lr
+  67              	.L2:
+  54:dhry_2.c      ****       *Enum_Ref_Par = Ident_2;
+  68              		.loc 1 54 0
+  69 0050 E3A03001 		mov	r3, #1
+  70 0054 E5C13000 		strb	r3, [r1]
+  55:dhry_2.c      ****       break;
+  71              		.loc 1 55 0
+  72 0058 E12FFF1E 		bx	lr
+  73              	.L10:
+  74 005c E12FFF1E 		bx	lr
+  75              	.L12:
+  76              		.align	2
+  77              	.L11:
+  78 0060 00000000 		.word	Int_Glob
+  79              		.cfi_endproc
+  80              	.LFE0:
+  82              		.align	2
+  83              		.global	Proc_7
+  85              	Proc_7:
+  86              	.LFB1:
+  76:dhry_2.c      **** {
+  87              		.loc 1 76 0
+  88              		.cfi_startproc
+  89              		@ Function supports interworking.
+  90              		@ args = 0, pretend = 0, frame = 0
+  91              		@ frame_needed = 0, uses_anonymous_args = 0
+  92              		@ link register save eliminated.
+  93              	.LVL4:
+  79:dhry_2.c      ****   Int_Loc = Int_1_Par_Val + 2;
+  94              		.loc 1 79 0
+  95 0064 E2800002 		add	r0, r0, #2
+  96              	.LVL5:
+  80:dhry_2.c      ****   *Int_Par_Ref = Int_2_Par_Val + Int_Loc;
+  97              		.loc 1 80 0
+  98 0068 E0811000 		add	r1, r1, r0
+  99              	.LVL6:
+ 100 006c E5821000 		str	r1, [r2]
+ 101              	.LVL7:
+  81:dhry_2.c      **** } /* Proc_7 */
+ 102              		.loc 1 81 0
+ 103 0070 E12FFF1E 		bx	lr
+ 104              		.cfi_endproc
+ 105              	.LFE1:
+ 107              		.align	2
+ 108              		.global	Proc_8
+ 110              	Proc_8:
+ 111              	.LFB2:
+  93:dhry_2.c      **** {
+ 112              		.loc 1 93 0
+ 113              		.cfi_startproc
+ 114              		@ Function supports interworking.
+ 115              		@ args = 0, pretend = 0, frame = 0
+ 116              		@ frame_needed = 0, uses_anonymous_args = 0
+ 117              		@ link register save eliminated.
+ 118              	.LVL8:
+  97:dhry_2.c      ****   Int_Loc = Int_1_Par_Val + 5;
+ 119              		.loc 1 97 0
+ 120 0074 E282C005 		add	ip, r2, #5
+ 121              	.LVL9:
+  93:dhry_2.c      **** {
+ 122              		.loc 1 93 0
+ 123 0078 E92D0070 		stmfd	sp!, {r4, r5, r6}
+ 124              	.LCFI0:
+ 125              		.cfi_def_cfa_offset 12
+ 126              		.cfi_offset 4, -12
+ 127              		.cfi_offset 5, -8
+ 128              		.cfi_offset 6, -4
+  98:dhry_2.c      ****   Arr_1_Par_Ref [Int_Loc] = Int_2_Par_Val;
+ 129              		.loc 1 98 0
+ 130 007c E1A0510C 		mov	r5, ip, asl #2
+ 131 0080 E085600C 		add	r6, r5, ip
+ 132 0084 E0866106 		add	r6, r6, r6, asl #2
+ 133 0088 E0811186 		add	r1, r1, r6, asl #3
+ 134              	.LVL10:
+ 135 008c E0805005 		add	r5, r0, r5
+ 102:dhry_2.c      ****     Arr_2_Par_Ref [Int_Loc] [Int_Index] = Int_Loc;
+ 136              		.loc 1 102 0
+ 137 0090 E2826006 		add	r6, r2, #6
+  98:dhry_2.c      ****   Arr_1_Par_Ref [Int_Loc] = Int_2_Par_Val;
+ 138              		.loc 1 98 0
+ 139 0094 E780310C 		str	r3, [r0, ip, asl #2]
+  99:dhry_2.c      ****   Arr_1_Par_Ref [Int_Loc+1] = Arr_1_Par_Ref [Int_Loc];
+ 140              		.loc 1 99 0
+ 141 0098 E5853004 		str	r3, [r5, #4]
+ 100:dhry_2.c      ****   Arr_1_Par_Ref [Int_Loc+30] = Int_Loc;
+ 142              		.loc 1 100 0
+ 143 009c E585C078 		str	ip, [r5, #120]
+ 144              	.LVL11:
+ 102:dhry_2.c      ****     Arr_2_Par_Ref [Int_Loc] [Int_Index] = Int_Loc;
+ 145              		.loc 1 102 0
+ 146 00a0 E781C10C 		str	ip, [r1, ip, asl #2]
+ 147              	.LVL12:
+ 148 00a4 E781C106 		str	ip, [r1, r6, asl #2]
+ 149              	.LVL13:
+ 103:dhry_2.c      ****   Arr_2_Par_Ref [Int_Loc] [Int_Loc-1] += 1;
+ 150              		.loc 1 103 0
+ 151 00a8 E2822004 		add	r2, r2, #4
+ 152              	.LVL14:
+ 153 00ac E7913102 		ldr	r3, [r1, r2, asl #2]
+ 154              	.LVL15:
+ 155 00b0 E2833001 		add	r3, r3, #1
+ 156 00b4 E7813102 		str	r3, [r1, r2, asl #2]
+  93:dhry_2.c      **** {
+ 157              		.loc 1 93 0
+ 158 00b8 E1A04000 		mov	r4, r0
+ 104:dhry_2.c      ****   Arr_2_Par_Ref [Int_Loc+20] [Int_Loc] = Arr_1_Par_Ref [Int_Loc];
+ 159              		.loc 1 104 0
+ 160 00bc E794410C 		ldr	r4, [r4, ip, asl #2]
+ 161              	.LVL16:
+ 105:dhry_2.c      ****   Int_Glob = 5;
+ 162              		.loc 1 105 0
+ 163 00c0 E59F3014 		ldr	r3, .L15
+ 104:dhry_2.c      ****   Arr_2_Par_Ref [Int_Loc+20] [Int_Loc] = Arr_1_Par_Ref [Int_Loc];
+ 164              		.loc 1 104 0
+ 165 00c4 E2811EFA 		add	r1, r1, #4000
+ 105:dhry_2.c      ****   Int_Glob = 5;
+ 166              		.loc 1 105 0
+ 167 00c8 E3A02005 		mov	r2, #5
+ 168              	.LVL17:
+ 104:dhry_2.c      ****   Arr_2_Par_Ref [Int_Loc+20] [Int_Loc] = Arr_1_Par_Ref [Int_Loc];
+ 169              		.loc 1 104 0
+ 170 00cc E781410C 		str	r4, [r1, ip, asl #2]
+ 105:dhry_2.c      ****   Int_Glob = 5;
+ 171              		.loc 1 105 0
+ 172 00d0 E5832000 		str	r2, [r3]
+ 106:dhry_2.c      **** } /* Proc_8 */
+ 173              		.loc 1 106 0
+ 174 00d4 E8BD0070 		ldmfd	sp!, {r4, r5, r6}
+ 175              	.LVL18:
+ 176 00d8 E12FFF1E 		bx	lr
+ 177              	.L16:
+ 178              		.align	2
+ 179              	.L15:
+ 180 00dc 00000000 		.word	Int_Glob
+ 181              		.cfi_endproc
+ 182              	.LFE2:
+ 184              		.align	2
+ 185              		.global	Func_1
+ 187              	Func_1:
+ 188              	.LFB3:
+ 118:dhry_2.c      **** {
+ 189              		.loc 1 118 0
+ 190              		.cfi_startproc
+ 191              		@ Function supports interworking.
+ 192              		@ args = 0, pretend = 0, frame = 0
+ 193              		@ frame_needed = 0, uses_anonymous_args = 0
+ 194              		@ link register save eliminated.
+ 195              	.LVL19:
+ 118:dhry_2.c      **** {
+ 196              		.loc 1 118 0
+ 197 00e0 E20030FF 		and	r3, r0, #255
+ 198              	.LVL20:
+ 199 00e4 E20110FF 		and	r1, r1, #255
+ 200              	.LVL21:
+ 124:dhry_2.c      ****   if (Ch_2_Loc != Ch_2_Par_Val)
+ 201              		.loc 1 124 0
+ 202 00e8 E1530001 		cmp	r3, r1
+ 129:dhry_2.c      ****     Ch_1_Glob = Ch_1_Loc;
+ 203              		.loc 1 129 0
+ 204 00ec 059F200C 		ldreq	r2, .L20
+ 130:dhry_2.c      ****     return (Ident_2);
+ 205              		.loc 1 130 0
+ 206 00f0 03A00001 		moveq	r0, #1
+ 207              	.LVL22:
+ 129:dhry_2.c      ****     Ch_1_Glob = Ch_1_Loc;
+ 208              		.loc 1 129 0
+ 209 00f4 05C23000 		streqb	r3, [r2]
+ 126:dhry_2.c      ****     return (Ident_1);
+ 210              		.loc 1 126 0
+ 211 00f8 13A00000 		movne	r0, #0
+ 132:dhry_2.c      **** } /* Func_1 */
+ 212              		.loc 1 132 0
+ 213 00fc E12FFF1E 		bx	lr
+ 214              	.L21:
+ 215              		.align	2
+ 216              	.L20:
+ 217 0100 00000000 		.word	Ch_1_Glob
+ 218              		.cfi_endproc
+ 219              	.LFE3:
+ 221              		.align	2
+ 222              		.global	Func_2
+ 224              	Func_2:
+ 225              	.LFB4:
+ 143:dhry_2.c      **** {
+ 226              		.loc 1 143 0
+ 227              		.cfi_startproc
+ 228              		@ Function supports interworking.
+ 229              		@ args = 0, pretend = 0, frame = 0
+ 230              		@ frame_needed = 0, uses_anonymous_args = 0
+ 231              	.LVL23:
+ 232 0104 E92D4008 		stmfd	sp!, {r3, lr}
+ 233              	.LCFI1:
+ 234              		.cfi_def_cfa_offset 8
+ 235              		.cfi_offset 3, -8
+ 236              		.cfi_offset 14, -4
+ 237              	.LBB11:
+ 238              	.LBB12:
+ 124:dhry_2.c      ****   if (Ch_2_Loc != Ch_2_Par_Val)
+ 239              		.loc 1 124 0
+ 240 0108 E5D12003 		ldrb	r2, [r1, #3]	@ zero_extendqisi2
+ 241 010c E5D0C002 		ldrb	ip, [r0, #2]	@ zero_extendqisi2
+ 242 0110 E59F3040 		ldr	r3, .L30
+ 243 0114 E15C0002 		cmp	ip, r2
+ 244 0118 E5D32000 		ldrb	r2, [r3]	@ zero_extendqisi2
+ 245              	.LVL24:
+ 246 011c 0A000009 		beq	.L27
+ 247 0120 E5C32000 		strb	r2, [r3]
+ 248              	.LVL25:
+ 249              	.LBE12:
+ 250              	.LBE11:
+ 251              	.LBB13:
+ 164:dhry_2.c      ****     if (strcmp (Str_1_Par_Ref, Str_2_Par_Ref) > 0)
+ 252              		.loc 1 164 0
+ 253 0124 EBFFFFFE 		bl	strcmp
+ 254              	.LVL26:
+ 255 0128 E3500000 		cmp	r0, #0
+ 256 012c DA000006 		ble	.L29
+ 257              	.LVL27:
+ 168:dhry_2.c      ****       Int_Glob = Int_Loc;
+ 258              		.loc 1 168 0
+ 259 0130 E59F3024 		ldr	r3, .L30+4
+ 260 0134 E3A0200A 		mov	r2, #10
+ 261 0138 E5832000 		str	r2, [r3]
+ 169:dhry_2.c      ****       return (true);
+ 262              		.loc 1 169 0
+ 263 013c E3A00001 		mov	r0, #1
+ 264              	.LBE13:
+ 174:dhry_2.c      **** } /* Func_2 */
+ 265              		.loc 1 174 0
+ 266 0140 E8BD4008 		ldmfd	sp!, {r3, lr}
+ 267 0144 E12FFF1E 		bx	lr
+ 268              	.LVL28:
+ 269              	.L27:
+ 270 0148 EAFFFFFE 		b	.L27
+ 271              	.LVL29:
+ 272              	.L29:
+ 273              	.LBB14:
+ 172:dhry_2.c      ****       return (false);
+ 274              		.loc 1 172 0
+ 275 014c E3A00000 		mov	r0, #0
+ 276              	.LBE14:
+ 174:dhry_2.c      **** } /* Func_2 */
+ 277              		.loc 1 174 0
+ 278 0150 E8BD4008 		ldmfd	sp!, {r3, lr}
+ 279 0154 E12FFF1E 		bx	lr
+ 280              	.L31:
+ 281              		.align	2
+ 282              	.L30:
+ 283 0158 00000000 		.word	Ch_1_Glob
+ 284 015c 00000000 		.word	Int_Glob
+ 285              		.cfi_endproc
+ 286              	.LFE4:
+ 288              		.align	2
+ 289              		.global	Func_3
+ 291              	Func_3:
+ 292              	.LFB5:
+ 182:dhry_2.c      **** {
+ 293              		.loc 1 182 0
+ 294              		.cfi_startproc
+ 295              		@ Function supports interworking.
+ 296              		@ args = 0, pretend = 0, frame = 0
+ 297              		@ frame_needed = 0, uses_anonymous_args = 0
+ 298              		@ link register save eliminated.
+ 299              	.LVL30:
+ 182:dhry_2.c      **** {
+ 300              		.loc 1 182 0
+ 301 0160 E20000FF 		and	r0, r0, #255
+ 302              	.LVL31:
+ 187:dhry_2.c      ****     /* then, executed */
+ 188:dhry_2.c      ****     return (true);
+ 189:dhry_2.c      ****   else /* not executed */
+ 190:dhry_2.c      ****     return (false);
+ 191:dhry_2.c      **** } /* Func_3 */
+ 303              		.loc 1 191 0
+ 304 0164 E2503002 		subs	r3, r0, #2
+ 305 0168 E2730000 		rsbs	r0, r3, #0
+ 306              	.LVL32:
+ 307 016c E0B00003 		adcs	r0, r0, r3
+ 308 0170 E12FFF1E 		bx	lr
+ 309              		.cfi_endproc
+ 310              	.LFE5:
+ 312              	.Letext0:
+ 313              		.file 2 "dhry.h"
+ 314              		.file 3 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 dhry_2.c
+     /tmp/ccJVHZfp.s:16     .text:00000000 $a
+     /tmp/ccJVHZfp.s:19     .text:00000000 Proc_6
+     /tmp/ccJVHZfp.s:78     .text:00000060 $d
+     /tmp/ccJVHZfp.s:82     .text:00000064 $a
+     /tmp/ccJVHZfp.s:85     .text:00000064 Proc_7
+     /tmp/ccJVHZfp.s:110    .text:00000074 Proc_8
+     /tmp/ccJVHZfp.s:180    .text:000000dc $d
+     /tmp/ccJVHZfp.s:184    .text:000000e0 $a
+     /tmp/ccJVHZfp.s:187    .text:000000e0 Func_1
+     /tmp/ccJVHZfp.s:217    .text:00000100 $d
+     /tmp/ccJVHZfp.s:221    .text:00000104 $a
+     /tmp/ccJVHZfp.s:224    .text:00000104 Func_2
+     /tmp/ccJVHZfp.s:283    .text:00000158 $d
+     /tmp/ccJVHZfp.s:288    .text:00000160 $a
+     /tmp/ccJVHZfp.s:291    .text:00000160 Func_3
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+Int_Glob
+Ch_1_Glob
+strcmp

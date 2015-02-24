@@ -1,0 +1,58 @@
+Release 14.7 Drc P.20131013 (lin64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+
+Mon Feb 23 20:02:37 2015
+
+drc -z STORM_SoC_basic.ncd STORM_SoC_basic.pcf
+
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE21_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE22_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE4_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE6_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE24_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE1_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE11_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE13_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE25_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE12_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE15_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE14_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE3_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE23_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:367 - The signal
+   <STORM_TOP_INST/PROCESSOR_CORE/Register_File/Mram_REG_FILE5_RAMD_D1_O> is
+   incomplete. The signal does not drive any load pins in the design.
+WARNING:PhysDesignRules:2410 - This design is using one or more 9K Block RAMs
+   (RAMB8BWER).  9K Block RAM initialization data, both user defined and
+   default, may be incorrect and should not be used.  For more information,
+   please reference Xilinx Answer Record 39999.
+DRC detected 0 errors and 16 warnings.  Please see the previously displayed
+individual error or warning messages for more details.
